@@ -1,286 +1,190 @@
 ---
-title: "NFL Assignment"
-#author: "ANONYMOUS (Keep it this way)"
-date: "`r Sys.Date()`"
+title: |
+  <center> S-052: Intermediate and Advanced Statistical Methods </center>
+  <center> for Applied Educational Research </center>
+  <center> Spring 2026 </center>
+  <center> Week 3 Data Analytic Memo Starter Code </center>
+author: "Sara Ji and Bailey Buchanan"
+date: "Last Modified: Feb 2026"
 output: pdf_document
 ---
 
+### RQ: What is the causal effect of technology-led afterschool on math scores?
+
 ```{r setup, include=FALSE}
-library( tidyverse )
-library(dplyr)
-library(tidyr)
 knitr::opts_chunk$set(echo = TRUE)
+```
 
-#Read in the data, note that we define several values in the original dataset as NA
-nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv", 
-                 na = c("NA","N/A","", "n/a", "#VALUE!") )
-head (nfl)
+## Load in packages
+```{r packages, warning = FALSE, message = FALSE}
+# These packages will be helpful for your analysis
+library(foreign)    # For reading various data formats
+library(haven)      # For reading Stata files
+library(tidyverse)  # For data manipulation and visualization
+library(stargazer)  # For nice regression tables
+
+# If you haven't installed these packages yet, run:
+# install.packages(c("foreign", "haven", "tidyverse", "stargazer"))
+```
+
+## Define the working directory and load data
+```{r setwd}
+# Set your working directory to where your data file is located
+# Update the path below to match your file location
+#setwd("YOUR_DIRECTORY_PATH_HERE")
+```
+
+##Data: Thanks to Prof. Alejandro Ganimian and coauthors Karthik Muralidharan and Abhijeet Singh for this data
+```{r importdata2}
+# Load the data
+dat <- read_dta("mindspark_data.dta")
+head(dat)
+```
+
+## Q1: Exploratory Data Analysis
+```{r explore}
+# For this question, you will need:
+# - The hist() function or ggplot() with geom_histogram() for histograms
+# - The summarize() function from dplyr or the summary() function for descriptive statistics
+# - You can calculate statistics by group using group_by() and summarize() in dplyr
+# - Or use aggregate() or tapply() in base R
+# 
+# Hint: To get means by groups, you might use something like:
+# dat %>%
+   # group_by(variable1, variable2) %>%
+   # summarize(mean_score = mean(math_std, na.rm = TRUE))
+
+# Before turning to Google, AI, etc., try typing `?function_name` in the console to see documentation
+# - Example: `?lm` for help with linear models
+
+dat$treat <- factor(dat$treat,
+                      levels = c(0 , 1),
+                      labels = c("control", "treatment"))
+
+dat$female <- factor(dat$female,
+                      levels = c(0 , 1),
+                      labels = c("male", "female"))
+
+# question one: a) What percentage of students in the sample were female?
+percent_female <- mean(dat$female == "female") * 100
+# 75.92892 %
+percent_male <- mean(dat$female == "male") * 100
+
+total_gap <- percent_female - percent_male
+
+# participation gap is 75.92892 - 24.07108 = 51.85784 percentage points
+
+# questions
+# b) What was the gender gap in endline scores among students who were not offered treatment?
+# c) What was the gender gap in endline scores among students who were offered treatment?
+
+gender_by_treat <- dat |>
+  group_by(treat) |>
+  summarise(
+    pct_female = mean(female == "female") * 100 ,
+    pct_male = mean(female == "male") * 100,
+    gap = pct_female - pct_male
+  ) 
+
+?group_by
+
+
+# question
+# d) Plot the distribution of endline scores for each of the four groups we consider in this
+# analysis (female students offered treatment, female students not offered treatment,
+# male students offered treatment, male students not offered treatment). Based on these
+# four distributions, what do you hypothesize about (1) the treatment effect for male
+# students, (2) the treatment effect for female students, and (3) whether there is a
+# difference between the effects? Explain in 3-5 sentences, making reference to your
+# histograms.
+
+ggplot(dat, aes(x = math_std)) +
+  geom_histogram(binwidth = 0.2, color = "white", fill = "steelblue") +
+  facet_grid(female ~ treat) +
+  labs(
+    title = "Distribution of Math Scores (Standardized) by Gender and Group",
+    x = "Standardized Math Score",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+
+?stat=count
+
+###### questions answered up to this point. Below it's just some code to help us get started with the next questions ######
+
+ggplot(dat, aes(x = math_std)) +
+  geom_histogram(binwidth = .1) +
+  labs(title = "Distribution of Standardized Math Scores",
+       x = "Standardized Math Score",
+       y = "Frequency")
+
+reg1 <- lm(math_std ~ treat, data = dat) 
+summary(reg1) 
+
+
+# ggplot(dat, aes(x = st_id, y = math_std)) +
+#   geom_smooth(method = "lm") +
+#   labs(title = "Math Scores by Treatment Status",
+#        x = "Treatment Status",
+#        y = "Standardized Math Score")
+
+head(dat)
+?factor
+```
+
+## Q2: Separate and joint estimation of causal effects
+```{r causal}
+# Convert variables to factors if needed (this helps R handle categorical variables properly)
+dat$treat <- as_factor(dat$treat)
+dat$female <- as_factor(dat$female)
+
+# Remember to use robust standard errors!
+
+# i. A regression of endline math scores on treatment for male students
+mod1 <- lm(math_std ~ treat, data = filter(dat, female == "male"), na.action = "na.exclude")
+summary(mod1)
+
+# ii. A regression of endline math scores on treatment for female students
+
+mod2 <- lm(math_std ~ treat, data = filter(dat, female == "female"), na.action = "na.exclude")
+summary(mod2)
+# iii. A regression with an interaction between gender and treatment—don’t forget to
+# include your main effects in this regression!
+mod3 <- lm(math_std ~ treat*female, data = dat, na.action = "na.exclude")
+summary(mod3)
+
+
+# This code will output your regression results into a nice table
+# (Similar to esttab in Stata)
+stargazer(mod1, mod2, mod3, 
+          type = "text",
+          column.labels = c("Male", "Female", "Full"),
+          title = "...WRITE A TITLE HERE...",
+          star.char = c("*", "**", "***"),
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          notes = c("*p<0.05; **p<0.01; ***p<0.001"),
+          notes.append = FALSE)
+
+
 ```
 
 
-# ~~~ Data Exploration ~~~
+## Additional Notes for Students:
 
-# 1. Find the highest and lowest salary in the dataset.
+### Helpful R Tips:
+1. **Filtering data**: Use `filter()` from dplyr
+   - Example: `filter(dat, female == 0)`
 
-```{r}
-# some code
+2. **Creating groups**: For analysis by groups, you can:
+   - Use `group_by()` and `summarize()` from dplyr
+   - Use the `by()` function in base R
+   - Filter and analyze separately
 
-max(nfl$Salary, na.rm = TRUE)
-min(nfl$Salary, na.rm = TRUE)
-# 2. Print the college and state for the five best paid players of the San Francisco 49ers
+3. **Getting help**: Type `?function_name` in the console to see documentation
+   - Example: `?lm` for help with linear models
 
-```
+4. **Checking your work**: Use `summary()` on your model objects to see detailed output
 
-
-# 3. Calculate the mean salary and number of players in the dataset for each position
-
-Arrange your results from highest to lowest mean salary.
-
-Hint: You might want some of the following code. You should also use the `group_by() + summarise()` combo.  Also use `summarise( n = n() )` to make a count of the number of records.
-
-```{r}
-clean.dat <- nfl %>% 
-    filter( !is.na( Salary ) )
-clean.dat %>%
-    group_by( Position ) %>%
-    summarise( mean_salary = mean( Salary ), number_of_players = n() ) %>%
-    arrange( desc( mean_salary ) )
-    
-```
-
-
-# 4. Determine if taller players get paid more
-
-Use linear regression to answer this question.
-For an overview of linear regression in R, see the course video and materials posted on Canvas.
-
-Sometimes measures such as salary have such a skew that the outliers cause real problems.
-For doing this question, you migth first try log transforming Salary via a mutate command to make `logSal = log( Salary )`, and then fitting your model on that space.
-
-```{r}
-# some code
-clean.dat <- nfl %>% 
-    filter( !is.na( Salary ) )
-clean.dat <- clean.dat %>%
-    mutate( logSal = log( Salary ) )
-
-# I couldn't generate a plot with a line, so I asked ChatGPT why that was happening... and it suggested investigating if Height and logSal are numeric. Height is a string. So now I have to convert it to numeric.
-# clean.dat$Height <- as.numeric(clean.dat$Height)
-
-# the line above actually didn't convert the height to numeric, so I'll convert it from feet and inches to centimeters. I asked ChatGPT how to do that, and it suggested using separate() to split the height into feet and inches, and then doing some math to convert it to centimeters.
-
-clean.dat2 <- clean.dat %>% 
-  mutate(Height_clean = gsub('"', "", Height)) %>% 
-  separate(Height_clean, into = c("feet", "inches"), sep = "'", convert = TRUE) %>%
-  mutate(feet = as.numeric(feet), inches = as.numeric(inches)) %>%
-  mutate(Height_cm = (feet * 12 + inches) * 2.54)
-
-
-head(clean.dat2)
-
-# I got a warning saying ! NAs introduced by coercion, so I filtered the NA info from Height_cm.
-
-
-clean.dat2 <- clean.dat2 %>% 
-    filter( !is.na( Height_cm ) )
-
-# finally generate the plot again, and see if there's a relationship between height and log salary.
-
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE) 
-
-# visually there's a slight positive relationship between height and log salary, but let's see what the regression says and if there's a statistically significant relationship.
-
-model <- lm( logSal ~ Height_cm, data = clean.dat2 )
-summary( model )
-
-# the coefficient for Height_cm is positive, which suggests that taller players tend to have higher log salaries. The p-value for the coefficient is less than 0.05, which suggests that the relationship is statistically significant. However, the R-squared value is quite low, which suggests that height alone does not explain much of the variation in log salary. Should we interpret the Confidence Interval as well?
-
-
-# not sure how to do this:
-exp( coef( model ) )
-
-
-```
-
-Once you do, you can use `exp( coef )`, where `coef` is the coefficient from your regression, to get an interpretation of your coefficient as percent change in salary given a change in height.
-
-
-# 5. Improve the linear model
-
-What do you think about the results in (4)?  If you found differences, can you explain them by accounting for player position in your model?  In other words, what happens when you include position in your model?
-
-```{r}
-# some code
-model_2 <- lm( logSal ~ Height_cm + Position, data = clean.dat2 )
-summary( model_2 )
-
-
-# when adding Position to the model as a control model, the coefficient for Height_cm is still positive but statistically insignificant (p-value above the threshold of 0.05), but the R-squared value has increased, which suggests that including Position in the model helps to explain more of the variation in log salary. This indicates that player position is an important factor in determining salary, and that height alone does not fully capture the differences in salary among players.
-
-
-# I'd like to know which position is the reference category in the model, so I can interpret the coefficients for the other positions. To find out, I can check the levels of the Position variable.
-
-```
-
-Some words of discussion go here.
-
-
-# 6. Print the mean weight and height for the football players, calculated for each position
-
-You are going to have to get height cleaned up.  You might try `separate()` (see R for DS) to make feet and inches, and then do some math via `mutate()`. You could also use `substring()`. In any case, you might find `parse_number()` a useful function. Note that one foot (abbreviated as ') is equal to 12 inches (abbreviated to ").
-Try asking a Large Language Model for help with this one.
-
-```{r}
-# some code
-# I already cleaned up the height in the previous question, so I can just use the clean.dat2 and Height_cm dataset to calculate the mean weight and height for each position. 
-clean.dat2 %>%
-  group_by( Position ) %>%
-  summarise( mean_weight = mean(Weight, na.rm = TRUE ), 
-             mean_height_cm = mean( Height_cm, na.rm = TRUE ) ) %>%
-  arrange( desc( mean_height_cm ) )
-
-```
-
-\newpage
-
-# ~~~ Visualizations ~~~
-
-## 7. Make a graph with 3 variables: X axis, Y axis, and plot point coloring, that tells a story.
-
-**please note:** we will be deducting points for messy plots, plots with poor labeling, or plots that are hard to read.  Make sure your plots are clear and easy to understand.
-
-```{r}
-# You pick the variables.  What would be interesting?
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE) +
-    labs( x = "Height (cm)", y = "Log Salary", color = "Position" )
-
-
-# your code goes here
-```
-
-**7(B)** Explain what the plot tells us.
-
-## 8. Make a graph with 4 variables that tells a story that your first plot does not.
-
-For the four variables, perhaps you could use X axis, Y axis, plot point coloring, and plot point size, or perhaps plot point shape or some other attribute. **Do not** use any facets yet.  Just a single plot.  Other than that constraint, you pick!
-
-```{r}
-# some code
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position, size = Weight ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE) +
-    labs( x = "Height (cm)", y = "Log Salary", color = "Position" )
-
-
-# I know this is awful! haha we should choose better ways to code the variables.
-```
-
-**8(B)** What does this plot tell us that the other plot doesn't?
-
-## 9. When might we prefer simpler plots with fewer moving pieces to more complicated plots?
-
-## 10. Now extend or modify your plot by making multiple plots in the same window.
-
-You want to use either `facet_wrap()` or `facet_grid()` here.
-
-```{r}
-# some code
-# to be improved, I just wanted to know the possibilities with facet_wrap
-
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE) +
-    labs( x = "Height (cm)", y = "Log Salary", color = "Position" ) +
-    facet_wrap( ~ Position )
-```
-
-**10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
-
-
-## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question. 
-
-```{r}
-# some code
-```
-
-
-**11(B).** What does your plot say?
-
-
-\newpage
-
-# ~~~ A touch of modeling ~~~
-
-## 12. (2 pts) Make a predictive model (using OLS) to predict log salary using some set of other covariates and print out a summary of the model. Specify how you decided to treat missing data. 
-
-
-```{r}
-# some code
-```
-
-## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
-
-```{r}
-# some code
-```
-
-**13(B)** Do these plots show any problems?
-
-
-## 14. How old do players get?
-
-Make a distribution of the ages of players in the dataset, and then speculate about how long a player might be able to play in the NFL.
-
-```{r}
-# some code
-```
-
-Your answer here.
-
-**14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
-
-
-## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
-
-```{r}
-# some code
-```
-
-Be sure to explain your reasoning.
-
-
-\newpage
-
-# ~~~ Extensions ~~~
-
-In this part of the assignment we offer two, very open ended, extensions.
-They represent a reasonable amount of work, but are only worth 2 points---in other words, you can choose to do them if you want to go above and beyond, but you can still get a fine grade without doing them at all.
-We will only grade at most one extension, and we will grade the first we see.
-
-Both extensions relate to a second dataset, `Master-Player-List-2024.csv`, that you have in the data folder.
-
-## Extension Option 1. Comparing to a more modern dataset.
-
-How much more are players paid now, compared to 2013?
-Try to account for differences in the datasets in terms of, for example, age and experience of the players in each dataset.
-Write up your results using at least one visualization and some text explaining any analysis you did.
-
-
-
-## Extension Option 2. Out of Sample Prediction
-
-Using the 2013 data as a training set, try to predict salaries in the 2024 data with your linear model.
-Then assess how well your 2013 predictions work.
-One measure is the "Root Mean Square Error" (RMSE), which is defined as follows:
-$$ RMSE = \sqrt{ \frac{1}{n} \sum_{i=1}^n ( y_i - \hat{y}_i )^2 } $$
-
-where $y_i$ is the actual salary, $\hat{y}_i$ is the predicted salary, and $n$ is the number of players in the 2024 dataset.
-
-**Hint:** You will need to do some data cleaning to get the two datasets to line up.
-In particular, rename variables so they have the same names.
-
-
+5. **For the interaction model**: Remember that `treat*female` in the formula 
+   automatically includes both main effects and the interaction term
