@@ -1,0 +1,236 @@
+---
+title: "NFL Assignment"
+#author: "ANONYMOUS (Keep it this way)"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library( tidyverse )
+knitr::opts_chunk$set(echo = TRUE)
+
+#Read in the data, note that we define several values in the original dataset as NA
+nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv", 
+                 na = c("NA","N/A","", "n/a", "#VALUE!") )
+
+```
+
+
+# ~~~ Data Exploration ~~~
+
+# 1. Find the highest and lowest salary in the dataset.
+
+```{r}
+# some code
+nfl %>% 
+    summarise( max_sal = max( Salary, na.rm = TRUE ), 
+               min_sal = min( Salary, na.rm = TRUE ) )
+
+# Answer: The highest salary is $20,100,000 and the lowest salary is $48,333.
+```
+
+
+# 2. Print the college and state for the five best paid players of the San Francisco 49ers
+
+```{r}
+# some code
+nfl %>%
+    filter( Team == "SF") %>%
+    arrange( desc(Salary) ) %>%
+    select( "Player Name", College, State ) %>%
+    head(5)
+    ```
+
+
+# 3. Calculate the mean salary and number of players in the dataset for each position
+
+Arrange your results from highest to lowest mean salary.
+
+Hint: You might want some of the following code. You should also use the `group_by() + summarise()` combo.  Also use `summarise( n = n() )` to make a count of the number of records.
+
+```{r}
+clean.dat <- nfl %>% 
+    filter( !is.na( Salary ) )
+
+clean.dat %>%
+    group_by( Position ) %>%
+    summarise( mean_salary = mean( Salary ), 
+               n_players = n() ) %>%
+    arrange( desc( mean_salary ) )
+```
+
+
+# 4. Determine if taller players get paid more
+
+Use linear regression to answer this question.
+For an overview of linear regression in R, see the course video and materials posted on Canvas.
+
+Sometimes measures such as salary have such a skew that the outliers cause real problems.
+For doing this question, you migth first try log transforming Salary via a mutate command to make `logSal = log( Salary )`, and then fitting your model on that space.
+
+```{r}
+# some code
+clean.dat <- clean.dat %>%
+    mutate( logSal = log( Salary ) )
+model <- lm( logSal ~ Height, data = clean.dat )
+summary( model )
+
+exp( coef( model ) )
+
+ggplot( clean.dat, aes( x = Height, y = logSal ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Log Salary vs Height",
+          x = "Height (feet and inches)",
+          y = "Log Salary" )
+```
+
+Once you do, you can use `exp( coef )`, where `coef` is the coefficient from your regression, to get an interpretation of your coefficient as percent change in salary given a change in height.
+
+
+# 5. Improve the linear model
+
+What do you think about the results in (4)?  If you found differences, can you explain them by accounting for player position in your model?  In other words, what happens when you include position in your model?
+
+```{r}
+# some code
+
+```
+
+Some words of discussion go here.
+
+
+# 6. Print the mean weight and height for the football players, calculated for each position
+
+You are going to have to get height cleaned up.  You might try `separate()` (see R for DS) to make feet and inches, and then do some math via `mutate()`. You could also use `substring()`. In any case, you might find `parse_number()` a useful function. Note that one foot (abbreviated as ') is equal to 12 inches (abbreviated to ").
+Try asking a Large Language Model for help with this one.
+
+```{r}
+# some code
+separate(
+    mutate( nfl, feet = parse_number( Height ), inches = parse_number( Height ) )
+)
+```
+
+\newpage
+
+# ~~~ Visualizations ~~~
+
+## 7. Make a graph with 3 variables: X axis, Y axis, and plot point coloring, that tells a story.
+
+**please note:** we will be deducting points for messy plots, plots with poor labeling, or plots that are hard to read.  Make sure your plots are clear and easy to understand.
+
+```{r}
+# You pick the variables.  What would be interesting?
+
+# your code goes here
+```
+
+**7(B)** Explain what the plot tells us.
+
+## 8. Make a graph with 4 variables that tells a story that your first plot does not.
+
+For the four variables, perhaps you could use X axis, Y axis, plot point coloring, and plot point size, or perhaps plot point shape or some other attribute. **Do not** use any facets yet.  Just a single plot.  Other than that constraint, you pick!
+
+```{r}
+# some code
+```
+
+**8(B)** What does this plot tell us that the other plot doesn't?
+
+## 9. When might we prefer simpler plots with fewer moving pieces to more complicated plots?
+
+## 10. Now extend or modify your plot by making multiple plots in the same window.
+
+You want to use either `facet_wrap()` or `facet_grid()` here.
+
+```{r}
+# some code
+```
+
+**10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
+
+
+## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question. 
+
+```{r}
+# some code
+```
+
+
+**11(B).** What does your plot say?
+
+
+\newpage
+
+# ~~~ A touch of modeling ~~~
+
+## 12. (2 pts) Make a predictive model (using OLS) to predict log salary using some set of other covariates and print out a summary of the model. Specify how you decided to treat missing data. 
+
+
+```{r}
+# some code
+```
+
+## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
+
+```{r}
+# some code
+```
+
+**13(B)** Do these plots show any problems?
+
+
+## 14. How old do players get?
+
+Make a distribution of the ages of players in the dataset, and then speculate about how long a player might be able to play in the NFL.
+
+```{r}
+# some code
+```
+
+Your answer here.
+
+**14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
+
+
+## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
+
+```{r}
+# some code
+```
+
+Be sure to explain your reasoning.
+
+
+\newpage
+
+# ~~~ Extensions ~~~
+
+In this part of the assignment we offer two, very open ended, extensions.
+They represent a reasonable amount of work, but are only worth 2 points---in other words, you can choose to do them if you want to go above and beyond, but you can still get a fine grade without doing them at all.
+We will only grade at most one extension, and we will grade the first we see.
+
+Both extensions relate to a second dataset, `Master-Player-List-2024.csv`, that you have in the data folder.
+
+## Extension Option 1. Comparing to a more modern dataset.
+
+How much more are players paid now, compared to 2013?
+Try to account for differences in the datasets in terms of, for example, age and experience of the players in each dataset.
+Write up your results using at least one visualization and some text explaining any analysis you did.
+
+
+
+## Extension Option 2. Out of Sample Prediction
+
+Using the 2013 data as a training set, try to predict salaries in the 2024 data with your linear model.
+Then assess how well your 2013 predictions work.
+One measure is the "Root Mean Square Error" (RMSE), which is defined as follows:
+$$ RMSE = \sqrt{ \frac{1}{n} \sum_{i=1}^n ( y_i - \hat{y}_i )^2 } $$
+
+where $y_i$ is the actual salary, $\hat{y}_i$ is the predicted salary, and $n$ is the number of players in the 2024 dataset.
+
+**Hint:** You will need to do some data cleaning to get the two datasets to line up.
+In particular, rename variables so they have the same names.
+
+
