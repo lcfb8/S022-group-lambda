@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE, message = FALSE}
 library( tidyverse )
 library(dplyr)
 library(tidyr)
@@ -28,7 +28,11 @@ head (nfl)
 max(nfl$Salary, na.rm = TRUE)
 min(nfl$Salary, na.rm = TRUE)
 # 2. Print the college and state for the five best paid players of the San Francisco 49ers
-
+nfl %>% 
+    filter( Team == "SF" )  %>% 
+    arrange( desc( Salary ) ) %>% 
+    select( College, State ) %>% 
+    head(5)
 ```
 
 
@@ -204,7 +208,12 @@ ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position )
 ## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question. 
 
 ```{r}
-# some code
+# some code (co-pilot did this one for me)
+ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE) +
+    labs( x = "Height (cm)", y = "Log Salary" ) +
+    facet_wrap( ~ Position )
 ```
 
 
@@ -219,13 +228,63 @@ ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position )
 
 
 ```{r}
-# some code
+# some code (co-pilot + na.action = na.omit was suggested by ChatatGPT)
+model_final <- lm( 
+  logSal ~ Height_cm + Weight + Position + Age + Experience, 
+  data = clean.dat2,
+  na.action = na.omit)
+
+dim(predict(model_final))
+
+summary( model_final )
 ```
 
 ## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
 
 ```{r}
 # some code
+clean.dat2 <- clean.dat2 %>%
+  filter(complete.cases(Height_cm, Weight, Position, Age, Experience))
+
+# the above line was suggested by chatgpt after failing to filter na in multiple varables.
+
+ggplot( clean.dat2, aes( x = logSal, y = predict( model_final ) ) ) +
+    geom_point() +
+    geom_abline( slope = 1, intercept = 0, col = "red" ) +
+    labs( x = "Actual Log Salary", y = "Predicted Log Salary" )
+
+length(predict(model_final))
+nrow(clean.dat2)
+head(clean.dat2)
+# above is a frankstein of code from me, co-pilot, and chatgpt.
+```
+
+```{r}
+# 1. Clean data for the model
+model_dat <- clean.dat2 %>%
+  filter(complete.cases(logSal, Height_cm, Weight, Position, Age, Experience))
+
+# 2. Fit model on *model_dat*
+model_final <- lm(logSal ~ Height_cm + Weight + Position + Age + Experience,
+                  data = model_dat)
+
+# 3. Add predictions to *model_dat*
+model_dat$pred <- predict(model_final)
+
+# 4. Plot: guaranteed same rows, same order
+ggplot(model_dat, aes(x = logSal, y = pred)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, col = "red")
+
+# above is the suggestion from chatgpt to make sure that I'm comparing the predictions to the actual values for the same set of observations, since the model is only trained on a subset of the data that has complete cases for all the variables.
+
+
+# residuals plot
+ggplot( clean.dat2, aes( x = predict( model_final ), y = resid( model_final ) ) ) +
+    geom_point() +
+    geom_hline( yintercept = 0, col = "red" ) +
+    labs( x = "Predicted Log Salary", y = "Residuals" )
+  
 ```
 
 **13(B)** Do these plots show any problems?
@@ -236,7 +295,12 @@ ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position )
 Make a distribution of the ages of players in the dataset, and then speculate about how long a player might be able to play in the NFL.
 
 ```{r}
-# some code
+# some code (co-pilot did this one for me)
+clean.dat2 %>%
+  filter( !is.na( Age ) ) %>%
+  ggplot( aes( x = Age ) ) +
+    geom_histogram( binwidth = 1, color = "white", fill = "steelblue" ) +
+    labs( title = "Distribution of Player Ages", x = "Age", y = "Count" )
 ```
 
 Your answer here.
