@@ -83,15 +83,19 @@ For doing this question, you might first try log transforming Salary via a mutat
 
 ```{r}
 # some code
- 
-clean.dat <- clean.dat %>% 
-    mutate( logSal = log( Salary ) )
+
+clean.dat <- clean.dat %>%
+    mutate( logSal = log( Salary), Height = if_else(Height == "6;2/;", "6'2\"", Height ) )
 
 model <- lm( logSal ~ Height, data = clean.dat )
-
 summary( model )
+exp( coef( model ) )
 
-exp( coef( model ))
+# The model does not show any statistically significant relationship between
+# height and salary, but this model is also not set up to give us helpful 
+# information. We'll have to check again once we've converted height
+# from a categorical to a continuous variable. 
+
 
 #model_cor <- cor( clean.dat$Height, logSal, use = "complete.obs" )
 
@@ -102,13 +106,6 @@ exp( coef( model ))
 
 
 
-
-clean.dat %>%
-  separate(Height,c('feet', 'inches'), sep 
-           = "'", convert = TRUE, remove = FALSE) 
-
-
-#Copilot helped write this code
 ```
 
 Once you do, you can use `exp( coef )`, where `coef` is the coefficient from your regression, to get an interpretation of your coefficient as percent change in salary given a change in height.
@@ -120,6 +117,11 @@ What do you think about the results in (4)?  If you found differences, can you e
 
 ```{r}
 # some code
+
+model <- lm( logSal ~ Height + Position, data = clean.dat )
+summary( model )
+exp( coef( model ) )
+
 ```
 
 Some words of discussion go here.
@@ -132,6 +134,17 @@ Try asking a Large Language Model for help with this one.
 
 ```{r}
 # some code
+
+clean.dat <- clean.dat %>%
+    separate( Height, into = c("feet", "inches"), sep = "'" ) %>%
+    mutate( feet = parse_number( feet ), 
+            inches = parse_number( inches ), 
+            total_inches = feet * 12 + inches )
+
+summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
+    
+
 ```
 
 \newpage
@@ -145,7 +158,34 @@ Try asking a Large Language Model for help with this one.
 ```{r}
 # You pick the variables.  What would be interesting?
 
-# your code goes here
+# I want to combine player positions to create three categories: "Offense", "Defense", and "Special Teams".  I will use the following code to do this.  Note that I am using `case_when()` to create a new variable called `Side` that combines the original positions into these three categories.
+
+clean.dat <- clean.dat %>%
+    mutate( Side = case_when(
+        Position %in% c("C", "FB", "OL", "QB", "RB", "TE", "WR") ~ "Offense",
+        Position %in% c("CB", "DE", "DL", "LB", "NT", "S") ~ "Defense",
+        Position %in% c("K", "LS", "P") ~ "Special Teams",
+        TRUE ~ NA_character_
+    ) )
+
+# Plot with the new `Side` variable instead of `Position`
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Salary vs Height",
+          x = "Height (inches)",
+          y = "Salary" ) +
+    theme(legend.position = "right")
+
+position.model = lm( logSal ~ total_inches + Side, data = clean.dat )
+summary(position.model)
+exp( coef( position.model ) )
+
+side.model = lm( total_inches ~ Side, data = clean.dat)
+summary(side.model)
+exp( coef( side.model ))
+
+
 ```
 
 **7(B)** Explain what the plot tells us.
@@ -156,6 +196,26 @@ For the four variables, perhaps you could use X axis, Y axis, plot point colorin
 
 ```{r}
 # some code
+
+clean.dat <- clean.dat %>% 
+    filter( !is.na( Race ) )
+
+#combine Asian/Pacific Islander and Pacific Islander into one category called Asian/Pacific Islander, and Iranian, Native American, and Other into one category called Other.  I will use `case_when()` again to do this.
+
+clean.dat <- clean.dat %>%
+  mutate(Race = if_else(Race == "Pacific Islander",
+                        "Asian/Pacific Islander",
+                        Race)) %>%
+    mutate(Race = if_else(Race %in% c("Native American", "Other", "Iranian"), "Other", Race))
+
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Race ) ) +
+    geom_point(aes (size = Experience)) +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Salary vs Height",
+          x = "Height (inches)",
+          y = "Salary" ) +
+    theme(legend.position = "bottom")
+
 ```
 
 **8(B)** What does this plot tell us that the other plot doesn't?
@@ -168,6 +228,10 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
+
+
+
+
 ```
 
 **10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
