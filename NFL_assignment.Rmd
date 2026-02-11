@@ -39,7 +39,7 @@ nfl %>%
     arrange( desc(Salary) ) %>%
     select( "Player Name", College, State ) %>%
     head(5)
-    ```
+```
 
 
 # 3. Calculate the mean salary and number of players in the dataset for each position
@@ -71,18 +71,11 @@ For doing this question, you migth first try log transforming Salary via a mutat
 ```{r}
 # some code
 clean.dat <- clean.dat %>%
-    mutate( logSal = log( Salary ) )
+    mutate( logSal = log( Salary), Height = if_else(Height == "6;2/;", "6'2\"", Height ) )
+
 model <- lm( logSal ~ Height, data = clean.dat )
 summary( model )
-
 exp( coef( model ) )
-
-ggplot( clean.dat, aes( x = Height, y = logSal ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Log Salary vs Height",
-          x = "Height (feet and inches)",
-          y = "Log Salary" )
 ```
 
 Once you do, you can use `exp( coef )`, where `coef` is the coefficient from your regression, to get an interpretation of your coefficient as percent change in salary given a change in height.
@@ -94,11 +87,16 @@ What do you think about the results in (4)?  If you found differences, can you e
 
 ```{r}
 # some code
+model_2 <- lm( logSal ~ Position, data = clean.dat )
+summary( model_2 )
+exp( coef( model_2 ) )
 
+# checking what the comparison group is
+str(clean.dat$Position)
 ```
 
 Some words of discussion go here.
-
+?????
 
 # 6. Print the mean weight and height for the football players, calculated for each position
 
@@ -107,9 +105,14 @@ Try asking a Large Language Model for help with this one.
 
 ```{r}
 # some code
-separate(
-    mutate( nfl, feet = parse_number( Height ), inches = parse_number( Height ) )
-)
+clean.dat <- clean.dat %>%
+    separate( Height, into = c("feet", "inches"), sep = "'" ) %>%
+    mutate( feet = parse_number( feet ), 
+            inches = parse_number( inches ), 
+            total_inches = feet * 12 + inches )
+    
+summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
 ```
 
 \newpage
@@ -122,8 +125,52 @@ separate(
 
 ```{r}
 # You pick the variables.  What would be interesting?
-
+Variables of interest:
+    x - Height in inches
+    y - Salary
+    Colorin - Position
 # your code goes here
+# First plot using the 'Position' variable to color the points and the regression lines
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Position ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Log Salary vs Height",
+          x = "Height (inches)",
+          y = "Log Salary" ) +
+    theme(legend.position = "bottom")
+
+ggplot( clean.dat, aes( x = Height, y = Salary, color = Position ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Salary vs Height",
+          x = "Height (feet and inches)",
+          y = "Salary" ) +
+    theme(legend.position = "bottom")
+# I want to combine player positions to create three categories: "Offense", "Defense", and "Special Teams".  I will use the following code to do this.  Note that I am using `case_when()` to create a new variable called `Side` that combines the original positions into these three categories.
+clean.dat <- clean.dat %>%
+    mutate( Side = case_when(
+        Position %in% c("C", "FB", "OL", "QB", "RB", "TE", "WR") ~ "Offense",
+        Position %in% c("CB", "DE", "DL", "LB", "NT", "S") ~ "Defense",
+        Position %in% c("K", "LS", "P") ~ "Special Teams",
+        TRUE ~ NA_character_
+    ) )
+
+# Plot with the new `Side` variable instead of `Position`
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Salary vs Height",
+          x = "Height (feet and inches)",
+          y = "Salary" ) +
+    theme(legend.position = "bottom")
+
+ggplot( clean.dat, aes( x = Position, y = logSal, color = total_inches ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Salary vs Height",
+          x = "Height (feet and inches)",
+          y = "Salary" ) +
+    theme(legend.position = "bottom")
 ```
 
 **7(B)** Explain what the plot tells us.
@@ -134,6 +181,21 @@ For the four variables, perhaps you could use X axis, Y axis, plot point colorin
 
 ```{r}
 # some code
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
+    geom_point(aes (size = Experience)) +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Salary vs Height",
+          x = "Height (feet and inches)",
+          y = "Salary" ) +
+    theme(legend.position = "bottom")
+
+ggplot( clean.dat, aes( x = Team, y = Salary, color = Side ) ) +
+    geom_point(aes (size = Experience)) +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Log Salary vs Team",
+          x = "Team",
+          y = "Log Salary" ) +
+    theme(legend.position = "bottom")
 ```
 
 **8(B)** What does this plot tell us that the other plot doesn't?
@@ -146,6 +208,7 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
+
 ```
 
 **10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
@@ -155,6 +218,14 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
+ggplot( clean.dat, aes( x = Position, y = logSal, color = total_inches ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    scale_color_gradient( low = "blue", high = "green" ) +
+    labs( title = "Salary vs Height",
+          x = "Height (feet and inches)",
+          y = "Salary" ) +
+    theme(legend.position = "bottom")
 ```
 
 
@@ -170,6 +241,8 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
+model_3 <- lm( logSal ~ Position + total_inches + Experience, data = clean.dat )
+summary( model_3 )
 ```
 
 ## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
@@ -187,12 +260,18 @@ Make a distribution of the ages of players in the dataset, and then speculate ab
 
 ```{r}
 # some code
+clean.dat %>%
+    ggplot( aes( x = Age ) ) +
+    geom_histogram( binwidth = 2, fill = "blue", color = "black" ) +
+    labs( title = "Distribution of Player Ages",
+          x = "Age",
+          y = "Count" )
 ```
 
 Your answer here.
 
 **14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
-
+The average age of retirement in the NFL is roughly 27.6 years
 
 ## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
 
