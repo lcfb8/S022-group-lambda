@@ -25,9 +25,17 @@ nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv",
 ```{r}
 # Highest and lowest salary
 
-print(min(nfl$Salary, na.rm = TRUE))
+#base R
+max(nfl$Salary, na.rm = TRUE)
 
-print(max(nfl$Salary, na.rm = TRUE))
+min(nfl$Salary, na.rm = TRUE)
+
+#tidyverse way (Dylan)
+nfl %>% 
+    summarise( max_sal = max( Salary, na.rm = TRUE ), 
+               min_sal = min( Salary, na.rm = TRUE ) )
+
+# Answer: The highest salary is $20,100,000 and the lowest salary is $48,333.
 
 ```
 
@@ -40,7 +48,7 @@ print(max(nfl$Salary, na.rm = TRUE))
 nfl %>% 
     filter( Team == "SF" )  %>% 
     arrange( desc( Salary ) ) %>% 
-    select( College, State ) %>% 
+    select( "Player Name", College, State ) %>% 
     head(5)
 
 #Copilot suggested some code before I could try to write it
@@ -57,10 +65,10 @@ Hint: You might want some of the following code. You should also use the `group_
 clean.dat <- nfl %>% 
     filter( !is.na( Salary ) )
 
-nfl %>% 
+clean.dat %>% 
     group_by( Position ) %>% 
-    summarise( mean_sal = mean( Salary, na.rm = TRUE ), count = n() ) %>% 
-    arrange( desc( mean_sal ) )
+    summarise( mean_salary = mean( Salary ), count = n() ) %>% 
+    arrange( desc( mean_salary ) )
 
 ```
 
@@ -75,25 +83,29 @@ For doing this question, you might first try log transforming Salary via a mutat
 
 ```{r}
 # some code
-
-nfl %>%
-  separate(Height,c('feet', 'inches'), sep 
-           = "'", convert = TRUE, remove = FALSE)
  
+clean.dat <- clean.dat %>% 
+    mutate( logSal = log( Salary ) )
 
-logSal = log( nfl$Salary )
-
-model <- lm( logSal ~ Height, data = nfl )
-
-model_cor <- cor( nfl$Height, logSal, use = "complete.obs" )
-
-ggplot( nfl, aes( x = Height, y = logSal ) ) + 
-    geom_point()  
-    geom_smooth( method = "lm" )
+model <- lm( logSal ~ Height, data = clean.dat )
 
 summary( model )
 
 exp( coef( model ))
+
+#model_cor <- cor( clean.dat$Height, logSal, use = "complete.obs" )
+
+#ggplot( nfl, aes( x = Height, y = logSal ) ) + 
+ #   geom_point()  
+  #  geom_smooth( method = "lm" )
+
+
+
+
+
+clean.dat %>%
+  separate(Height,c('feet', 'inches'), sep 
+           = "'", convert = TRUE, remove = FALSE) 
 
 
 #Copilot helped write this code
