@@ -87,7 +87,7 @@ What do you think about the results in (4)?  If you found differences, can you e
 
 ```{r}
 # some code
-model_2 <- lm( logSal ~ Position, data = clean.dat )
+model_2 <- lm( logSal ~ Height + Position, data = clean.dat )
 summary( model_2 )
 exp( coef( model_2 ) )
 
@@ -128,10 +128,10 @@ summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ),
 Variables of interest:
     x - Height in inches
     y - Salary
-    Colorin - Position
+    Coloring - Position
 # your code goes here
 # First plot using the 'Position' variable to color the points and the regression lines
-ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Position ) ) +
+#ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Position ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE ) +
     labs( title = "Log Salary vs Height",
@@ -139,7 +139,7 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Position ) ) +
           y = "Log Salary" ) +
     theme(legend.position = "bottom")
 
-ggplot( clean.dat, aes( x = Height, y = Salary, color = Position ) ) +
+#ggplot( clean.dat, aes( x = Height, y = Salary, color = Position ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE ) +
     labs( title = "Salary vs Height",
@@ -159,12 +159,12 @@ clean.dat <- clean.dat %>%
 ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Salary vs Height",
-          x = "Height (feet and inches)",
-          y = "Salary" ) +
-    theme(legend.position = "bottom")
+    labs( title = "Log Salary vs Height",
+          x = "Inches",
+          y = "Log Salary" ) +
+    theme(legend.position = "right")
 
-ggplot( clean.dat, aes( x = Position, y = logSal, color = total_inches ) ) +
+#ggplot( clean.dat, aes( x = Position, y = logSal, color = total_inches ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE ) +
     labs( title = "Salary vs Height",
@@ -181,21 +181,22 @@ For the four variables, perhaps you could use X axis, Y axis, plot point colorin
 
 ```{r}
 # some code
-ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Race ) ) +
     geom_point(aes (size = Experience)) +
     geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Salary vs Height",
-          x = "Height (feet and inches)",
-          y = "Salary" ) +
-    theme(legend.position = "bottom")
-
-ggplot( clean.dat, aes( x = Team, y = Salary, color = Side ) ) +
-    geom_point(aes (size = Experience)) +
-    geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Log Salary vs Team",
-          x = "Team",
+    labs( title = "Log Salary vs Height",
+          x = "Inches",
           y = "Log Salary" ) +
-    theme(legend.position = "bottom")
+    theme(legend.position = "right")
+
+# I want to combine asian/pacific islander, pacific islander, other, native american, and iranian into one category called "Other".  I will use the following code to do this.  Note that I am using `case_when()` to create a new variable called `Race2` that combines
+
+clean.dat <- clean.dat %>%
+  mutate(Race = if_else(Race == "Pacific Islander",
+                        "Asian/Pacific Islander",
+                        Race)) %>%
+    mutate(Race = if_else(Race %in% c("Native American", "Other", "Iranian"), "Other", Race))
+
 ```
 
 **8(B)** What does this plot tell us that the other plot doesn't?
@@ -208,7 +209,11 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
-
+ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Race ) ) +
+    geom_point() +
+    labs( x = "Height (in)", y = "Log Salary", color = "Position" ) +
+    facet_wrap( ~ Position ) +
+  theme(legend.position = "bottom")
 ```
 
 **10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
@@ -218,14 +223,7 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
-ggplot( clean.dat, aes( x = Position, y = logSal, color = total_inches ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE ) +
-    scale_color_gradient( low = "blue", high = "green" ) +
-    labs( title = "Salary vs Height",
-          x = "Height (feet and inches)",
-          y = "Salary" ) +
-    theme(legend.position = "bottom")
+
 ```
 
 
