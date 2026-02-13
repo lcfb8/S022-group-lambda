@@ -291,18 +291,34 @@ Make a distribution of the ages of players in the dataset, and then speculate ab
 ```{r}
 # some code
 
+clean.dat %>%
+    ggplot( aes( x = Age ) ) +
+    geom_histogram( binwidth = 1, fill = "blue", color = "black" ) +
+    labs( title = "Distribution of Player Ages",
+          x = "Age",
+          y = "Count" )
 
+# Let's use the 75th percentile to estimate the age of retirement for NFL players.  We can calculate this using the `quantile()` function.
+
+quantile( clean.dat$Age, probs = 0.75, na.rm = TRUE )
+
+summary( clean.dat$Age, na.rm = TRUE)
+    
 ```
 
 Your answer here.
 
 **14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
 
+From Dylan: The average age of retirement in the NFL is roughly 27.6 years.
+
 
 ## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
 
 ```{r}
 # some code
+
+
 ```
 
 Be sure to explain your reasoning.
