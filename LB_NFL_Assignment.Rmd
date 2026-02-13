@@ -316,8 +316,66 @@ From Dylan: The average age of retirement in the NFL is roughly 27.6 years.
 ## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
 
 ```{r}
-# some code
+# According to statista.com (https://www.statista.com/statistics/240102/average-player-career-length-in-the-national-football-league/?srsltid=AfmBOoqmPYi5zkjXX6DnUkiD1QaxzctbS5JcTA_lbZ8tMZEYbO0MzTjS) the average career length for an NFL player is 3.3 years, but it varies by position. 
 
+# We need to reconcile these positions with the positions in our dataset, with help from ChatGPT to clarify which sub-positions fall into the broader position categories (initials added to the list below by Lydia). 
+
+table(clean.dat$Position)
+
+# Not clearly indicated on the list below:
+# C   DE   FB   LS  NT     S   
+# Center, Defensive End, Fullback, Long Snapper, Nose Tackle, Safety
+
+
+# Kickers/punters (K, P, LS): 4.87 years
+# Quarterbacks (QB): 4.44
+# Offensive Linemen (OL, C): 3.63
+# Defensive Linemen (DL, DE, NT): 3.24
+# Linebackers (LB): 2.97
+# Cornerbacks (CB, S): 2.94
+# Tight Ends (TE): 2.85
+# Wide receivers (WR): 2.81
+# Running backs (RB, FB): 2.57
+
+#I want to create a new variable in my dataset that assigns the average career length to each player based on their position. I will use `case_when()` again to do this.
+
+clean.dat <- clean.dat %>%
+    mutate( Career_Length = case_when(
+        Position %in% c("K", "P", "LS") ~ 4.87,
+        Position == "QB" ~ 4.44,
+        Position %in% c("OL", "C") ~ 3.63,
+        Position %in% c("DL", "DE", "NT") ~ 3.24,
+        Position == "LB" ~ 2.97,
+        Position %in% c("CB", "S") ~ 2.94,
+        Position == "TE" ~ 2.85,
+        Position == "WR" ~ 2.81,
+        Position %in% c("RB", "FB") ~ 2.57,
+        TRUE ~ NA_real_
+    ) )
+
+# Now we need the median salary for each position. 
+
+clean.dat %>% 
+    group_by( Position ) %>% 
+    summarise( median_salary = median( Salary, na.rm = TRUE ) ) 
+
+# I'm going to make a new dataframe to make this easier
+
+position_earnings <- clean.dat %>%
+    group_by( Position ) %>%
+    summarise( median_salary = median( Salary, na.rm = TRUE ), 
+               career_length = first( Career_Length ), 
+               count = n() ) %>%
+    mutate( lifetime_earnings = median_salary * career_length )
+
+head( position_earnings )
+
+# Now we need a weighted average of lifetime earnings by position, based on the proportion of positions in the NFL as a whole
+
+position_earnings %>% 
+    summarize(avg_lifetime = sum( (lifetime_earnings * count )/ sum( count )) )
+
+# Average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
 
 ```
 
