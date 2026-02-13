@@ -318,15 +318,15 @@ From Dylan: The average age of retirement in the NFL is roughly 27.6 years.
 ```{r}
 # According to statista.com (https://www.statista.com/statistics/240102/average-player-career-length-in-the-national-football-league/?srsltid=AfmBOoqmPYi5zkjXX6DnUkiD1QaxzctbS5JcTA_lbZ8tMZEYbO0MzTjS) the average career length for an NFL player is 3.3 years, but it varies by position. 
 
-# We need to reconcile these positions with the positions in our dataset, with help from ChatGPT to clarify which sub-positions fall into the broader position categories (initials added to the list below by Lydia). 
+# We need to reconcile these positions with the positions in our dataset, with help from ChatGPT to clarify which sub-positions fall into the broader position categories (initials added to the list by Lydia). 
 
 table(clean.dat$Position)
 
-# Not clearly indicated on the list below:
+# Not clearly indicated on the list from statista.com:
 # C   DE   FB   LS  NT     S   
 # Center, Defensive End, Fullback, Long Snapper, Nose Tackle, Safety
 
-
+# List from statista.com, updated with missing positions based on ChatGPT's advice: 
 # Kickers/punters (K, P, LS): 4.87 years
 # Quarterbacks (QB): 4.44
 # Offensive Linemen (OL, C): 3.63
@@ -337,7 +337,7 @@ table(clean.dat$Position)
 # Wide receivers (WR): 2.81
 # Running backs (RB, FB): 2.57
 
-#I want to create a new variable in my dataset that assigns the average career length to each player based on their position. I will use `case_when()` again to do this.
+#I want to create a new variable in my dataset that assigns the average career length to each player based on their position.
 
 clean.dat <- clean.dat %>%
     mutate( Career_Length = case_when(
