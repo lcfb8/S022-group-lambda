@@ -222,6 +222,8 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Race ) ) +
 
 ## 9. When might we prefer simpler plots with fewer moving pieces to more complicated plots?
 
+
+
 ## 10. Now extend or modify your plot by making multiple plots in the same window.
 
 You want to use either `facet_wrap()` or `facet_grid()` here.
@@ -270,7 +272,14 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
 
 
 ```{r}
-# some code
+# from Luciana
+
+model_final <- lm( 
+  logSal ~ total_inches + Weight + Position + Age + Experience, 
+  data = clean.dat,
+  na.action = na.omit)
+
+summary( model_final )
 
 
 ```
@@ -278,7 +287,63 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
 ## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
 
 ```{r}
-# some code
+# from Luciana
+
+clean.dat <- clean.dat %>%
+  filter(complete.cases(total_inches, Weight, Position, Age, Experience))
+
+# the above line was suggested by chatgpt after failing to filter na in multiple varables.
+
+ggplot( clean.dat, aes( x = logSal, y = predict( model_final ) ) ) +
+    geom_point() +
+    geom_abline( slope = 1, intercept = 0, col = "red" ) +
+    labs( x = "Actual Log Salary", y = "Predicted Log Salary" )
+
+length(predict(model_final))
+nrow(clean.dat)
+head(clean.dat)
+
+# above is a frankstein of code from me, co-pilot, and chatgpt.
+```
+
+```{r}
+# 1. Clean data for the model
+model_dat <- clean.dat %>%
+  filter(complete.cases(logSal, total_inches, Weight, Position, Age, Experience))
+
+# 2. Fit model on *model_dat*
+model_final <- lm(logSal ~ total_inches + Weight + Position + Age + Experience,
+                  data = model_dat)
+
+# 3. Add predictions to *model_dat*
+model_dat$pred <- predict(model_final)
+
+# 4. Plot: guaranteed same rows, same order
+
+
+ggplot(model_dat, aes(x = logSal, y = pred)) +
+    scale_x_continuous(limits = c(12,17)) +
+    scale_y_continuous(limits = c(12,17)) +
+     labs(x = "Actual Log Salary", y = "Predicted Log Salary") +
+  geom_point() +
+    geom_smooth(method = "lm", se = FALSE) +
+   geom_abline(slope = 1, col = "red") 
+
+# LB note: I added the reference line to show what the line of fit should look like if there is a 1:1 correlation between predicted and actual salary. However, there is not! The blue and red lines have very different slopes.
+
+
+# above is the suggestion from chatgpt to make sure that I'm comparing the predictions to the actual values for the same set of observations, since the model is only trained on a subset of the data that has complete cases for all the variables.
+
+
+# residuals plot
+
+ggplot( clean.dat, aes( x = predict( model_final ), y = resid( model_final ) ) ) +
+    geom_point() +
+    geom_hline( yintercept = 0, col = "red" ) +
+    labs( x = "Predicted Log Salary", y = "Residuals" )
+
+
+
 ```
 
 **13(B)** Do these plots show any problems?
@@ -374,6 +439,9 @@ head( position_earnings )
 
 position_earnings %>% 
     summarize(avg_lifetime = sum( (lifetime_earnings * count )/ sum( count )) )
+
+position_earnings %>% 
+    summarize(lifetime_earnings*count)
 
 # Average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
 
