@@ -229,12 +229,12 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 ```{r}
 # some code
 
-ggplot( clean.dat, aes( x = logSal, y = total_inches, color = Race ) ) +
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Race ) ) +
     facet_wrap(~Position) +
     geom_point() +
     labs( title = "Salary vs Height",
-          x = "Log Salary",
-          y = "Height (inches" ) +
+          x = "Height (inches)",
+          y = "Log Salary") +
     theme(legend.position = "bottom")
 
 
@@ -271,6 +271,8 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
 
 ```{r}
 # some code
+
+
 ```
 
 ## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
@@ -288,6 +290,8 @@ Make a distribution of the ages of players in the dataset, and then speculate ab
 
 ```{r}
 # some code
+
+
 ```
 
 Your answer here.
