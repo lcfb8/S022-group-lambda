@@ -339,6 +339,7 @@ ggplot(model_dat, aes(x = logSal, y = pred)) +
 
 ggplot( clean.dat, aes( x = predict( model_final ), y = resid( model_final ) ) ) +
     geom_point() +
+    #geom_smooth( method = "loess", se = FALSE ) +
     geom_hline( yintercept = 0, col = "red" ) +
     labs( x = "Predicted Log Salary", y = "Residuals" )
 
@@ -347,6 +348,8 @@ ggplot( clean.dat, aes( x = predict( model_final ), y = resid( model_final ) ) )
 ```
 
 **13(B)** Do these plots show any problems?
+
+The residuals plot shows a slanted patterns, which indicates that our model does not fit the data well (the residuals should be randomly clustered around zero).
 
 
 ## 14. How old do players get?
