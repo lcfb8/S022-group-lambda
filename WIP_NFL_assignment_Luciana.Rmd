@@ -12,7 +12,7 @@ library(tidyr)
 knitr::opts_chunk$set(echo = TRUE)
 
 #Read in the data, note that we define several values in the original dataset as NA
-nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv", 
+nfl <- read_csv( "/Users/lucianadiasdemacedo/Downloads/S022/PSet_1_NFL_exploration/data/NFL-Census-Data-9.2.2013_clean.csv", 
                  na = c("NA","N/A","", "n/a", "#VALUE!") )
 head (nfl)
 ```
@@ -24,9 +24,9 @@ head (nfl)
 
 ```{r}
 # some code
-
-max(nfl$Salary, na.rm = TRUE)
-min(nfl$Salary, na.rm = TRUE)
+nfl %>% 
+    summarise( max_sal = max( Salary, na.rm = TRUE ), 
+               min_sal = min( Salary, na.rm = TRUE ) )
 # 2. Print the college and state for the five best paid players of the San Francisco 49ers
 nfl %>% 
     filter( Team == "SF" )  %>% 
@@ -61,50 +61,38 @@ For an overview of linear regression in R, see the course video and materials po
 Sometimes measures such as salary have such a skew that the outliers cause real problems.
 For doing this question, you migth first try log transforming Salary via a mutate command to make `logSal = log( Salary )`, and then fitting your model on that space.
 
-```{r}
+```{r, eval = FALSE}
 # some code
-clean.dat <- nfl %>% 
-    filter( !is.na( Salary ) )
+# clean.dat <- nfl %>% 
+#     filter( !is.na( Salary ) )
 clean.dat <- clean.dat %>%
-    mutate( logSal = log( Salary ) )
+    mutate( logSal = log( Salary ) ) 
 
-# I couldn't generate a plot with a line, so I asked ChatGPT why that was happening... and it suggested investigating if Height and logSal are numeric. Height is a string. So now I have to convert it to numeric.
-# clean.dat$Height <- as.numeric(clean.dat$Height)
+  
+clean.dat <- clean.dat %>%
+    mutate( logSal = log( Salary), Height = if_else(Height == "6;2/;", "6'2\"", Height ) )
 
-# the line above actually didn't convert the height to numeric, so I'll convert it from feet and inches to centimeters. I asked ChatGPT how to do that, and it suggested using separate() to split the height into feet and inches, and then doing some math to convert it to centimeters.
+model <- lm( logSal ~ Height, data = clean.dat )
+summary( model )
+exp( coef( model ) )
 
-clean.dat2 <- clean.dat %>% 
-  mutate(Height_clean = gsub('"', "", Height)) %>% 
-  separate(Height_clean, into = c("feet", "inches"), sep = "'", convert = TRUE) %>%
-  mutate(feet = as.numeric(feet), inches = as.numeric(inches)) %>%
-  mutate(Height_cm = (feet * 12 + inches) * 2.54)
-
-
-head(clean.dat2)
-
-# I got a warning saying ! NAs introduced by coercion, so I filtered the NA info from Height_cm.
-
-
-clean.dat2 <- clean.dat2 %>% 
-    filter( !is.na( Height_cm ) )
+clean.dat <- clean.dat %>% 
+    filter( !is.na( Height) )
 
 # finally generate the plot again, and see if there's a relationship between height and log salary.
 
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal ) ) +
+ggplot( clean.dat, mapping = aes( x = Height, y = logSal ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE) 
 
 # visually there's a slight positive relationship between height and log salary, but let's see what the regression says and if there's a statistically significant relationship.
 
-model <- lm( logSal ~ Height_cm, data = clean.dat2 )
+model <- lm( logSal ~ Height, data = clean.dat )
 summary( model )
 
-# the coefficient for Height_cm is positive, which suggests that taller players tend to have higher log salaries. The p-value for the coefficient is less than 0.05, which suggests that the relationship is statistically significant. However, the R-squared value is quite low, which suggests that height alone does not explain much of the variation in log salary. Should we interpret the Confidence Interval as well?
-
-
-# not sure how to do this:
 exp( coef( model ) )
 
+# the intercept is 5'10
 
 ```
 
@@ -117,14 +105,18 @@ What do you think about the results in (4)?  If you found differences, can you e
 
 ```{r}
 # some code
-model_2 <- lm( logSal ~ Height_cm + Position, data = clean.dat2 )
+model_2 <- lm( logSal ~ Height + Position, data = clean.dat )
 summary( model_2 )
+
+exp( coef( model_2 ) )
+
+# intercept is 5'10 and the position C
 
 
 # when adding Position to the model as a control model, the coefficient for Height_cm is still positive but statistically insignificant (p-value above the threshold of 0.05), but the R-squared value has increased, which suggests that including Position in the model helps to explain more of the variation in log salary. This indicates that player position is an important factor in determining salary, and that height alone does not fully capture the differences in salary among players.
 
 
-# I'd like to know which position is the reference category in the model, so I can interpret the coefficients for the other positions. To find out, I can check the levels of the Position variable.
+# the coefficient for Height_cm is positive, which suggests that taller players tend to have higher log salaries. The p-value for the coefficient is less than 0.05, which suggests that the relationship is statistically significant. However, the R-squared value is quite low, which suggests that height alone does not explain much of the variation in log salary. Should we interpret the Confidence Interval as well?
 
 ```
 
@@ -139,11 +131,15 @@ Try asking a Large Language Model for help with this one.
 ```{r}
 # some code
 # I already cleaned up the height in the previous question, so I can just use the clean.dat2 and Height_cm dataset to calculate the mean weight and height for each position. 
-clean.dat2 %>%
-  group_by( Position ) %>%
-  summarise( mean_weight = mean(Weight, na.rm = TRUE ), 
-             mean_height_cm = mean( Height_cm, na.rm = TRUE ) ) %>%
-  arrange( desc( mean_height_cm ) )
+clean.dat <- clean.dat %>%
+    separate( Height, into = c("feet", "inches"), sep = "'" ) %>%
+    mutate( feet = parse_number( feet ), 
+            inches = parse_number( inches ), 
+            total_inches = feet * 12 + inches )
+
+
+summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
 
 ```
 
@@ -157,10 +153,31 @@ clean.dat2 %>%
 
 ```{r}
 # You pick the variables.  What would be interesting?
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position ) ) +
+ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Position ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE) +
-    labs( x = "Height (cm)", y = "Log Salary", color = "Position" )
+    labs( x = "Height (inches)", y = "Log Salary", color = "Position" )
+
+
+clean.dat <- clean.dat %>%
+    mutate( Side = case_when(
+        Position %in% c("C", "FB", "OL", "QB", "RB", "TE", "WR") ~ "Offense",
+        Position %in% c("CB", "DE", "DL", "LB", "NT", "S") ~ "Defense",
+        Position %in% c("K", "LS", "P") ~ "Special Teams",
+        TRUE ~ NA_character_
+    ) )
+
+
+# Plot with the new `Side` variable instead of `Position`/ 
+
+### from Dylan's code: I really like this one, I think it makes the plot easier to read and understand, and it also tells a story about how different sides of the game might have different relationships between height and salary (Luciana)
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
+    geom_point() +
+    geom_smooth( method = "lm", se = FALSE ) +
+    labs( title = "Log Salary vs Height",
+          x = "Height (inches)",
+          y = "Log Salary" ) +
+    theme(legend.position = "right")
 
 
 # your code goes here
@@ -174,18 +191,38 @@ For the four variables, perhaps you could use X axis, Y axis, plot point colorin
 
 ```{r}
 # some code
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position, size = Weight ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE) +
-    labs( x = "Height (cm)", y = "Log Salary", color = "Position" )
 
+clean.dat <- clean.dat %>%
+  filter(!is.na(Race))
 
-# I know this is awful! haha we should choose better ways to code the variables.
+# from Lydia's code
+clean.dat <- clean.dat %>%
+  mutate(Race = if_else(Race == "Pacific Islander",
+                        "Asian/Pacific Islander",
+                        Race)) %>%
+    mutate(Race = if_else(Race %in% c("Native American", "Other", "Iranian"), "Other", Race))
+
+dim(clean.dat)
+
+ggplot(clean.dat, aes(x = Experience, y = logSal, color = Race)) +
+  geom_point(aes(size = Age), alpha = 0.6) +     # make points partly transparent (asked chatgpt)
+  geom_smooth(method = "lm", se = FALSE) +        
+  labs(
+    title = "Log Salary vs Experience by Race",
+    x = "Experience (years)",
+    y = "Log Salary",
+    size = "Age"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
 ```
 
 **8(B)** What does this plot tell us that the other plot doesn't?
 
 ## 9. When might we prefer simpler plots with fewer moving pieces to more complicated plots?
+
+
 
 ## 10. Now extend or modify your plot by making multiple plots in the same window.
 
@@ -193,13 +230,13 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 
 ```{r}
 # some code
-# to be improved, I just wanted to know the possibilities with facet_wrap
 
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position ) ) +
+
+ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Race ) ) +
     geom_point() +
-    geom_smooth( method = "lm", se = FALSE) +
     labs( x = "Height (cm)", y = "Log Salary", color = "Position" ) +
-    facet_wrap( ~ Position )
+    facet_wrap( ~ Position ) +
+    theme(legend.position = "bottom")
 ```
 
 **10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
@@ -209,10 +246,10 @@ ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal, color = Position )
 
 ```{r}
 # some code (co-pilot did this one for me)
-ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal ) ) +
+ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE) +
-    labs( x = "Height (cm)", y = "Log Salary" ) +
+    labs( x = "Height", y = "Log Salary" ) +
     facet_wrap( ~ Position )
 ```
 
@@ -228,13 +265,19 @@ ggplot( clean.dat2, mapping = aes( x = Height_cm, y = logSal ) ) +
 
 
 ```{r}
-# some code (co-pilot + na.action = na.omit was suggested by ChatatGPT)
+# some code (co-pilot + na.action = na.omit was suggested by ChatGPT)
+
+# I was cleaning na when fitting the model, so I got an error saying: ! Can't recycle input of size 1743 to size 1745. Then ChatGPT suggested to clean the data before fitting the model.
+
+clean2 <- na.omit(clean.dat)
+dim(clean2)
+
 model_final <- lm( 
-  logSal ~ Height_cm + Weight + Position + Age + Experience, 
-  data = clean.dat2,
+  logSal ~ Experience + Age + Position, 
+  data = clean2,
   na.action = na.omit)
 
-dim(predict(model_final))
+clean2$pred_logSal <- predict(model_final)
 
 summary( model_final )
 ```
@@ -243,49 +286,25 @@ summary( model_final )
 
 ```{r}
 # some code
-clean.dat2 <- clean.dat2 %>%
-  filter(complete.cases(Height_cm, Weight, Position, Age, Experience))
+clean2 <- clean2 %>%
+  filter(complete.cases(Experience, Age, Position))
 
-# the above line was suggested by chatgpt after failing to filter na in multiple varables.
+# the above line was suggested by chatgpt after failing to filter na in multiple variables.
 
-ggplot( clean.dat2, aes( x = logSal, y = predict( model_final ) ) ) +
+ggplot( clean2, aes( x = predict( model_final ), y = logSal , color = Experience) ) +
     geom_point() +
     geom_abline( slope = 1, intercept = 0, col = "red" ) +
-    labs( x = "Actual Log Salary", y = "Predicted Log Salary" )
-
-length(predict(model_final))
-nrow(clean.dat2)
-head(clean.dat2)
-# above is a frankstein of code from me, co-pilot, and chatgpt.
-```
-
-```{r}
-# 1. Clean data for the model
-model_dat <- clean.dat2 %>%
-  filter(complete.cases(logSal, Height_cm, Weight, Position, Age, Experience))
-
-# 2. Fit model on *model_dat*
-model_final <- lm(logSal ~ Height_cm + Weight + Position + Age + Experience,
-                  data = model_dat)
-
-# 3. Add predictions to *model_dat*
-model_dat$pred <- predict(model_final)
-
-# 4. Plot: guaranteed same rows, same order
-ggplot(model_dat, aes(x = logSal, y = pred)) +
-  geom_point() +
-  geom_abline(slope = 1, intercept = 0, col = "red")
-
-# above is the suggestion from chatgpt to make sure that I'm comparing the predictions to the actual values for the same set of observations, since the model is only trained on a subset of the data that has complete cases for all the variables.
+    labs( y = "Actual Log Salary", x = "Predicted Log Salary" )
 
 
-# residuals plot
-ggplot( clean.dat2, aes( x = predict( model_final ), y = resid( model_final ) ) ) +
+# from Lydia's code
+ggplot( clean2, aes( x = predict( model_final ), y = resid( model_final ), color = Experience ) ) +
     geom_point() +
+    geom_smooth( method = "loess", se = FALSE ) +
     geom_hline( yintercept = 0, col = "red" ) +
     labs( x = "Predicted Log Salary", y = "Residuals" )
-  
 ```
+
 
 **13(B)** Do these plots show any problems?
 
@@ -295,12 +314,20 @@ ggplot( clean.dat2, aes( x = predict( model_final ), y = resid( model_final ) ) 
 Make a distribution of the ages of players in the dataset, and then speculate about how long a player might be able to play in the NFL.
 
 ```{r}
-# some code (co-pilot did this one for me)
-clean.dat2 %>%
-  filter( !is.na( Age ) ) %>%
-  ggplot( aes( x = Age ) ) +
-    geom_histogram( binwidth = 1, color = "white", fill = "steelblue" ) +
-    labs( title = "Distribution of Player Ages", x = "Age", y = "Count" )
+
+# from Lydia's code
+clean.dat %>%
+    ggplot( aes( x = Age ) ) +
+    geom_histogram( binwidth = 1, fill = "lightblue", color = "black" ) +
+    labs( title = "Distribution of Player Ages",
+          x = "Age",
+          y = "Count" )
+
+# Let's use the 75th percentile to estimate the age of retirement for NFL players.  We can calculate this using the `quantile()` function.
+
+quantile( clean.dat$Age, probs = 0.75, na.rm = TRUE )
+
+summary( clean.dat$Age, na.rm = TRUE)
 ```
 
 Your answer here.
