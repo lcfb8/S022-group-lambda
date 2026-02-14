@@ -222,6 +222,8 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Race ) ) +
 
 ## 9. When might we prefer simpler plots with fewer moving pieces to more complicated plots?
 
+
+
 ## 10. Now extend or modify your plot by making multiple plots in the same window.
 
 You want to use either `facet_wrap()` or `facet_grid()` here.
@@ -229,12 +231,12 @@ You want to use either `facet_wrap()` or `facet_grid()` here.
 ```{r}
 # some code
 
-ggplot( clean.dat, aes( x = logSal, y = total_inches, color = Race ) ) +
+ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Race ) ) +
     facet_wrap(~Position) +
     geom_point() +
     labs( title = "Salary vs Height",
-          x = "Log Salary",
-          y = "Height (inches" ) +
+          x = "Height (inches)",
+          y = "Log Salary") +
     theme(legend.position = "bottom")
 
 
@@ -270,16 +272,84 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
 
 
 ```{r}
-# some code
+# from Luciana
+
+model_final <- lm( 
+  logSal ~ total_inches + Weight + Position + Age + Experience, 
+  data = clean.dat,
+  na.action = na.omit)
+
+summary( model_final )
+
+
 ```
 
 ## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
 
 ```{r}
-# some code
+# from Luciana
+
+clean.dat <- clean.dat %>%
+  filter(complete.cases(total_inches, Weight, Position, Age, Experience))
+
+# the above line was suggested by chatgpt after failing to filter na in multiple varables.
+
+ggplot( clean.dat, aes( x = logSal, y = predict( model_final ) ) ) +
+    geom_point() +
+    geom_abline( slope = 1, intercept = 0, col = "red" ) +
+    labs( x = "Actual Log Salary", y = "Predicted Log Salary" )
+
+length(predict(model_final))
+nrow(clean.dat)
+head(clean.dat)
+
+# above is a frankstein of code from me, co-pilot, and chatgpt.
+```
+
+```{r}
+# 1. Clean data for the model
+model_dat <- clean.dat %>%
+  filter(complete.cases(logSal, total_inches, Weight, Position, Age, Experience))
+
+# 2. Fit model on *model_dat*
+model_final <- lm(logSal ~ total_inches + Weight + Position + Age + Experience,
+                  data = model_dat)
+
+# 3. Add predictions to *model_dat*
+model_dat$pred <- predict(model_final)
+
+# 4. Plot: guaranteed same rows, same order
+
+
+ggplot(model_dat, aes(x = logSal, y = pred)) +
+    scale_x_continuous(limits = c(12,17)) +
+    scale_y_continuous(limits = c(12,17)) +
+     labs(x = "Actual Log Salary", y = "Predicted Log Salary") +
+  geom_point() +
+    geom_smooth(method = "lm", se = FALSE) +
+   geom_abline(slope = 1, col = "red") 
+
+# LB note: I added the reference line to show what the line of fit should look like if there is a 1:1 correlation between predicted and actual salary. However, there is not! The blue and red lines have very different slopes.
+
+
+# above is the suggestion from chatgpt to make sure that I'm comparing the predictions to the actual values for the same set of observations, since the model is only trained on a subset of the data that has complete cases for all the variables.
+
+
+# residuals plot
+
+ggplot( clean.dat, aes( x = predict( model_final ), y = resid( model_final ) ) ) +
+    geom_point() +
+    #geom_smooth( method = "loess", se = FALSE ) +
+    geom_hline( yintercept = 0, col = "red" ) +
+    labs( x = "Predicted Log Salary", y = "Residuals" )
+
+
+
 ```
 
 **13(B)** Do these plots show any problems?
+
+The residuals plot shows a slanted patterns, which indicates that our model does not fit the data well (the residuals should be randomly clustered around zero).
 
 
 ## 14. How old do players get?
@@ -288,17 +358,96 @@ Make a distribution of the ages of players in the dataset, and then speculate ab
 
 ```{r}
 # some code
+
+clean.dat %>%
+    ggplot( aes( x = Age ) ) +
+    geom_histogram( binwidth = 1, fill = "blue", color = "black" ) +
+    labs( title = "Distribution of Player Ages",
+          x = "Age",
+          y = "Count" )
+
+# Let's use the 75th percentile to estimate the age of retirement for NFL players.  We can calculate this using the `quantile()` function.
+
+quantile( clean.dat$Age, probs = 0.75, na.rm = TRUE )
+
+summary( clean.dat$Age, na.rm = TRUE)
+    
 ```
 
 Your answer here.
 
 **14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
 
+From Dylan: The average age of retirement in the NFL is roughly 27.6 years.
+
 
 ## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
 
 ```{r}
-# some code
+# According to statista.com (https://www.statista.com/statistics/240102/average-player-career-length-in-the-national-football-league/?srsltid=AfmBOoqmPYi5zkjXX6DnUkiD1QaxzctbS5JcTA_lbZ8tMZEYbO0MzTjS) the average career length for an NFL player is 3.3 years, but it varies by position. 
+
+# We need to reconcile these positions with the positions in our dataset, with help from ChatGPT to clarify which sub-positions fall into the broader position categories (initials added to the list by Lydia). 
+
+table(clean.dat$Position)
+
+# Not clearly indicated on the list from statista.com:
+# C   DE   FB   LS  NT     S   
+# Center, Defensive End, Fullback, Long Snapper, Nose Tackle, Safety
+
+# List from statista.com, updated with missing positions based on ChatGPT's advice: 
+# Kickers/punters (K, P, LS): 4.87 years
+# Quarterbacks (QB): 4.44
+# Offensive Linemen (OL, C): 3.63
+# Defensive Linemen (DL, DE, NT): 3.24
+# Linebackers (LB): 2.97
+# Cornerbacks (CB, S): 2.94
+# Tight Ends (TE): 2.85
+# Wide receivers (WR): 2.81
+# Running backs (RB, FB): 2.57
+
+#I want to create a new variable in my dataset that assigns the average career length to each player based on their position.
+
+clean.dat <- clean.dat %>%
+    mutate( Career_Length = case_when(
+        Position %in% c("K", "P", "LS") ~ 4.87,
+        Position == "QB" ~ 4.44,
+        Position %in% c("OL", "C") ~ 3.63,
+        Position %in% c("DL", "DE", "NT") ~ 3.24,
+        Position == "LB" ~ 2.97,
+        Position %in% c("CB", "S") ~ 2.94,
+        Position == "TE" ~ 2.85,
+        Position == "WR" ~ 2.81,
+        Position %in% c("RB", "FB") ~ 2.57,
+        TRUE ~ NA_real_
+    ) )
+
+# Now we need the median salary for each position. 
+
+clean.dat %>% 
+    group_by( Position ) %>% 
+    summarise( median_salary = median( Salary, na.rm = TRUE ) ) 
+
+# I'm going to make a new dataframe to make this easier
+
+position_earnings <- clean.dat %>%
+    group_by( Position ) %>%
+    summarise( median_salary = median( Salary, na.rm = TRUE ), 
+               career_length = first( Career_Length ), 
+               count = n() ) %>%
+    mutate( lifetime_earnings = median_salary * career_length )
+
+head( position_earnings )
+
+# Now we need a weighted average of lifetime earnings by position, based on the proportion of positions in the NFL as a whole
+
+position_earnings %>% 
+    summarize(avg_lifetime = sum( (lifetime_earnings * count )/ sum( count )) )
+
+position_earnings %>% 
+    summarize(lifetime_earnings*count)
+
+# Average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
+
 ```
 
 Be sure to explain your reasoning.
