@@ -275,7 +275,7 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
 # from Luciana
 
 model_final <- lm( 
-  logSal ~ total_inches + Weight + Position + Age + Experience, 
+  logSal ~ Position + Age + Experience, 
   data = clean.dat,
   na.action = na.omit)
 
@@ -290,7 +290,7 @@ summary( model_final )
 # from Luciana
 
 clean.dat <- clean.dat %>%
-  filter(complete.cases(total_inches, Weight, Position, Age, Experience))
+  filter(complete.cases(Position, Age, Experience))
 
 # the above line was suggested by chatgpt after failing to filter na in multiple varables.
 
@@ -312,7 +312,7 @@ model_dat <- clean.dat %>%
   filter(complete.cases(logSal, total_inches, Weight, Position, Age, Experience))
 
 # 2. Fit model on *model_dat*
-model_final <- lm(logSal ~ total_inches + Weight + Position + Age + Experience,
+model_final <- lm(logSal ~ Position + Age + Experience,
                   data = model_dat)
 
 # 3. Add predictions to *model_dat*
@@ -361,7 +361,7 @@ Make a distribution of the ages of players in the dataset, and then speculate ab
 
 clean.dat %>%
     ggplot( aes( x = Age ) ) +
-    geom_histogram( binwidth = 1, fill = "blue", color = "black" ) +
+    geom_histogram( binwidth = 1, fill = "lightblue", color = "black" ) +
     labs( title = "Distribution of Player Ages",
           x = "Age",
           y = "Count" )
@@ -404,6 +404,7 @@ table(clean.dat$Position)
 # Tight Ends (TE): 2.85
 # Wide receivers (WR): 2.81
 # Running backs (RB, FB): 2.57
+# Average across all positions: 3.3
 
 #I want to create a new variable in my dataset that assigns the average career length to each player based on their position.
 
@@ -438,13 +439,13 @@ position_earnings <- clean.dat %>%
 
 head( position_earnings )
 
+summary ( position_earnings )
+
 # Now we need a weighted average of lifetime earnings by position, based on the proportion of positions in the NFL as a whole
 
 position_earnings %>% 
     summarize(avg_lifetime = sum( (lifetime_earnings * count )/ sum( count )) )
 
-position_earnings %>% 
-    summarize(lifetime_earnings*count)
 
 # Average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
 
@@ -468,6 +469,174 @@ Both extensions relate to a second dataset, `Master-Player-List-2024.csv`, that 
 How much more are players paid now, compared to 2013?
 Try to account for differences in the datasets in terms of, for example, age and experience of the players in each dataset.
 Write up your results using at least one visualization and some text explaining any analysis you did.
+
+```{r}
+nfl_24 <- read_csv( "data/Master-Player-List-2024.csv", 
+                 na = c("NA","N/A","", "n/a", "#VALUE!") )
+
+# Removing NAs from CapHit in 2024 dataset
+clean.dat.24 <- nfl_24 %>% 
+    filter( !is.na( CapHit ) )
+
+# Creating Salary variable in 2024 dataset from CapHit
+clean.dat.24 <- clean.dat.24 %>% 
+    mutate( Salary = parse_number( CapHit ) )
+
+# Finding the middle and average salary in both 2013 and 2024     
+clean.dat %>% 
+    filter( !is.na( Salary ) ) %>%
+    summarise( mean_2013 = mean( Salary ), 
+               median_2013 = median( Salary ) )
+               
+clean.dat.24 %>% 
+    filter( !is.na( Salary ) ) %>%
+    summarise( mean_2024 = mean( Salary ), 
+               median_2024 = median( Salary ) )
+
+# Cleaning height in 2024 dataset and creating total_inches variable  (CAN PROBABLY DELETE)             
+clean.dat.24 <- clean.dat.24 %>%
+    separate( Height, into = c("feet", "inches"), sep = "-" ) %>%
+    mutate( feet = parse_number( feet ), 
+            inches = parse_number( inches ), 
+            total_inches = feet * 12 + inches )
+
+# Creating logSal variable in 2024 dataset (CAN PROBABLY DELETE)
+clean.dat.24 <- clean.dat.24 %>%
+    mutate( logSal = log( Salary ) )
+
+# Finding the mean height and weight in both 2013 and 2024 (CAN PROBABLY DELETE)
+summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
+summarise( clean.dat.24, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
+
+# Calculating the mean difference in pay between salaries in 2024 and 2013
+pay_diff = mean( clean.dat.24$Salary ) - mean( clean.dat$Salary )
+pay_diff
+
+# Converting YrsExp variable in 2024 dataset to numeric, treating "R" as 0 years of experience
+clean.dat.24 <- clean.dat.24 %>%
+  mutate(
+    Experience = ifelse(YrsExp == "R", "0", YrsExp),
+    Experience= as.numeric(Experience) )
+
+# Cleaning position in 2024 dataset and creating Side variable similar to 2013 dataset
+clean.dat.24 <- clean.dat.24 %>%
+    mutate( Side = case_when(
+        Position %in% c("C", "FB", "OT", "OG", "QB", "RB", "C", "TE", "WR", "OL") ~ "Offense",
+        Position %in% c("DB", "LB", "DE", "DT", "DL","CB", "NT", "SS", "FS", "OLB", "MLB", "ILB", "SAF") ~ "Defense",
+        Position %in% c("K", "LS", "P") ~ "Special Teams",
+        TRUE ~ NA_character_ ) )
+
+# Cleaning position in 2024 dataset so that the positions are similar to 2013 dataset
+clean.dat.position <- clean.dat.24 %>%
+  mutate( Position = case_when(
+      Position %in% c("OT", "OG", "OL") ~ "OL",
+      Position == "C"                   ~ "C",
+      Position == "FB"                  ~ "FB",
+      Position == "QB"                  ~ "QB",
+      Position == "RB"                  ~ "RB",
+      Position == "TE"                  ~ "TE",
+      Position == "WR"                  ~ "WR",
+      Position %in% c("DB", "CB")       ~ "CB",
+      Position %in% c("SS", "FS", "SAF") ~ "S",
+      Position %in% c("LB", "OLB", "MLB", "ILB") ~ "LB",
+      Position %in% c("DT", "DL")       ~ "DL",
+      Position == "NT"                  ~ "NT",
+      Position == "DE"                  ~ "DE",
+      Position == "K"                  ~ "K",
+      Position == "P"                  ~ "P",
+      Position == "LS"                  ~ "LS",
+      TRUE                              ~ NA_character_ ) )
+
+# Creating one dataset that has the mean salary for each experience level in both 2013 and 2024, so we can compare them in a plot
+exp.sum <- bind_rows(
+  clean.dat %>%
+    group_by(Experience) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2013"),
+  clean.dat.24 %>%
+    group_by(Experience) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2024") )
+
+# Calculating the mean salary difference and percent change between 2013 and 2024 for player experience
+exp.sum %>% 
+  group_by( Experience ) %>% 
+  summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
+             mean_salary_2024 = mean( mean_salary[ year == "2024" ] ) ) %>%
+  mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
+  mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
+  arrange( desc( percent_diff ) ) 
+
+# Creating one dataset that has the mean salary for each side of the ball (offense, defense, special teams) in both 2013 and 2024, so we can compare them in a plot
+side.sum <- bind_rows(
+  clean.dat %>%
+    group_by(Side) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2013"),
+  clean.dat.24 %>%
+    group_by(Side) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2024") )
+
+# Calculating the mean salary difference and percent change between 2013 and 2024 for each side of the ball
+side.sum %>% 
+  group_by( Side ) %>% 
+  summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
+             mean_salary_2024 = mean( mean_salary[ year == "2024" ] ) ) %>%
+  mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
+  mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
+  arrange( desc( percent_diff ) )
+
+# Creating one dataset that has the mean salary for each position in both 2013 and 2024, so we can compare them in a plot
+position.sum <- bind_rows(
+  clean.dat %>%
+    group_by(Position) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2013"),
+  clean.dat.position %>%
+    group_by(Position) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2024") )
+
+# Calculating the mean salary difference and percent change between 2013 and 2024 for each position
+position.sum %>% 
+  group_by( Position ) %>% 
+  summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
+             mean_salary_2024 = mean( mean_salary[ year == "2024" ] ) ) %>%
+  mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
+  mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
+  arrange( desc( percent_diff ) )
+
+#### Plotting ####
+# Plotting Average Salary differences between 2013 and 2024 based on years of experience
+library(scales)
+ggplot(exp.sum, aes(x = Experience, y = mean_salary, fill = year)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous( labels = function(x) x / 1e6,
+                     name   = "Average Salary (millions)" ) +
+  labs( title = "Average Salary vs Experience in 2013 and 2024",
+    x = "Years of Experience" )
+
+# Plotting Average Salary differences between 2013 and 2024 based on side of the ball
+ggplot(side.sum, aes(x = Side, y = mean_salary, fill = year)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous( labels = function(x) x / 1e6,
+                     name   = "Average Salary (millions)" ) +
+  labs( title = "Average Salary vs Player Category in 2013 and 2024",
+    x = "Player Category" )    
+
+# Plotting Average Salary differences between 2013 and 2024 based on position
+ggplot(position.sum, aes(x = Position, y = mean_salary, fill = year)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous( labels = function(x) x / 1e6,
+                     name   = "Average Salary (millions)" ) +
+  labs( title = "Average Salary vs Position in 2013 and 2024",
+    x = "Position" )
+```
+        
+```{r, eval=FALSE, include=FALSE}
 
 
 
