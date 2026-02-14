@@ -103,7 +103,7 @@ Once you do, you can use `exp( coef )`, where `coef` is the coefficient from you
 
 What do you think about the results in (4)?  If you found differences, can you explain them by accounting for player position in your model?  In other words, what happens when you include position in your model?
 
-```{r}
+```{r model_2, eval = FALSE}
 # some code
 model_2 <- lm( logSal ~ Height + Position, data = clean.dat )
 summary( model_2 )
@@ -111,12 +111,6 @@ summary( model_2 )
 exp( coef( model_2 ) )
 
 # intercept is 5'10 and the position C
-
-
-# when adding Position to the model as a control model, the coefficient for Height_cm is still positive but statistically insignificant (p-value above the threshold of 0.05), but the R-squared value has increased, which suggests that including Position in the model helps to explain more of the variation in log salary. This indicates that player position is an important factor in determining salary, and that height alone does not fully capture the differences in salary among players.
-
-
-# the coefficient for Height_cm is positive, which suggests that taller players tend to have higher log salaries. The p-value for the coefficient is less than 0.05, which suggests that the relationship is statistically significant. However, the R-squared value is quite low, which suggests that height alone does not explain much of the variation in log salary. Should we interpret the Confidence Interval as well?
 
 ```
 
@@ -128,7 +122,7 @@ Some words of discussion go here.
 You are going to have to get height cleaned up.  You might try `separate()` (see R for DS) to make feet and inches, and then do some math via `mutate()`. You could also use `substring()`. In any case, you might find `parse_number()` a useful function. Note that one foot (abbreviated as ') is equal to 12 inches (abbreviated to ").
 Try asking a Large Language Model for help with this one.
 
-```{r}
+```{r mean_weight_height, eval = FALSE}
 # some code
 # I already cleaned up the height in the previous question, so I can just use the clean.dat2 and Height_cm dataset to calculate the mean weight and height for each position. 
 clean.dat <- clean.dat %>%
@@ -151,7 +145,7 @@ summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ),
 
 **please note:** we will be deducting points for messy plots, plots with poor labeling, or plots that are hard to read.  Make sure your plots are clear and easy to understand.
 
-```{r}
+```{r plot_3vars, eval = FALSE}
 # You pick the variables.  What would be interesting?
 ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Position ) ) +
     geom_point() +
@@ -189,7 +183,7 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
 
 For the four variables, perhaps you could use X axis, Y axis, plot point coloring, and plot point size, or perhaps plot point shape or some other attribute. **Do not** use any facets yet.  Just a single plot.  Other than that constraint, you pick!
 
-```{r}
+```{r plot_4vars, eval = FALSE}
 # some code
 
 clean.dat <- clean.dat %>%
@@ -205,7 +199,7 @@ clean.dat <- clean.dat %>%
 dim(clean.dat)
 
 ggplot(clean.dat, aes(x = Experience, y = logSal, color = Race)) +
-  geom_point(aes(size = Age), alpha = 0.6) +     # make points partly transparent (asked chatgpt)
+  geom_point(aes(shape = Side)) +     # make points partly transparent (asked chatgpt)
   geom_smooth(method = "lm", se = FALSE) +        
   labs(
     title = "Log Salary vs Experience by Race",
@@ -228,7 +222,7 @@ ggplot(clean.dat, aes(x = Experience, y = logSal, color = Race)) +
 
 You want to use either `facet_wrap()` or `facet_grid()` here.
 
-```{r}
+```{r plot_facets, eval = FALSE}
 # some code
 
 
@@ -244,7 +238,7 @@ ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Race ) )
 
 ## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question. 
 
-```{r}
+```{r plot_height_position, eval = FALSE}
 # some code (co-pilot did this one for me)
 ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal ) ) +
     geom_point() +
@@ -264,7 +258,7 @@ ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal ) ) +
 ## 12. (2 pts) Make a predictive model (using OLS) to predict log salary using some set of other covariates and print out a summary of the model. Specify how you decided to treat missing data. 
 
 
-```{r}
+```{r model_final, eval = FALSE}
 # some code (co-pilot + na.action = na.omit was suggested by ChatGPT)
 
 # I was cleaning na when fitting the model, so I got an error saying: ! Can't recycle input of size 1743 to size 1745. Then ChatGPT suggested to clean the data before fitting the model.
@@ -284,7 +278,7 @@ summary( model_final )
 
 ## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
 
-```{r}
+```{r model_diagnostics, eval = FALSE}
 # some code
 clean2 <- clean2 %>%
   filter(complete.cases(Experience, Age, Position))
