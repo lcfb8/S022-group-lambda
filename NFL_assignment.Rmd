@@ -209,6 +209,18 @@ ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Race ) )
 ```{r}
 # some code
 model_3 <- lm( logSal ~ Position + total_inches + Experience, data = clean.dat )
+
+clean2 <- na.omit(clean.dat)
+dim(clean2)
+
+model_final <- lm( 
+  logSal ~ Experience + Age + Position, 
+  data = clean2,
+  na.action = na.omit)
+
+clean2$pred_logSal <- predict(model_final)
+
+summary( model_final )
 summary( model_3 )
 ```
 
@@ -238,7 +250,8 @@ clean.dat %>%
 Your answer here.
 
 **14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
-The average age of retirement in the NFL is roughly 27.6 years
+The average age of retirement in the NFL is roughly 27.6 years. 
+https://runrepeat.com/nfl-player-career-length
 
 ## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
 
@@ -407,6 +420,7 @@ position.sum %>%
 #### Plotting ####
 # Plotting Average Salary differences between 2013 and 2024 based on years of experience
 library(scales)
+
 ggplot(exp.sum, aes(x = Experience, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
   scale_y_continuous( labels = function(x) x / 1e6,
