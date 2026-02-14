@@ -100,7 +100,7 @@ Notes on our model: When fitting a model to understand whether height is associa
 In the current model and plot, height is treated as a categorical variable, which makes the interpretation of the height–salary relationship more complicated.
 The plot doesn't communicate much, as the categorical variables were sorted into alphabetical order, not according to their magnitude.
 
-With the model using categorical variables, we have the height 5'10 set as the intercept, meaning that we estimate that players with that height will make on average US\$1,121,370, while players who are Height 6'2" and above will have higher salaries than the shorter players. However, none of these coefficients are statistically significant, apart from the players measuring 6'7" (t(d = 1730) = 2.18, p=0.029), who will on average make 1.5 times more than the players measuring 5'10. 
+With the model using categorical variables, we have the height 5'10 set as the intercept, meaning that we estimate that players with that height will make on average US\$1,121,370, while players who are Height 6'2" and above will have higher salaries than the shorter players. However, none of these coefficients are statistically significant, apart from the players measuring 6'7" (t(d = 1730) = 2.18, p=0.029), who will on average make 1.5 times more than the players measuring 5'10.
 
 # 5. Improve the linear model
 
@@ -506,7 +506,7 @@ Try to account for differences in the datasets in terms of, for example, age and
 Write up your results using at least one visualization and some text explaining any analysis you did.
 
 ```{r}
-nfl_24 <- read_csv( "/data/Master-Player-List-2024.csv", 
+nfl_24 <- read_csv( "data/Master-Player-List-2024.csv", 
                  na = c("NA","N/A","", "n/a", "#VALUE!") )
 
 # Removing NAs from CapHit in 2024 dataset
