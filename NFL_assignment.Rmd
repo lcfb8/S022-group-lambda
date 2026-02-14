@@ -8,9 +8,8 @@ output: pdf_document
 ```{r setup, include=FALSE}
 library( tidyverse )
 knitr::opts_chunk$set(echo = TRUE)
-
 #Read in the data, note that we define several values in the original dataset as NA
-nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv", 
+nfl <- read_csv( "~/Documents/HGSE/S022/Problem Set 1/PSet_1_NFL_exploration/data/NFL-Census-Data-9.2.2013_clean.csv", 
                  na = c("NA","N/A","", "n/a", "#VALUE!") )
 
 ```
@@ -125,28 +124,7 @@ summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ),
 
 ```{r}
 # You pick the variables.  What would be interesting?
-Variables of interest:
-    x - Height in inches
-    y - Salary
-    Coloring - Position
 # your code goes here
-# First plot using the 'Position' variable to color the points and the regression lines
-#ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Position ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Log Salary vs Height",
-          x = "Height (inches)",
-          y = "Log Salary" ) +
-    theme(legend.position = "bottom")
-
-#ggplot( clean.dat, aes( x = Height, y = Salary, color = Position ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Salary vs Height",
-          x = "Height (feet and inches)",
-          y = "Salary" ) +
-    theme(legend.position = "bottom")
-# I want to combine player positions to create three categories: "Offense", "Defense", and "Special Teams".  I will use the following code to do this.  Note that I am using `case_when()` to create a new variable called `Side` that combines the original positions into these three categories.
 clean.dat <- clean.dat %>%
     mutate( Side = case_when(
         Position %in% c("C", "FB", "OL", "QB", "RB", "TE", "WR") ~ "Offense",
@@ -155,7 +133,6 @@ clean.dat <- clean.dat %>%
         TRUE ~ NA_character_
     ) )
 
-# Plot with the new `Side` variable instead of `Position`
 ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE ) +
@@ -163,14 +140,6 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
           x = "Inches",
           y = "Log Salary" ) +
     theme(legend.position = "right")
-
-#ggplot( clean.dat, aes( x = Position, y = logSal, color = total_inches ) ) +
-    geom_point() +
-    geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Salary vs Height",
-          x = "Height (feet and inches)",
-          y = "Salary" ) +
-    theme(legend.position = "bottom")
 ```
 
 **7(B)** Explain what the plot tells us.
@@ -290,13 +259,160 @@ We will only grade at most one extension, and we will grade the first we see.
 
 Both extensions relate to a second dataset, `Master-Player-List-2024.csv`, that you have in the data folder.
 
+
 ## Extension Option 1. Comparing to a more modern dataset.
 
 How much more are players paid now, compared to 2013?
 Try to account for differences in the datasets in terms of, for example, age and experience of the players in each dataset.
 Write up your results using at least one visualization and some text explaining any analysis you did.
+```{r}
+nfl_24 <- read_csv( "/Users/dylan/Documents/HGSE/S022/Problem Set 1/PSet_1_NFL_exploration/data/Master-Player-List-2024.csv", 
+                 na = c("NA","N/A","", "n/a", "#VALUE!") )
 
+# Removing NAs from CapHit in 2024 dataset
+clean.dat.24 <- nfl_24 %>% 
+    filter( !is.na( CapHit ) )
 
+# Creating Salary variable in 2024 dataset from CapHit
+clean.dat.24 <- clean.dat.24 %>% 
+    mutate( Salary = parse_number( CapHit ) )
+
+# Finding the middle and average salary in both 2013 and 2024     
+clean.dat %>% 
+    filter( !is.na( Salary ) ) %>%
+    summarise( mean_2013 = mean( Salary ), 
+               median_2013 = median( Salary ) )
+               
+clean.dat.24 %>% 
+    filter( !is.na( Salary ) ) %>%
+    summarise( mean_2024 = mean( Salary ), 
+               median_2024 = median( Salary ) )
+
+# Cleaning height in 2024 dataset and creating total_inches variable  (CAN PROBABLY DELETE)             
+clean.dat.24 <- clean.dat.24 %>%
+    separate( Height, into = c("feet", "inches"), sep = "-" ) %>%
+    mutate( feet = parse_number( feet ), 
+            inches = parse_number( inches ), 
+            total_inches = feet * 12 + inches )
+
+# Creating logSal variable in 2024 dataset (CAN PROBABLY DELETE)
+clean.dat.24 <- clean.dat.24 %>%
+    mutate( logSal = log( Salary ) )
+
+# Finding the mean height and weight in both 2013 and 2024    (CAN PROBABLY DELETE)
+summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
+summarise( clean.dat.24, mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) ) 
+
+# Calculating the mean difference in pay between salaries in 2024 and 2013
+pay_diff = mean( clean.dat.24$Salary ) - mean( clean.dat$Salary )
+pay_diff
+
+# Converting YrsExp variable in 2024 dataset to numeric, treating "R" as 0 years of experience
+clean.dat.24 <- clean.dat.24 %>%
+  mutate(
+    Experience = ifelse(YrsExp == "R", "0", YrsExp),
+    Experience= as.numeric(Experience)
+  )
+
+# Cleaning position in 2024 dataset and creating Side variable similar to 2013 dataset
+clean.dat.24 <- clean.dat.24 %>%
+    mutate( Side = case_when(
+        Position %in% c("C", "FB", "OT", "OG", "QB", "RB", "C", "TE", "WR", "OL") ~ "Offense",
+        Position %in% c("DB", "LB", "DE", "DT", "DL","CB", "NT", "SS", "FS", "OLB", "MLB", "ILB", "SAF") ~ "Defense",
+        Position %in% c("K", "LS", "P") ~ "Special Teams",
+        TRUE ~ NA_character_ ) )
+
+clean.dat.position <- clean.dat.24 %>%
+  mutate( Position = case_when(
+      Position %in% c("OT", "OG", "OL") ~ "OL",
+      Position == "C"                   ~ "C",
+      Position == "FB"                  ~ "FB",
+      Position == "QB"                  ~ "QB",
+      Position == "RB"                  ~ "RB",
+      Position == "TE"                  ~ "TE",
+      Position == "WR"                  ~ "WR",
+      Position %in% c("DB", "CB")       ~ "CB",
+      Position %in% c("SS", "FS", "SAF") ~ "S",
+      Position %in% c("LB", "OLB", "MLB", "ILB") ~ "LB",
+      Position %in% c("DT", "DL")       ~ "DL",
+      Position == "NT"                  ~ "NT",
+      Position == "DE"                  ~ "DE",
+      Position == "K"                  ~ "K",
+      Position == "P"                  ~ "P",
+      Position == "LS"                  ~ "LS",
+      TRUE                              ~ NA_character_ ) )
+
+# Creating one dataset that has the mean salary for each experience level in both 2013 and 2024, so we can compare them in a plot
+exp.sum <- bind_rows(
+  clean.dat %>%
+    group_by(Experience) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    mutate(year = "2013"),
+  clean.dat.24 %>%
+    group_by(Experience) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    mutate(year = "2024")
+)
+
+# Creating one dataset that has the mean salary for each side of the ball (offense, defense, special teams) in both 2013 and 2024, so we can compare them in a plot
+side.sum <- bind_rows(
+  clean.dat %>%
+    group_by(Side) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    mutate(year = "2013"),
+  clean.dat.24 %>%
+    group_by(Side) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    mutate(year = "2024")
+)
+
+# Creating one dataset that has the mean salary for each position in both 2013 and 2024, so we can compare them in a plot
+position.sum <- bind_rows(
+  clean.dat %>%
+    group_by(Position) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    mutate(year = "2013"),
+  clean.dat.position %>%
+    group_by(Position) %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    mutate(year = "2024")
+)
+
+# Plotting Average Salary differences between 2013 and 2024 based on years of experience
+library(scales)
+ggplot(exp.sum, aes(x = Experience, y = mean_salary, fill = year)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = function(x) x / 1e6,
+                     name   = "Average Salary (millions)" ) +
+  labs(
+    title = "Average Salary vs Experience in 2013 and 2024",
+    x = "Years of Experience"
+  )
+
+# Plotting Average Salary differences between 2013 and 2024 based on side of the ball
+ggplot(side.sum, aes(x = Side, y = mean_salary, fill = year)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = function(x) x / 1e6,
+                     name   = "Average Salary (millions)" ) +
+  labs(
+    title = "Average Salary vs Player Category in 2013 and 2024",
+    x = "Player Category"
+  )    
+
+# Plotting Average Salary differences between 2013 and 2024 based on position
+ggplot(position.sum, aes(x = Position, y = mean_salary, fill = year)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = function(x) x / 1e6,
+                     name   = "Average Salary (millions)" ) +
+  labs(
+    title = "Average Salary vs Position in 2013 and 2024",
+    x = "Position"
+  )     
+```
+        
+```{r, eval=FALSE, include=FALSE}
 
 ## Extension Option 2. Out of Sample Prediction
 
@@ -309,5 +425,5 @@ where $y_i$ is the actual salary, $\hat{y}_i$ is the predicted salary, and $n$ i
 
 **Hint:** You will need to do some data cleaning to get the two datasets to line up.
 In particular, rename variables so they have the same names.
-
+```
 
