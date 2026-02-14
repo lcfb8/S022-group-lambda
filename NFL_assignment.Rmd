@@ -299,7 +299,7 @@ clean.dat.24 <- clean.dat.24 %>%
 clean.dat.24 <- clean.dat.24 %>%
     mutate( logSal = log( Salary ) )
 
-# Finding the mean height and weight in both 2013 and 2024    (CAN PROBABLY DELETE)
+# Finding the mean height and weight in both 2013 and 2024 (CAN PROBABLY DELETE)
 summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
                mean_height = mean( total_inches, na.rm = TRUE ) ) 
 summarise( clean.dat.24, mean_weight = mean( Weight, na.rm = TRUE ), 
@@ -313,8 +313,7 @@ pay_diff
 clean.dat.24 <- clean.dat.24 %>%
   mutate(
     Experience = ifelse(YrsExp == "R", "0", YrsExp),
-    Experience= as.numeric(Experience)
-  )
+    Experience= as.numeric(Experience) )
 
 # Cleaning position in 2024 dataset and creating Side variable similar to 2013 dataset
 clean.dat.24 <- clean.dat.24 %>%
@@ -324,6 +323,7 @@ clean.dat.24 <- clean.dat.24 %>%
         Position %in% c("K", "LS", "P") ~ "Special Teams",
         TRUE ~ NA_character_ ) )
 
+# Cleaning position in 2024 dataset so that the positions are similar to 2013 dataset
 clean.dat.position <- clean.dat.24 %>%
   mutate( Position = case_when(
       Position %in% c("OT", "OG", "OL") ~ "OL",
@@ -348,68 +348,87 @@ clean.dat.position <- clean.dat.24 %>%
 exp.sum <- bind_rows(
   clean.dat %>%
     group_by(Experience) %>%
-    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
     mutate(year = "2013"),
   clean.dat.24 %>%
     group_by(Experience) %>%
-    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
-    mutate(year = "2024")
-)
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2024") )
+
+# Calculating the mean salary difference and percent change between 2013 and 2024 for player experience
+exp.sum %>% 
+  group_by( Experience ) %>% 
+  summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
+             mean_salary_2024 = mean( mean_salary[ year == "2024" ] ) ) %>%
+  mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
+  mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
+  arrange( desc( percent_diff ) ) 
 
 # Creating one dataset that has the mean salary for each side of the ball (offense, defense, special teams) in both 2013 and 2024, so we can compare them in a plot
 side.sum <- bind_rows(
   clean.dat %>%
     group_by(Side) %>%
-    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
     mutate(year = "2013"),
   clean.dat.24 %>%
     group_by(Side) %>%
-    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
-    mutate(year = "2024")
-)
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2024") )
+
+# Calculating the mean salary difference and percent change between 2013 and 2024 for each side of the ball
+side.sum %>% 
+  group_by( Side ) %>% 
+  summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
+             mean_salary_2024 = mean( mean_salary[ year == "2024" ] ) ) %>%
+  mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
+  mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
+  arrange( desc( percent_diff ) )
 
 # Creating one dataset that has the mean salary for each position in both 2013 and 2024, so we can compare them in a plot
 position.sum <- bind_rows(
   clean.dat %>%
     group_by(Position) %>%
-    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
     mutate(year = "2013"),
   clean.dat.position %>%
     group_by(Position) %>%
-    summarise(mean_salary = mean(Salary, na.rm = TRUE), .groups = "drop") %>%
-    mutate(year = "2024")
-)
+    summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
+    mutate(year = "2024") )
 
+# Calculating the mean salary difference and percent change between 2013 and 2024 for each position
+position.sum %>% 
+  group_by( Position ) %>% 
+  summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
+             mean_salary_2024 = mean( mean_salary[ year == "2024" ] ) ) %>%
+  mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
+  mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
+  arrange( desc( percent_diff ) )
+
+#### Plotting ####
 # Plotting Average Salary differences between 2013 and 2024 based on years of experience
 library(scales)
 ggplot(exp.sum, aes(x = Experience, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
-  scale_y_continuous(labels = function(x) x / 1e6,
+  scale_y_continuous( labels = function(x) x / 1e6,
                      name   = "Average Salary (millions)" ) +
-  labs(
-    title = "Average Salary vs Experience in 2013 and 2024",
-    x = "Years of Experience"
-  )
+  labs( title = "Average Salary vs Experience in 2013 and 2024",
+    x = "Years of Experience" )
 
 # Plotting Average Salary differences between 2013 and 2024 based on side of the ball
 ggplot(side.sum, aes(x = Side, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
-  scale_y_continuous(labels = function(x) x / 1e6,
+  scale_y_continuous( labels = function(x) x / 1e6,
                      name   = "Average Salary (millions)" ) +
-  labs(
-    title = "Average Salary vs Player Category in 2013 and 2024",
-    x = "Player Category"
-  )    
+  labs( title = "Average Salary vs Player Category in 2013 and 2024",
+    x = "Player Category" )    
 
 # Plotting Average Salary differences between 2013 and 2024 based on position
 ggplot(position.sum, aes(x = Position, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
-  scale_y_continuous(labels = function(x) x / 1e6,
+  scale_y_continuous( labels = function(x) x / 1e6,
                      name   = "Average Salary (millions)" ) +
-  labs(
-    title = "Average Salary vs Position in 2013 and 2024",
-    x = "Position"
-  )     
+  labs( title = "Average Salary vs Position in 2013 and 2024",
+    x = "Position" )
 ```
         
 ```{r, eval=FALSE, include=FALSE}
