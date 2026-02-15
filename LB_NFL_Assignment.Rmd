@@ -216,7 +216,9 @@ ggplot(clean.dat, aes(x = Experience, y = logSal, color = Race)) +
     shape = "Side"
   ) +
   theme_minimal() +
-  theme(legend.position = "bottom")
+  theme(legend.text = element_text(size = 8), 
+          legend.title = element_text(size = 10, face = "bold"),
+          legend.position = "right")
 
 ```
 
