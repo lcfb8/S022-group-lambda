@@ -5,11 +5,18 @@ date: "`r Sys.Date()`"
 output: pdf_document
 editor_options: 
   chunk_output_type: console
+  markdown: 
+    wrap: sentence
 ---
 
 ```{r setup, include=FALSE}
 library( tidyverse )
-knitr::opts_chunk$set(echo = TRUE)
+library(scales)
+knitr::opts_chunk$set(
+    echo = TRUE,
+    warning = FALSE,
+    message = FALSE
+    )
 
 #Read in the data, note that we define several values in the original dataset as NA
 nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv", 
@@ -17,28 +24,28 @@ nfl <- read_csv( "data/NFL-Census-Data-9.2.2013_clean.csv",
 
 ```
 
-# \~\~\~ Data Exploration \~\~\~
+# Data Exploration
 
-# 1. Find the highest and lowest salary in the dataset.
+# 1. Highest and lowest salary in the dataset.
+
+The highest salary is \$20,100,000 and the lowest salary is \$48,333.
 
 ```{r}
-# Highest and lowest salary
-
-#base R
+# Highest salary
 max(nfl$Salary, na.rm = TRUE)
 
+# Lowest salary
 min(nfl$Salary, na.rm = TRUE)
-
-#tidyverse way 
-nfl %>% 
-    summarise( max_sal = max( Salary, na.rm = TRUE ), 
-               min_sal = min( Salary, na.rm = TRUE ) )
-
-# Answer: The highest salary is $20,100,000 and the lowest salary is $48,333.
-
 ```
 
-# 2. Print the college and state for the five best paid players of the San Francisco 49ers
+
+
+\newpage
+
+# 2. College and state for the five best paid players of the San Francisco 49ers.
+
+The five best paid players' colleges of the San Francisco 49ers are:
+Mississippi, Auburn, Maryland, Penn State, and Miami (Fla.), and their states are Tennessee, Georgia, DC, Maryland, and Florida for states.
 
 ```{r}
 
@@ -47,17 +54,15 @@ nfl %>%
     arrange( desc( Salary ) ) %>% 
     select( "Player Name", College, State ) %>% 
     head(5)
-
-
 ```
 
-# 3. Calculate the mean salary and number of players in the dataset for each position
 
-Arrange your results from highest to lowest mean salary.
 
-Hint: You might want some of the following code.
-You should also use the `group_by() + summarise()` combo.
-Also use `summarise( n = n() )` to make a count of the number of records.
+
+
+\newpage
+
+# 3. Mean salary and number of players in the dataset for each position, sorted from highest to lowest mean salary.
 
 ```{r}
 
@@ -73,13 +78,15 @@ clean.dat %>%
 
 ```
 
+\newpage
+
 # 4. Determine if taller players get paid more
 
-Use linear regression to answer this question.
-For an overview of linear regression in R, see the course video and materials posted on Canvas.
+Notes on our model: When fitting a model to understand whether height is associated with salary, it’s usually better to treat both salary and height as continuous numeric variables.
+In the current model and plot, height is treated as a categorical variable, which makes the interpretation of the height–salary relationship more complicated.
+The plot doesn't communicate much, as the categorical variables were sorted into alphabetical order, not according to their magnitude.
 
-Sometimes measures such as salary have such a skew that the outliers cause real problems.
-For doing this question, you might first try log transforming Salary via a mutate command to make `logSal = log( Salary )`, and then fitting your model on that space.
+With the model using categorical variables, we have the height 5'10 set as the intercept, meaning that we estimate that players with that height will make on average US\$1,121,370, while players whose height is 6'2" and above will have higher salaries than the shorter players. However, none of these coefficients are statistically significant, apart from the players measuring 6'7" ($t$(d = 1730) = 2.18, $p$\<0.05), who will on average make 1.5 times more than the players measuring 5'10.
 
 ```{r}
 # Add logSal variable and clean up a data point with a typo
@@ -94,19 +101,18 @@ exp( coef( model ) )
 
 ```
 
-Once you do, you can use `exp( coef )`, where `coef` is the coefficient from your regression, to get an interpretation of your coefficient as percent change in salary given a change in height.
 
-Notes on our model: When fitting a model to understand whether height is associated with salary, it’s usually better to treat both salary and age as continuous numeric variables.
-In the current model and plot, height is treated as a categorical variable, which makes the interpretation of the height–salary relationship more complicated.
-The plot doesn't communicate much, as the categorical variables were sorted into alphabetical order, not according to their magnitude.
-
-With the model using categorical variables, we have the height 5'10 set as the intercept, meaning that we estimate that players with that height will make on average US\$1,121,370, while players who are Height 6'2" and above will have higher salaries than the shorter players. However, none of these coefficients are statistically significant, apart from the players measuring 6'7" (t(d = 1730) = 2.18, p=0.029), who will on average make 1.5 times more than the players measuring 5'10.
+\newpage
 
 # 5. Improve the linear model
 
-What do you think about the results in (4)?
-If you found differences, can you explain them by accounting for player position in your model?
-In other words, what happens when you include position in your model?
+### Adding Position as a control variable
+
+After adding Position as a covariate, we're left with no categories of height having a statistical significance, which means that according to this model, when controlling for position, no categories of height are associated with higher salaries (in terms of statistical significance).
+The only position that shows a somewhat statistically significant relationship with log salary is tight end (TE).
+$R^2$ increased from 0.002 to 0.015, in comparison with the previous model.
+In other words, this model has a slightly better fit than the one with just height.
+However, $R^2$ is still very small.
 
 ```{r}
 # Create a new model that incorporates both Position and Height
@@ -117,20 +123,13 @@ exp( coef( model ) )
 
 ```
 
-After adding Position as a covariate, we're left with no categories of height having a statistical significance, which means that according to this model, when controlling for position, no categories of height are associated with higher salaries (in terms of statistical significance).
-The only position that shows a somewhat statistically significant relationship with log salary is tight end (TE).
-Rˆ2 increased from 0.002 to 0.015, in comparison with the previous model.
-In other words, this model has a slightly better fit than the one with just height.
-However, Rˆ2 is still very small.
 
-# 6. Print the mean weight and height for the football players, calculated for each position
 
-You are going to have to get height cleaned up.
-You might try `separate()` (see R for DS) to make feet and inches, and then do some math via `mutate()`.
-You could also use `substring()`.
-In any case, you might find `parse_number()` a useful function.
-Note that one foot (abbreviated as ') is equal to 12 inches (abbreviated to ").
-Try asking a Large Language Model for help with this one.
+\newpage
+
+# 6. Mean weight and height for the football players, calculated for each position
+
+Cleaning up the height variable and converting it into total inches, so that we can calculate the mean height for each position.
 
 ```{r}
 # Convert height into total inches
@@ -150,17 +149,13 @@ clean.dat %>%
 
 \newpage
 
-# \~\~\~ Visualizations \~\~\~
+# Visualizations
 
-## 7. Make a graph with 3 variables: X axis, Y axis, and plot point coloring, that tells a story.
+## 7. Graph with 3 variables: X axis, Y axis, and plot point coloring, that tells a story.
 
-**please note:** we will be deducting points for messy plots, plots with poor labeling, or plots that are hard to read.
-Make sure your plots are clear and easy to understand.
+We combined player positions to create three "Side" categories: "Offense", "Defense", and "Special Teams".
 
 ```{r}
-# You pick the variables.  What would be interesting?
-
-# Combine player positions to create three "Side" categories: "Offense", "Defense", and "Special Teams". 
 
 clean.dat <- clean.dat %>%
     mutate( Side = case_when(
@@ -174,40 +169,50 @@ clean.dat <- clean.dat %>%
 ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
     geom_point() +
     geom_smooth( method = "lm", se = FALSE ) +
-    labs( title = "Log Salary vs Height",
+    labs( title = "Log Salary vs Height by Position Side",
           x = "Height (inches)",
           y = "Log Salary" ) +
     theme(legend.position = "right")
 
 ```
 
-**7(B)** Explain what the plot tells us.
+**7(B)**
 
 Our plot shows how different sides of the game might have different relationships between height and salary.
 The trend lines indicate that taller players who are on offense and defense make more money, while special teams players' salaries appear to be higher for shorter players.
 
-## 8. Make a graph with 4 variables that tells a story that your first plot does not.
+\newpage
 
-For the four variables, perhaps you could use X axis, Y axis, plot point coloring, and plot point size, or perhaps plot point shape or some other attribute.
-**Do not** use any facets yet.
-Just a single plot.
-Other than that constraint, you pick!
+## 8. Graph with 4 variables that tells a story that our first plot does not.
+
+Plot exploring how log salary, experience, race, and side (offense, defense, special teams) are related.
 
 ```{r}
-# We will make a plot that explores how log salary, experience, race, and side (offense, defense, special teams) are related.
 
 # Remove NA from Race column
 
 clean.dat <- clean.dat %>% 
     filter( !is.na( Race ) )
 
-# Combine Asian/Pacific Islander and Pacific Islander into one category called Asian/Pacific Islander, and Iranian, Native American, and Other into one category called Other. 
+# Combine Asian/Pacific Islander and Pacific Islander into one category called
+# Asian/Pacific Islander, and Iranian, Native American, and Other into one
+# category called Other. 
 
 clean.dat <- clean.dat %>%
-  mutate(Race = if_else(Race == "Pacific Islander",
-                        "Asian/Pacific Islander",
-                        Race)) %>%
-    mutate(Race = if_else(Race %in% c("Native American", "Other", "Iranian"), "Other", Race))
+  mutate(
+    Race = if_else(
+      Race == "Pacific Islander",
+      "Asian/Pacific Islander",
+      Race
+    )
+  ) %>%
+  mutate(
+    Race = if_else(
+      Race %in% c("Native American", "Other", "Iranian"),
+      "Other",
+      Race
+    )
+  )
 
 ggplot(clean.dat, aes(x = Experience, y = logSal, color = Race)) +
   geom_point(aes(shape = Side)) +  
@@ -223,13 +228,15 @@ ggplot(clean.dat, aes(x = Experience, y = logSal, color = Race)) +
 
 ```
 
-**8(B)** What does this plot tell us that the other plot doesn't?
+**8(B)**
 
 This plot shows that (as expected), salary increases with years of experience.
 Hispanic, White, and Black show a similar trend, while Asian/Pacific Islander seems to show a steeper relationship (where salary increases more for each year of experience).
 Other races show a very steep relationship, however, this is likely due to a small sample size rather than a statistically significant relationship.
 It is difficult to tell from the graph if Side relates to the other variables, though it appears that potentially, offensive players make more money than others.
 However, the graph is very busy and overly complicated.
+
+\newpage
 
 ## 9. When might we prefer simpler plots with fewer moving pieces to more complicated plots?
 
@@ -240,12 +247,13 @@ If a plot is too complicated and includes too many variables, this message can b
 Often, the most effective plots are simple and allow the user to intuitively understand what they are supposed to be taking away from the plot.
 The plot above is overly complicated and makes it difficult to draw clear conclusions from the data.
 
-## 10. Now extend or modify your plot by making multiple plots in the same window.
+\newpage
 
-You want to use either `facet_wrap()` or `facet_grid()` here.
+## 10. Multiple plots in the same window.
 
+We modified our plot to see how years of experience, race, salary, and position are related, using facet wrap.
 ```{r}
-# We modified our plot to see how years of experience, race, salary, and position are related. Using facet wrap, we broke out the data by Position (rather than Side).
+# Using facet wrap, we broke out the data by Position (rather than Side).
 
 ggplot( clean.dat, aes( x = Experience, y = logSal, color = Race ) ) +
     facet_wrap(~Position) +
@@ -258,16 +266,21 @@ ggplot( clean.dat, aes( x = Experience, y = logSal, color = Race ) ) +
 
 ```
 
-**10(B)** Compared to your prior plots, does this plot make anything easier to see?
-Harder to see?
+**10(B)**
 
 This plot makes the data, and the conclusions we can draw from it, much clearer.
 The color coding by race shows some very close relationships between race and position, and for many positions, there is a clear correlation between years of experience and log salary.
 We can also see a relationship between position and years of experience — positions where players are injured more often (such as running back) show shorter career lengths than other positions.
 
-## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question.
+\newpage
+
+## 11. Log salary vs height by position.
+
+For this plot, we used facet wrap to break out the data by position, and plotted log salary against height (in inches) for each position. We also added a linear model line to show the relationship between height and log salary for each position.
 
 ```{r}
+# Using facet wrap to break out the data by Position, and plotted log salary
+# against height (in inches)
 
 ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
     facet_wrap(~Position) +
@@ -280,7 +293,7 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal)) +
 
 ```
 
-**11(B).** What does your plot say?
+**11(B).**
 
 Our plot shows that there appears to be a relationship between height and log salary for some positions, such as fullback, offensive lineman, and quarterback, but not for others.
 The plot also shows that certain positions have a wider distribution of heights than others — wide receivers are of many heights, whereas all offensive linemen in the data set are tall.
@@ -288,15 +301,19 @@ We can also see that certain positions, such as quarterback, make more money on 
 
 \newpage
 
-# \~\~\~ A touch of modeling \~\~\~
+# A touch of modeling
 
-## 12. (2 pts) Make a predictive model (using OLS) to predict log salary using some set of other covariates and print out a summary of the model. Specify how you decided to treat missing data.
+## 12. Predictive model (using OLS) to predict log salary using experience, age, position.
+
+Missing data: At first, when trying to fit the model, we used `na.action = na.omit` within the `lm()` function.
+But R couldn't run the `predict()` function, because there was incompatibility with the number of rows (1743 x 1745).
+So to ensure we were predicting the log salary of the same individuals, we decided to remove null values of the entire dataset within this specific chunk of code, using: `clean2 <- na.omit(clean.dat)` before fitting the model.
 
 ```{r}
 
-# Create a model that predicts log salary based on experience, age, and position.
-
-# I was cleaning na when fitting the model, so I got an error saying: ! Can't recycle input of size 1743 to size 1745. Then ChatGPT suggested to clean the data before fitting the model.
+# I was cleaning na when fitting the model, so I got an error saying: ! Can't
+# recycle input of size 1743 to size 1745. Then ChatGPT suggested to clean the
+# data before fitting the model.
 
 clean2 <- na.omit(clean.dat)
 
@@ -311,38 +328,55 @@ summary( model_final )
 
 ```
 
-Missing data: At first, when trying to fit the model, we used na.action = na.omit within the lm() function.
-But R couldn't run the predict() function, because there was incompatibility with the number of rows ( 1743 x 1745).
-So to ensure we were predicting the log salary of the same individuals, we decided to remove null values of the entire dataset within this specific chunk of code, using: `clean2 <- na.omit(clean.dat)` before fitting the model.
 
-## 13. Make a plot showing predictions vs actual, and also make a residual plot.
+
+\newpage
+
+## 13. Plot showing predictions vs actual and a residual plot.
+
+Using OLS, we created a model to predict log salary using experience, age, and position.
 
 ```{r}
 
 clean2 <- clean2 %>%
   filter(complete.cases(Experience, Age, Position))
 
-# the above line was suggested by chatgpt after failing to filter na in multiple variables.
+# the above line was suggested by chatgpt after failing to filter na in multiple
+# variables.
 
 # model predicted vs actual
-ggplot( clean2, aes( x = predict( model_final ), y = logSal , color = Experience) ) +
+ggplot( clean2, aes( x = predict( model_final ), 
+                     y = logSal , color = Experience) ) +
     geom_point() +
     geom_abline( slope = 1, intercept = 0, col = "red" ) +
-    labs( y = "Actual Log Salary", x = "Predicted Log Salary" )
+    labs( title = "Predictive Model of Log Salary: Predicted vs Actual",
+        y = "Actual Log Salary", 
+        x = "Predicted Log Salary" 
+        )
+```
 
+In order to evaluate the fit of our model, we created a residuals plot, which shows the residuals of the predicted log salary.
 
+```{r}
 # residuals plot
-ggplot( clean2, aes( x = predict( model_final ), y = resid( model_final ), color = Experience ) ) +
+ggplot( clean2, aes( x = predict( model_final ), 
+                     y = resid( model_final ), color = Experience ) ) +
     geom_point() +
     geom_smooth( method = "loess", se = FALSE ) +
     geom_hline( yintercept = 0, col = "red" ) +
-    labs( x = "Predicted Log Salary", y = "Residuals" )
+    labs( 
+        title = "Residuals of Predicted vs Actual Log Salary",
+        x = "Predicted Log Salary",
+        y = "Residuals" 
+        )
 
 ```
 
 ```{r, eval=FALSE, include=FALSE}
 
-# Some old code. If we coded this right, it shouldn't show up in the final report.
+# Some old code. If we coded this right, it shouldn't show up in the final 
+# report.
+
 # 1. Clean data for the model
 model_dat <- clean.dat %>%
   filter(complete.cases(logSal, total_inches, Weight, Position, Age, Experience))
@@ -371,7 +405,8 @@ ggplot(model_dat, aes(x = logSal, y = pred)) +
 
 # residuals plot
 
-ggplot( clean.dat, aes( x = predict( model_final ), y = resid( model_final ) ) ) +
+ggplot( clean.dat, aes( x = predict( model_final ), 
+                        y = resid( model_final ) ) ) +
     geom_point() +
     #geom_smooth( method = "loess", se = FALSE ) +
     geom_hline( yintercept = 0, col = "red" ) +
@@ -381,14 +416,16 @@ ggplot( clean.dat, aes( x = predict( model_final ), y = resid( model_final ) ) )
 
 ```
 
-**13(B)** Do these plots show any problems?
+**13(B)**
 
 The plot showing the relationship between predicted and actual salary does not show a good fit according to the linear model.
 The residuals plot shows a slanted pattern, which also indicates that our model does not fit the data well (the residuals should be randomly clustered around zero).
 
-## 14. How old do players get?
+\newpage
 
-Make a distribution of the ages of players in the dataset, and then speculate about how long a player might be able to play in the NFL.
+## 14. Distribution of the ages of players in the dataset.
+
+We created a histogram to visualize the distribution of player ages, and calculated summary statistics to understand the central tendency and spread of the ages.
 
 ```{r}
 # Histogram of player ages
@@ -400,7 +437,7 @@ clean.dat %>%
           x = "Age",
           y = "Count" )
 
-# Let's use the 75th percentile to estimate the age of retirement for NFL players. 
+# Let's use the 75th percentile to estimate the age of retirement for NFL players.
 
 quantile( clean.dat$Age, probs = 0.75, na.rm = TRUE )
 
@@ -410,8 +447,7 @@ summary( clean.dat$Age, na.rm = TRUE)
 
 If we take the 75% percentile as a possible indication of the age of retirement, this is estimated to be 30 years old.
 
-**14(B).** Poke around on the internet to see what a typical age of retirement is.
-How did that compare to your own assessment?
+**14(B).**
 
 The average age of retirement in the NFL is roughly 27.6 years.
 (Source: <https://runrepeat.com/nfl-player-career-length>)
@@ -419,15 +455,19 @@ The average age of retirement in the NFL is roughly 27.6 years.
 Interestingly, this aligns almost exactly with the mean and median age in our dataset.
 Would this have perhaps been a better way of estimating retirement age than using the 75% percentile?
 
-## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
+\newpage
+
+## 15. Prediction of average lifetime earnings for a median level pay NFL player
+
+We calculated median lifetime salary by position, and then took a weighted average.
+
+According to [statista.com](https://www.statista.com/statistics/240102/average-player-career-length-in-the-national-football-league/?srsltid=AfmBOoqmPYi5zkjXX6DnUkiD1QaxzctbS5JcTA_lbZ8tMZEYbO0MzTjS) the average career length for an NFL player is 3.3 years, but it varies by position.
+
+
+First, we reconciled the positions from statista with the ones from our dataset:
 
 ```{r}
-
-# We calculated median lifetime salary by position, and then took a weighted average. Reasoning is explained in comments throughout the code.
-
-# According to statista.com (https://www.statista.com/statistics/240102/average-player-career-length-in-the-national-football-league/?srsltid=AfmBOoqmPYi5zkjXX6DnUkiD1QaxzctbS5JcTA_lbZ8tMZEYbO0MzTjS) the average career length for an NFL player is 3.3 years, but it varies by position. 
-
-# We need to reconcile these positions with the positions in our dataset, with help from ChatGPT to clarify which sub-positions fall into the broader position categories (initials added to the list by us). 
+# With the help from ChatGPT, we clarified which sub-positions fall into the broader position categories (initials added to the list by us). 
 
 table(clean.dat$Position)
 
@@ -446,8 +486,12 @@ table(clean.dat$Position)
 # Wide receivers (WR): 2.81
 # Running backs (RB, FB): 2.57
 # Average across all positions: 3.3
+```
 
-# Create a new variable in my dataset that assigns the average career length to each player based on their position.
+
+Second, we created a new variable in our dataset that assigns the average career length to each player based on their position:
+
+```{r}
 
 clean.dat <- clean.dat %>%
     mutate( Career_Length = case_when(
@@ -463,7 +507,13 @@ clean.dat <- clean.dat %>%
         TRUE ~ NA_real_
     ) )
 
-# Now we need the median salary for each position. 
+```
+
+We, then, calculated the median salary for each position and put this data into a new data frame, position_earnings, that also includes the career length and count of players for each position. We then created a new variable in this data frame, lifetime_earnings, which is the product of median salary and career length:
+
+The average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
+
+```{r}
 
 clean.dat %>% 
     group_by( Position ) %>% 
@@ -479,31 +529,23 @@ position_earnings <- clean.dat %>%
     mutate( lifetime_earnings = median_salary * career_length )
 
 
-# Now we need a weighted average of lifetime earnings by position, based on the proportion of positions in the NFL dataset as a whole
+# Now we need a weighted average of lifetime earnings by position, based on the
+# proportion of positions in the NFL dataset as a whole
 
 position_earnings %>% 
     summarize(avg_lifetime = sum( (lifetime_earnings * count )/ sum( count )) )
 
-
-# Average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
-
 ```
+
 
 \newpage
 
-# \~\~\~ Extensions \~\~\~
+# Extension
 
-In this part of the assignment we offer two, very open ended, extensions.
-They represent a reasonable amount of work, but are only worth 2 points---in other words, you can choose to do them if you want to go above and beyond, but you can still get a fine grade without doing them at all.
-We will only grade at most one extension, and we will grade the first we see.
+### Compared with a __2024__ dataset, we examine how salaries have changed and create visualizations to compare the two datasets. We also investigate differences in salary by position and experience level across the two datasets.
 
-Both extensions relate to a second dataset, `Master-Player-List-2024.csv`, that you have in the data folder.
 
-## Extension Option 1. Comparing to a more modern dataset.
-
-How much more are players paid now, compared to 2013?
-Try to account for differences in the datasets in terms of, for example, age and experience of the players in each dataset.
-Write up your results using at least one visualization and some text explaining any analysis you did.
+On average, players in 2024 are making \$578,365 per year more than players in 2013.
 
 ```{r}
 nfl_24 <- read_csv( "data/Master-Player-List-2024.csv", 
@@ -534,26 +576,45 @@ pay_diff
 
 ```
 
-On average, players in 2024 are making \$578,365 per year more than players in 2013.
+### Data cleaning for the 2024 dataset to make it comparable to the 2013 dataset.
 
 ```{r}
+# Converting YrsExp variable in 2024 dataset to numeric, treating "R" as 0 years
+# of experience
 
-# Data cleaning 
-# Converting YrsExp variable in 2024 dataset to numeric, treating "R" as 0 years of experience
 clean.dat.24 <- clean.dat.24 %>%
   mutate(
     Experience = ifelse(YrsExp == "R", "0", YrsExp),
     Experience= as.numeric(Experience) )
 
-# Cleaning position in 2024 dataset and creating Side variable similar to 2013 dataset
-clean.dat.24 <- clean.dat.24 %>%
-    mutate( Side = case_when(
-        Position %in% c("C", "FB", "OT", "OG", "QB", "RB", "C", "TE", "WR", "OL") ~ "Offense",
-        Position %in% c("DB", "LB", "DE", "DT", "DL","CB", "NT", "SS", "FS", "OLB", "MLB", "ILB", "SAF") ~ "Defense",
-        Position %in% c("K", "LS", "P") ~ "Special Teams",
-        TRUE ~ NA_character_ ) )
+# Cleaning position in 2024 dataset and creating Side variable similar to 2013
+# dataset
 
-# Cleaning position in 2024 dataset so that the positions are similar to 2013 dataset
+clean.dat.24 <- clean.dat.24 %>%
+  mutate(
+    Side = case_when(
+      Position %in% c(
+        "C", "FB", "OT", "OG", "QB",
+        "RB", "TE", "WR", "OL"
+      ) ~ "Offense",
+      
+      Position %in% c(
+        "DB", "LB", "DE", "DT", "DL",
+        "CB", "NT", "SS", "FS",
+        "OLB", "MLB", "ILB", "SAF"
+      ) ~ "Defense",
+      
+      Position %in% c(
+        "K", "LS", "P"
+      ) ~ "Special Teams",
+      
+      TRUE ~ NA_character_
+    )
+  )
+
+# Cleaning position in 2024 dataset so that the positions are similar to 2013
+# dataset
+
 clean.dat.position <- clean.dat.24 %>%
   mutate( Position = case_when(
       Position %in% c("OT", "OG", "OL") ~ "OL",
@@ -576,10 +637,13 @@ clean.dat.position <- clean.dat.24 %>%
 
 ```
 
-#### ***Visualization 1: Plotting Average Salary differences between 2013 and 2024 based on years of experience***
+## Visualization 1: Plotting Average Salary differences between 2013 and 2024 based on years of experience
+
+
+To plot the average salary differences, we first create one dataset that has the mean salary for each experience level in both 2013 and 2024, so we can see the mean salary difference between the two years based on experience level. We then calculate the mean salary difference and percent change between 2013 and 2024 for player experience. 
 
 ```{r}
-# Creating one dataset that has the mean salary for each experience level in both 2013 and 2024, so we can compare them in a plot
+# Create dataset with the mean salary for each experience level in both 2013 and 2024
 exp.sum <- bind_rows(
   clean.dat %>%
     group_by(Experience) %>%
@@ -590,7 +654,8 @@ exp.sum <- bind_rows(
     summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
     mutate(year = "2024") )
 
-# Calculating the mean salary difference and percent change between 2013 and 2024 for player experience
+# Calculate the mean salary difference and percent change between 2013 and 2024
+# for player experience
 exp.sum %>% 
   group_by( Experience ) %>% 
   summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
@@ -598,8 +663,11 @@ exp.sum %>%
   mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
   mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
   arrange( desc( percent_diff ) ) 
+```
 
-library(scales)
+Finally, we plot the average salary differences between 2013 and 2024 based on years of experience.
+
+```{r}
 ggplot(exp.sum, aes(x = Experience, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
   scale_y_continuous( labels = function(x) x / 1e6,
@@ -619,11 +687,14 @@ In the 2024 dataset, we turned the years of experience into a numeric variable a
 We then combined the 2013 and 2024 dataset into a single dataset, grouped by years of experience, and calculated the average salary for each group.
 These averages were then plotted against years of experience for both years.
 
-#### ***Visualization 2: Plotting Average Salary differences between 2013 and 2024 based on side of the ball***
+## Visualization 2: Plotting Average Salary differences between 2013 and 2024 based on side of the ball
+
+Now based on the side of the ball, we create one dataset that has the mean salary for the following sides: offense, defense, special teams, in both 2013 and 2024. 
+We then calculate the mean salary difference and percent change between those two years.
 
 ```{r}
-
-# Creating one dataset that has the mean salary for each side of the ball (offense, defense, special teams) in both 2013 and 2024, so we can compare them in a plot
+# create dataset with the mean salary for each side of the ball in both 2013 
+# and 2024
 side.sum <- bind_rows(
   clean.dat %>%
     group_by(Side) %>%
@@ -634,7 +705,8 @@ side.sum <- bind_rows(
     summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
     mutate(year = "2024") )
 
-# Calculating the mean salary difference and percent change between 2013 and 2024 for each side of the ball
+# Calculating the mean salary difference and percent change between 2013 and 2024
+# for each side of the ball
 side.sum %>% 
   group_by( Side ) %>% 
   summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
@@ -642,13 +714,17 @@ side.sum %>%
   mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
   mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
   arrange( desc( percent_diff ) )
+```
 
-# Plotting Average Salary differences between 2013 and 2024 based on side of the ball
+
+We plot the average salary differences between 2013 and 2024 based on side of the ball:
+```{r}
+# Plotting Average Salary differences between 2013 and 2024 based on side
 ggplot(side.sum, aes(x = Side, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
   scale_y_continuous( labels = function(x) x / 1e6,
                      name   = "Average Salary (millions)" ) +
-  labs( title = "Average Salary vs Player Category in 2013 and 2024",
+  labs( title = "Average Salary Difference vs Player Category in 2013 and 2024",
     x = "Player Category" )   
 
 ```
@@ -661,11 +737,12 @@ To create this second visualization, we classified all of the player positions i
 We then combined the datasets and created a summary dataset, side.sum, and calculated the average salary of each new category.
 These averages were then plotted as side-by-side bars for 2013 and 2024.
 
-#### ***Visualization 3: Plotting Average Salary differences between 2013 and 2024 based on position***
+## Visualization 3: Plotting Average Salary differences between 2013 and 2024 based on position
+
+Now based on position, we create one dataset that has the mean salary for each position in both 2013 and 2024. And then we calculate the mean salary difference and percent change between those two years for each position.
 
 ```{r}
-
-# Creating one dataset that has the mean salary for each position in both 2013 and 2024, so we can compare them in a plot
+# create dataset with the mean salary for each position in both 2013 and 2024
 position.sum <- bind_rows(
   clean.dat %>%
     group_by(Position) %>%
@@ -676,7 +753,8 @@ position.sum <- bind_rows(
     summarise(mean_salary = mean(Salary, na.rm = TRUE) ) %>%
     mutate(year = "2024") )
 
-# Calculating the mean salary difference and percent change between 2013 and 2024 for each position
+# Calculating the mean salary difference and percent change between 2013 and 
+# 2024 for each position
 position.sum %>% 
   group_by( Position ) %>% 
   summarise( mean_salary_2013 = mean( mean_salary[ year == "2013" ] ), 
@@ -684,13 +762,17 @@ position.sum %>%
   mutate( salary_diff = mean_salary_2024 - mean_salary_2013 ) %>%
   mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
   arrange( desc( percent_diff ) )
+```
 
+
+Finally, we plot the average salary differences between 2013 and 2024 based on position: 
+```{r}
 # Plotting Average Salary differences between 2013 and 2024 based on position
 ggplot(position.sum, aes(x = Position, y = mean_salary, fill = year)) +
   geom_col(position = "dodge") +
   scale_y_continuous( labels = function(x) x / 1e6,
                      name   = "Average Salary (millions)" ) +
-  labs( title = "Average Salary vs Position in 2013 and 2024",
+  labs( title = "Average Salary Difference vs Position in 2013 and 2024",
     x = "Position" )
 ```
 
@@ -705,3 +787,7 @@ To create this third visualization, we had to ensure that all player positions w
 This was done by using the position types in the 2013 dataset as a reference and changing the position types in the 2024 dataset to match via the mutate function.
 One more dataset was created, position.sum, which grouped players by position and year and calculated the average salary for each position in 2013 and 2024.
 These averages were plotted as side-by-side bars for each year at each position.
+
+\newpage
+# Acknowledgements
+Copilot and ChatGPT assisted us in this problem set. Copilot (in R Studio) helped generate some of the code, which we reviewed and adapted. ChatGPT helped with some troubleshooting of code and football facts. We did not use generative AI for help with any of the interpretation of the data (though we did use internet research to verify some of the statistics insights, such as what a residuals plot should look like).
