@@ -412,7 +412,7 @@ ggplot( clean.dat, aes( x = predict( model_final ),
 
 ```
 
-**13(B) Does this plot show any problems?**
+**13(B) Do these plots show any problems?**
 
 The plot showing the relationship between predicted and actual salary does not show a good fit according to the linear model.
 The residuals plot shows a slanted pattern, which also indicates that our model does not fit the data well (the residuals should be randomly clustered around zero).
