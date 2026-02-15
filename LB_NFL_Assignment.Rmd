@@ -166,6 +166,8 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
 
 ```
 
+\newpage
+
 **7(B)**
 
 Our plot shows how different sides of the game might have different relationships between height and salary.
