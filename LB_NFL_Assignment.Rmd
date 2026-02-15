@@ -38,14 +38,11 @@ max(nfl$Salary, na.rm = TRUE)
 min(nfl$Salary, na.rm = TRUE)
 ```
 
-
-
 \newpage
 
 # 2. College and state for the five best paid players of the San Francisco 49ers.
 
-The five best paid players' colleges of the San Francisco 49ers are:
-Mississippi, Auburn, Maryland, Penn State, and Miami (Fla.), and their states are Tennessee, Georgia, DC, Maryland, and Florida for states.
+The five best paid players' colleges of the San Francisco 49ers are: Mississippi, Auburn, Maryland, Penn State, and Miami (Fla.), and their states are Tennessee, Georgia, DC, Maryland, and Florida for states.
 
 ```{r}
 
@@ -55,10 +52,6 @@ nfl %>%
     select( "Player Name", College, State ) %>% 
     head(5)
 ```
-
-
-
-
 
 \newpage
 
@@ -101,7 +94,6 @@ exp( coef( model ) )
 
 ```
 
-
 \newpage
 
 # 5. Improve the linear model
@@ -122,8 +114,6 @@ summary( model )
 exp( coef( model ) )
 
 ```
-
-
 
 \newpage
 
@@ -252,6 +242,7 @@ The plot above is overly complicated and makes it difficult to draw clear conclu
 ## 10. Multiple plots in the same window.
 
 We modified our plot to see how years of experience, race, salary, and position are related, using facet wrap.
+
 ```{r}
 # Using facet wrap, we broke out the data by Position (rather than Side).
 
@@ -276,7 +267,8 @@ We can also see a relationship between position and years of experience — posi
 
 ## 11. Log salary vs height by position.
 
-For this plot, we used facet wrap to break out the data by position, and plotted log salary against height (in inches) for each position. We also added a linear model line to show the relationship between height and log salary for each position.
+For this plot, we used facet wrap to break out the data by position, and plotted log salary against height (in inches) for each position.
+We also added a linear model line to show the relationship between height and log salary for each position.
 
 ```{r}
 # Using facet wrap to break out the data by Position, and plotted log salary
@@ -328,8 +320,6 @@ summary( model_final )
 
 ```
 
-
-
 \newpage
 
 ## 13. Plot showing predictions vs actual and a residual plot.
@@ -354,6 +344,8 @@ ggplot( clean2, aes( x = predict( model_final ),
         x = "Predicted Log Salary" 
         )
 ```
+
+\newpage
 
 In order to evaluate the fit of our model, we created a residuals plot, which shows the residuals of the predicted log salary.
 
@@ -463,11 +455,10 @@ We calculated median lifetime salary by position, and then took a weighted avera
 
 According to [statista.com](https://www.statista.com/statistics/240102/average-player-career-length-in-the-national-football-league/?srsltid=AfmBOoqmPYi5zkjXX6DnUkiD1QaxzctbS5JcTA_lbZ8tMZEYbO0MzTjS) the average career length for an NFL player is 3.3 years, but it varies by position.
 
-
-First, we reconciled the positions from statista with the ones from our dataset:
+First, we reconciled the positions from statista with the ones from our dataset.
+With the help from ChatGPT, we clarified which sub-positions fall into the broader position categories (initials added to the list by us).
 
 ```{r}
-# With the help from ChatGPT, we clarified which sub-positions fall into the broader position categories (initials added to the list by us). 
 
 table(clean.dat$Position)
 
@@ -487,7 +478,6 @@ table(clean.dat$Position)
 # Running backs (RB, FB): 2.57
 # Average across all positions: 3.3
 ```
-
 
 Second, we created a new variable in our dataset that assigns the average career length to each player based on their position:
 
@@ -509,9 +499,10 @@ clean.dat <- clean.dat %>%
 
 ```
 
-We, then, calculated the median salary for each position and put this data into a new data frame, position_earnings, that also includes the career length and count of players for each position. We then created a new variable in this data frame, lifetime_earnings, which is the product of median salary and career length:
+We, then, calculated the median salary for each position and put this data into a new data frame, position_earnings, that also includes the career length and count of players for each position.
+We then created a new variable in this data frame, lifetime_earnings, which is the product of median salary and career length:
 
-The average lifetime earnings for a median level pay NFL player would be approximately $2,814,507.
+The average lifetime earnings for a median level pay NFL player would be approximately \$2,814,507.
 
 ```{r}
 
@@ -537,13 +528,11 @@ position_earnings %>%
 
 ```
 
-
 \newpage
 
 # Extension
 
-### Compared with a __2024__ dataset, we examine how salaries have changed and create visualizations to compare the two datasets. We also investigate differences in salary by position and experience level across the two datasets.
-
+### Compared with a **2024** dataset, we examine how salaries have changed and create visualizations to compare the two datasets. We also investigate differences in salary by position and experience level across the two datasets. (Note: we did not factor inflation into this analysis; correcting for inflation would be a logical next step). 
 
 On average, players in 2024 are making \$578,365 per year more than players in 2013.
 
@@ -575,6 +564,8 @@ pay_diff = mean( clean.dat.24$Salary ) - mean( clean.dat$Salary )
 pay_diff
 
 ```
+
+\newpage
 
 ### Data cleaning for the 2024 dataset to make it comparable to the 2013 dataset.
 
@@ -639,8 +630,8 @@ clean.dat.position <- clean.dat.24 %>%
 
 ## Visualization 1: Plotting Average Salary differences between 2013 and 2024 based on years of experience
 
-
-To plot the average salary differences, we first create one dataset that has the mean salary for each experience level in both 2013 and 2024, so we can see the mean salary difference between the two years based on experience level. We then calculate the mean salary difference and percent change between 2013 and 2024 for player experience. 
+To plot the average salary differences, we first create one dataset that has the mean salary for each experience level in both 2013 and 2024, so we can see the mean salary difference between the two years based on experience level.
+We then calculate the mean salary difference and percent change between 2013 and 2024 for player experience.
 
 ```{r}
 # Create dataset with the mean salary for each experience level in both 2013 and 2024
@@ -664,6 +655,8 @@ exp.sum %>%
   mutate ( percent_diff = salary_diff / mean_salary_2013 * 100 ) %>%
   arrange( desc( percent_diff ) ) 
 ```
+
+\newpage
 
 Finally, we plot the average salary differences between 2013 and 2024 based on years of experience.
 
@@ -689,7 +682,7 @@ These averages were then plotted against years of experience for both years.
 
 ## Visualization 2: Plotting Average Salary differences between 2013 and 2024 based on side of the ball
 
-Now based on the side of the ball, we create one dataset that has the mean salary for the following sides: offense, defense, special teams, in both 2013 and 2024. 
+Now based on the side of the ball, we create one dataset that has the mean salary for the following sides: offense, defense, special teams, in both 2013 and 2024.
 We then calculate the mean salary difference and percent change between those two years.
 
 ```{r}
@@ -716,8 +709,8 @@ side.sum %>%
   arrange( desc( percent_diff ) )
 ```
 
-
 We plot the average salary differences between 2013 and 2024 based on side of the ball:
+
 ```{r}
 # Plotting Average Salary differences between 2013 and 2024 based on side
 ggplot(side.sum, aes(x = Side, y = mean_salary, fill = year)) +
@@ -739,7 +732,8 @@ These averages were then plotted as side-by-side bars for 2013 and 2024.
 
 ## Visualization 3: Plotting Average Salary differences between 2013 and 2024 based on position
 
-Now based on position, we create one dataset that has the mean salary for each position in both 2013 and 2024. And then we calculate the mean salary difference and percent change between those two years for each position.
+Now based on position, we create one dataset that has the mean salary for each position in both 2013 and 2024.
+And then we calculate the mean salary difference and percent change between those two years for each position.
 
 ```{r}
 # create dataset with the mean salary for each position in both 2013 and 2024
@@ -764,8 +758,8 @@ position.sum %>%
   arrange( desc( percent_diff ) )
 ```
 
+Finally, we plot the average salary differences between 2013 and 2024 based on position:
 
-Finally, we plot the average salary differences between 2013 and 2024 based on position: 
 ```{r}
 # Plotting Average Salary differences between 2013 and 2024 based on position
 ggplot(position.sum, aes(x = Position, y = mean_salary, fill = year)) +
@@ -789,5 +783,10 @@ One more dataset was created, position.sum, which grouped players by position an
 These averages were plotted as side-by-side bars for each year at each position.
 
 \newpage
+
 # Acknowledgements
-Copilot and ChatGPT assisted us in this problem set. Copilot (in R Studio) helped generate some of the code, which we reviewed and adapted. ChatGPT helped with some troubleshooting of code and football facts. We did not use generative AI for help with any of the interpretation of the data (though we did use internet research to verify some of the statistics insights, such as what a residuals plot should look like).
+
+Copilot and ChatGPT assisted us in this problem set.
+Copilot (in R Studio) helped generate some of the code, which we reviewed and adapted.
+ChatGPT helped with some troubleshooting of code and football facts.
+We did not use generative AI for help with any of the interpretation of the data (though we did use internet research to verify some of the statistics insights, such as what a residuals plot should look like).
