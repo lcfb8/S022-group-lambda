@@ -92,7 +92,7 @@ Write a few sentences describing what you are going to scrape, and what research
 
 Based on your Step 0 thinking, write code to scrape **at least two different tables of your choice**.
 
-For example, for the original question you could pull pull the demographic table and the table of total enrollment so you can get the total number of students enrolled in the school:
+For example, for the original question you could pull the demographic table and the table of total enrollment so you can get the total number of students enrolled in the school:
 
 ![An example of the fields we want to scrape.](images/scraping_guide.png)
 
@@ -109,11 +109,6 @@ schools = c( Massachusetts="00000000",
              CCHS="06400000")
 schools
 
-# make a list of all the webpages we want to grab
-pages = expand_grid( year = 2012:2017, 
-                     schoolID = schools )
-
-pages
 
 # add in the school names
 school.name = tibble( school = names(schools),
