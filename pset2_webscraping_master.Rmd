@@ -1,5 +1,5 @@
 ---
-title: "Problem Set 2: A scaffolded multiple-page webscrapping assignment"
+title: "Problem Set 2: A scaffolded multiple-page webscraping assignment"
 author: "You!"
 output: pdf_document
 editor_options: 
