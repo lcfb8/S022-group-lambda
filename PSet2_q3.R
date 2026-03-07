@@ -1,5 +1,16 @@
+library(tidyverse)
+theme_set( theme_minimal() )
+knitr::opts_chunk$set(echo = TRUE, 
+                      fig.width = 5,
+                      fig.height = 3,
+                      out.width = "5in", 
+                      out.height = "3in", fig.align = "center")
+
+library( rvest )
+
 #Scrape multiple pages
 
+# We can remove these URLs I think
 url_state <- "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode=00000000&orgtypecode=0&=00000000&"
 
 url_concordk8 <- "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00670000&orgtypecode=5&=00670000&"
@@ -14,12 +25,6 @@ schools = c( Massachusetts="00000000",
              Carlislek8="00510000", 
              CCHS="06400000")
 schools
-
-# make a list of all the webpages we want to grab
-pages = expand_grid( year = 2012:2017, 
-                     schoolID = schools )
-
-pages
 
 # add in the school names
 school.name = tibble( school = names(schools),
