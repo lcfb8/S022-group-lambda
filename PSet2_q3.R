@@ -10,7 +10,6 @@ library( rvest )
 
 #Scrape multiple pages
 
-# We can remove these URLs I think
 url_state <- "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode=00000000&orgtypecode=0&=00000000&"
 
 url_concordk8 <- "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00670000&orgtypecode=5&=00670000&"

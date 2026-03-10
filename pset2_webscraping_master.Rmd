@@ -160,8 +160,6 @@ comb_disc = full_join(discipline_table, days_missed_table)
 
 comb_disc
 
-comb_disc = comb_disc[,-comb_disc$`% Expulsion`]
-
 names(comb_disc)
 
 
