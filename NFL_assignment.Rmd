@@ -3,6 +3,9 @@ title: "NFL Assignment"
 #author: "ANONYMOUS (Keep it this way)"
 date: "`r Sys.Date()`"
 output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
 ```{r setup, include=FALSE}
@@ -14,8 +17,7 @@ nfl <- read_csv( "~/Documents/HGSE/S022/Problem Set 1/PSet_1_NFL_exploration/dat
 
 ```
 
-
-# ~~~ Data Exploration ~~~
+# \~\~\~ Data Exploration \~\~\~
 
 # 1. Find the highest and lowest salary in the dataset.
 
@@ -28,7 +30,6 @@ nfl %>%
 # Answer: The highest salary is $20,100,000 and the lowest salary is $48,333.
 ```
 
-
 # 2. Print the college and state for the five best paid players of the San Francisco 49ers
 
 ```{r}
@@ -40,12 +41,13 @@ nfl %>%
     head(5)
 ```
 
-
 # 3. Calculate the mean salary and number of players in the dataset for each position
 
 Arrange your results from highest to lowest mean salary.
 
-Hint: You might want some of the following code. You should also use the `group_by() + summarise()` combo.  Also use `summarise( n = n() )` to make a count of the number of records.
+Hint: You might want some of the following code.
+You should also use the `group_by() + summarise()` combo.
+Also use `summarise( n = n() )` to make a count of the number of records.
 
 ```{r}
 clean.dat <- nfl %>% 
@@ -57,7 +59,6 @@ clean.dat %>%
                n_players = n() ) %>%
     arrange( desc( mean_salary ) )
 ```
-
 
 # 4. Determine if taller players get paid more
 
@@ -79,10 +80,11 @@ exp( coef( model ) )
 
 Once you do, you can use `exp( coef )`, where `coef` is the coefficient from your regression, to get an interpretation of your coefficient as percent change in salary given a change in height.
 
-
 # 5. Improve the linear model
 
-What do you think about the results in (4)?  If you found differences, can you explain them by accounting for player position in your model?  In other words, what happens when you include position in your model?
+What do you think about the results in (4)?
+If you found differences, can you explain them by accounting for player position in your model?
+In other words, what happens when you include position in your model?
 
 ```{r}
 # some code
@@ -99,7 +101,11 @@ Some words of discussion go here.
 
 # 6. Print the mean weight and height for the football players, calculated for each position
 
-You are going to have to get height cleaned up.  You might try `separate()` (see R for DS) to make feet and inches, and then do some math via `mutate()`. You could also use `substring()`. In any case, you might find `parse_number()` a useful function. Note that one foot (abbreviated as ') is equal to 12 inches (abbreviated to ").
+You are going to have to get height cleaned up.
+You might try `separate()` (see R for DS) to make feet and inches, and then do some math via `mutate()`.
+You could also use `substring()`.
+In any case, you might find `parse_number()` a useful function.
+Note that one foot (abbreviated as ') is equal to 12 inches (abbreviated to ").
 Try asking a Large Language Model for help with this one.
 
 ```{r}
@@ -109,18 +115,20 @@ clean.dat <- clean.dat %>%
     mutate( feet = parse_number( feet ), 
             inches = parse_number( inches ), 
             total_inches = feet * 12 + inches )
-    
-summarise( clean.dat, mean_weight = mean( Weight, na.rm = TRUE ), 
-               mean_height = mean( total_inches, na.rm = TRUE ) ) 
+clean.dat %>%
+  group_by( Position ) %>%
+  summarise( mean_weight = mean( Weight, na.rm = TRUE ), 
+               mean_height = mean( total_inches, na.rm = TRUE ) )
 ```
 
 \newpage
 
-# ~~~ Visualizations ~~~
+# \~\~\~ Visualizations \~\~\~
 
 ## 7. Make a graph with 3 variables: X axis, Y axis, and plot point coloring, that tells a story.
 
-**please note:** we will be deducting points for messy plots, plots with poor labeling, or plots that are hard to read.  Make sure your plots are clear and easy to understand.
+**please note:** we will be deducting points for messy plots, plots with poor labeling, or plots that are hard to read.
+Make sure your plots are clear and easy to understand.
 
 ```{r}
 # You pick the variables.  What would be interesting?
@@ -146,7 +154,10 @@ ggplot( clean.dat, aes( x = total_inches, y = logSal, color = Side ) ) +
 
 ## 8. Make a graph with 4 variables that tells a story that your first plot does not.
 
-For the four variables, perhaps you could use X axis, Y axis, plot point coloring, and plot point size, or perhaps plot point shape or some other attribute. **Do not** use any facets yet.  Just a single plot.  Other than that constraint, you pick!
+For the four variables, perhaps you could use X axis, Y axis, plot point coloring, and plot point size, or perhaps plot point shape or some other attribute.
+**Do not** use any facets yet.
+Just a single plot.
+Other than that constraint, you pick!
 
 ```{r}
 # some code
@@ -185,26 +196,23 @@ ggplot( clean.dat, mapping = aes( x = total_inches, y = logSal, color = Race ) )
   theme(legend.position = "bottom")
 ```
 
-**10(B)** Compared to your prior plots, does this plot make anything easier to see?  Harder to see?
+**10(B)** Compared to your prior plots, does this plot make anything easier to see?
+Harder to see?
 
-
-## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question. 
+## 11. I'd like to know if taller players are paid more in some positions but not others. Make a plot to answer that question.
 
 ```{r}
 # some code
 
 ```
 
-
 **11(B).** What does your plot say?
-
 
 \newpage
 
-# ~~~ A touch of modeling ~~~
+# \~\~\~ A touch of modeling \~\~\~
 
-## 12. (2 pts) Make a predictive model (using OLS) to predict log salary using some set of other covariates and print out a summary of the model. Specify how you decided to treat missing data. 
-
+## 12. (2 pts) Make a predictive model (using OLS) to predict log salary using some set of other covariates and print out a summary of the model. Specify how you decided to treat missing data.
 
 ```{r}
 # some code
@@ -224,14 +232,13 @@ summary( model_final )
 summary( model_3 )
 ```
 
-## 13. Make a plot showing predictions vs actual, and also make a residual plot. 
+## 13. Make a plot showing predictions vs actual, and also make a residual plot.
 
 ```{r}
 # some code
 ```
 
 **13(B)** Do these plots show any problems?
-
 
 ## 14. How old do players get?
 
@@ -249,9 +256,10 @@ clean.dat %>%
 
 Your answer here.
 
-**14(B).** Poke around on the internet to see what a typical age of retirement is.  How did that compare to your own assessment?
-The average age of retirement in the NFL is roughly 27.6 years. 
-https://runrepeat.com/nfl-player-career-length
+**14(B).** Poke around on the internet to see what a typical age of retirement is.
+How did that compare to your own assessment?
+The average age of retirement in the NFL is roughly 27.6 years.
+<https://runrepeat.com/nfl-player-career-length>
 
 ## 15. (2 pts) Use these data and your work to predict what average lifetime earnings would be for a median level pay NFL player.
 
@@ -261,10 +269,9 @@ https://runrepeat.com/nfl-player-career-length
 
 Be sure to explain your reasoning.
 
-
 \newpage
 
-# ~~~ Extensions ~~~
+# \~\~\~ Extensions \~\~\~
 
 In this part of the assignment we offer two, very open ended, extensions.
 They represent a reasonable amount of work, but are only worth 2 points---in other words, you can choose to do them if you want to go above and beyond, but you can still get a fine grade without doing them at all.
@@ -272,12 +279,12 @@ We will only grade at most one extension, and we will grade the first we see.
 
 Both extensions relate to a second dataset, `Master-Player-List-2024.csv`, that you have in the data folder.
 
-
 ## Extension Option 1. Comparing to a more modern dataset.
 
 How much more are players paid now, compared to 2013?
 Try to account for differences in the datasets in terms of, for example, age and experience of the players in each dataset.
 Write up your results using at least one visualization and some text explaining any analysis you did.
+
 ```{r}
 nfl_24 <- read_csv( "/Users/dylan/Documents/HGSE/S022/Problem Set 1/PSet_1_NFL_exploration/data/Master-Player-List-2024.csv", 
                  na = c("NA","N/A","", "n/a", "#VALUE!") )
@@ -444,7 +451,7 @@ ggplot(position.sum, aes(x = Position, y = mean_salary, fill = year)) +
   labs( title = "Average Salary vs Position in 2013 and 2024",
     x = "Position" )
 ```
-        
+
 ```{r, eval=FALSE, include=FALSE}
 
 ## Extension Option 2. Out of Sample Prediction
@@ -459,4 +466,3 @@ where $y_i$ is the actual salary, $\hat{y}_i$ is the predicted salary, and $n$ i
 **Hint:** You will need to do some data cleaning to get the two datasets to line up.
 In particular, rename variables so they have the same names.
 ```
-
