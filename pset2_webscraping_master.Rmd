@@ -1,0 +1,423 @@
+---
+title: "Problem Set 2: A scaffolded multiple-page webscraping assignment"
+author: "You!"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
+---
+
+```{r echo = FALSE, messages = FALSE, include=FALSE}
+library(tidyverse)
+theme_set( theme_minimal() )
+knitr::opts_chunk$set(echo = TRUE, 
+                      fig.width = 5,
+                      fig.height = 3,
+                      out.width = "5in", 
+                      out.height = "3in", fig.align = "center")
+
+library( rvest )
+```
+
+## Motivating problem
+
+My kids went to the Healey school in Somerville, MA from K through 8.
+The Healey has an interesting history, where it used to be two schools in one, with a "choice" school and a neighborhood school.
+The choice school had a lot of active/activist parents, an emphasis on project based learning, overnight field trips, arts-integrated curriculum, and some other stuff along these lines.
+It also had a lot of white kids.
+The neighborhood school, by contrast, had less of these things.
+For equity reasons, these two halves merged, and the principles of the choice school (Excellence, Creativity, Openness, and Joy) were brought to the entire school.
+
+My kids joined shortly after this merge, and I became curious about where kids ended up in the schools of Somerville, where, in principle, anyone can sign up for any school.
+I also got curious to see if this was changing over time.
+In particular, was there a "white flight" from the Healey school as the choice program faded into history?
+And if so, which schools were getting "more white"?
+
+## Problem Set Goals
+
+The goal of this assignment is to investigate a question such as the above by web scraping the school report cards to get this demographic data.
+You will determine something to explore, gather data, and then make a plot that gives insight to your stated research question of interest.
+
+From the technical side, you will practice web scraping and iteration using the `map()` function.
+You will also practice learning how to read and modify complex code to achieve your own ends.
+
+The assignment is a structured walk-through and heavily relies on the code we went through in our live class on web scraping.
+It is entirely fine to take elements of code we have given you and reassemble them to achieve the goals of this assignment.
+
+**Important Note:** The reference scripts from class scrape a "legacy" set of web pages, not the pages we direct you to below.
+The Mass. department of education has since updated their website to a new system that has data going into more recent years.
+This assignment works with the new pages.
+You can write your scraper from scratch, or use the old code for reference.
+
+
+## On collaboration
+
+You are supposed to work as a _team_. This does not mean break apart the assignment, with each person doing one part and without collaboration.  All people are responsible for all parts of the assignment, and the expectation is you will be collaborating and talking with each other regularly to coordinate your individual work.
+
+
+## What to turn in
+
+Turn in this script, heavily cleaned up and edited, and rendered to a pdf, with your code and final plot, along with any relevant discussion.
+Make sure your final report does not have a lot of extraneous junk such as warnings or unnecessary output.^[See [the R chunk wrangling guide](https://lmiratrix.github.io/S022/code_chunks.html) for tips on how to control what gets printed in your final report.  Also see the exercise from Week 3 on controlling report styles.]
+Review the assignment guide on Canvas if you have not.
+
+**Important Note:** Once you have your final report, delete all the notes to you so your report doesn't have all these boring instructions.  E.g., burn this after reading.
+
+
+\newpage
+
+# Step 0: Define your problem
+
+If you go [*to this webpage*](https://profiles.doe.mass.edu/profiles/student.aspx?orgcode=02740075&orgtypecode=6&&fycode=2022) you will see a few "Enrollment" tables that gives the number of students of different demographic groups enrolled in the school.
+If you go [*to this webpage*](https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00100410&orgtypecode=6&=00100410&) you get discipline data from a different school.
+Or try [*this page*](https://profiles.doe.mass.edu/profiles/student.aspx?orgcode=02740505&orgtypecode=6&leftNavId=16822&) or [*this page*](https://profiles.doe.mass.edu/nsc/gradsattendingcollege_dist.aspx?orgcode=02740505&orgtypecode=6&) you get rates of taking art classes or rates of graduating high school.
+You can look around at different tables using the menu at left---find a table you are interested in.
+
+Once you have identified what you want to scrape, see how recent the data goes, and how far back it goes.
+Also determine a final set of schools you want to scrape in the state of Massachusetts.
+
+Write a few sentences describing what you are going to scrape, and what research question you hope to answer by scraping.
+
+**Important note:** You are welcome to scrape some other set of web pages if you want to, but make sure they are reasonably similar in structure to the ones we have been working with in class, with URLs that are easy to understand and clean HTML tables that you can pull from multiple pages.
+
+**Important note:** You can look into the demographics of the schools, but you have to expand your research question beyond simply what is stated above for the motivating problem.  Add your own twist or extension (e.g., a different district or multiple districts) at the very least!
+
+**Interesting observation:** You can pull district information from these tables if you want to, if your question is about districts, not schools.
+
+
+\newpage
+
+# Step 1: Get the table from a single page
+
+Based on your Step 0 thinking, write code to scrape **at least two different tables of your choice**.
+
+For example, for the original question you could pull the demographic table and the table of total enrollment so you can get the total number of students enrolled in the school:
+
+![An example of the fields we want to scrape.](images/scraping_guide.png)
+
+
+
+### 1(a): Scrape!
+
+```{r}
+
+# get the pages (scrape)
+schools = c( Massachusetts="00000000", 
+             Concordk8="00670000", 
+             Carlislek8="00510000", 
+             CCHS="06400000")
+schools
+
+
+# add in the school names
+school.name = tibble( school = names(schools),
+                      schoolID = schools )
+school.name
+
+
+# Make our systematic URLs with str_glue from the stringr package
+
+# demo of str_glue:
+orgcode = c( "0","5","5","5")
+myID = c( "00000000", "00670000","00510000","06400000" )
+str_glue( "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={myID}&orgtypecode={orgcode}&={myID}&" )
+
+url_template = "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={myID}&orgtypecode={orgcode}&={myID}&"
+
+school_list <- mutate( school.name, 
+                 url = str_glue( url_template ) )
+    
+school_list
+
+# scrape the html from the page!
+
+get_page_and_sleep = function( url ) {
+    
+    cat( "Working on: ", url, "\n" )
+    
+    pg = read_html( url )
+    
+    # Put in a pause so you don't hammer the website too fast
+    Sys.sleep( runif( 1, 1, 2 ) )
+    
+    pg
+}
+
+get_page_and_sleep( school_list$url[[1]] )
+
+
+# Do the scrape of all our URLs!
+school_list = mutate( school_list,
+                data = map( url, get_page_and_sleep ) )
+
+school_list
+
+#put our data in folders
+
+dir.create("data_folder", showWarnings = FALSE )
+
+# Make filenames for each of our web pages.
+school_list = mutate( school_list,
+                file_name = str_glue( "data_folder/{school}.xml" ) )
+
+school_list
+
+walk2( school_list$data, school_list$file_name, xml2::write_html )
+
+
+# Also save our table of pages scraped.
+school_list %>% 
+  dplyr::select(-data ) %>%
+  write_rds( "data_folder/schools_scraped.rds" )
+
+```
+
+### 1(b): Format!
+
+Merge your scraped data and format your table.
+
+E.g., for the demographics question, you would add a column for the total number of kids in each category, using the grand total you scraped separately.
+
+```{r}
+# stuff
+
+# We next load our raw data and process each saved webpage.
+
+school_list = readRDS( file="data_folder/schools_scraped.rds" )
+school_list$url= NULL
+school_list
+
+
+#test with one page
+
+test_page = xml2::read_html( school_list$file_name[[2]] )
+test_page
+
+test_page_tables = html_nodes( test_page, "table" )
+test_page_tables
+
+html_table( test_page_tables[[4]], fill = TRUE)
+
+
+# run it on all of our schools
+
+mass = xml2::read_html( school_list$file_name[[1]] )
+concordk8 = xml2::read_html( school_list$file_name[[2]] )
+carlislek8 = xml2::read_html( school_list$file_name[[3]] )
+cchs = xml2::read_html( school_list$file_name[[4]] )
+
+#how do I get the function below to return a table that has run the function but has the original name of school (the variable we input in the function)
+
+#  WE GOT STUCK WRITING THIS FUNCTION BUT WE BRUTE FORCED IT BELOW
+
+extract_table = function( school, x ){
+    
+    school = xml2::read_html( school_list$file_name[[x]] )
+    schools = html_nodes( school, "table" )   
+    html_table( schools[[4]], fill = TRUE) 
+}
+
+
+extract_table( mass, 1)
+
+mass
+
+
+#######
+
+
+mass = xml2::read_html( school_list$file_name[[1]] )
+concordk8 = xml2::read_html( school_list$file_name[[2]] )
+carlislek8 = xml2::read_html( school_list$file_name[[3]] )
+cchs = xml2::read_html( school_list$file_name[[4]] )
+
+
+mass = html_nodes( mass, "table" )   
+mass = html_table( mass[[4]], fill = TRUE) 
+
+concordk8 = html_nodes( concordk8, "table" )   
+concordk8 = html_table( concordk8[[4]], fill = TRUE) 
+
+carlislek8 = html_nodes( carlislek8, "table" )   
+carlislek8 = html_table( carlislek8[[4]], fill = TRUE) 
+
+cchs = html_nodes( cchs, "table" )   
+cchs = html_table( cchs[[4]], fill = TRUE) 
+
+
+mass
+concordk8
+carlislek8
+cchs
+
+
+```
+
+For reference, my version of the `get_demog_table()` method defined below returned this for one of the web pages:
+
+| Group | Category | School | District | State | total |
+|:---------|:----------------------|---------:|---------:|---------:|---------:|
+| Race/Ethnicity | American Indian or Alaska Native | 0.2 | 0.1 | 0.2 | 0.9 |
+| Race/Ethnicity | Asian | 4.4 | 5.7 | 7.2 | 20.1 |
+| Race/Ethnicity | Black or African American | 15.8 | 9.2 | 9.3 | 72.0 |
+| Race/Ethnicity | Hispanic or Latino | 48.6 | 40.9 | 23.1 | 222.0 |
+| Race/Ethnicity | Multi-Race, Not Hispanic or Latino | 3.5 | 4.6 | 4.3 | 15.9 |
+| Race/Ethnicity | Native Hawaiian or Other Pacific Islander | 0.2 | 0.2 | 0.1 | 0.9 |
+| Race/Ethnicity | White | 27.4 | 39.2 | 55.7 | 125.0 |
+
+### 1(c): Re-factor!
+
+For my demographic data, my `Category` variables are descriptively useful, but some might be too long to be readable when plotting.
+For this reason, I create a second set of abbreviated demographic labels, `Cat_abbr` using the `fct_recode()` function.
+(For example, these abbreviated labels might convert "American Indian or Alaska Native" to "AIAN" and "Hispanic or Latino" to "Latine").
+
+Do similar cleanup on your scraped table so everything looks nice.
+
+```{r}
+# stuff
+```
+
+\newpage
+
+# Step 2: Make a function out of your code above and test it.
+
+Make a function out of the above code that takes raw HTML, not the URL, and returns your full table.
+(This will make it easier to save scraped pages to your disk and analyze them after.)
+E.g., you might write a couple of function like this, assuming you are pulling pages from two different spots of the website:
+
+```{r}
+# Given a school ID and year, return the main page needed.
+get_main_page = function( school_id, year ) {
+  # code
+}
+
+# Same as above, but get the second page.
+get_second_page = function( school_id, year ) {
+  
+}
+
+# Given the two pages, extract the table and return it in a nice
+# format.
+extract_final_table = function( html_page1, html_page2 ) {
+    # code
+}
+```
+
+Go to the website and find a different year and school.
+Test your functions on that new combo to make sure you get a nice table!
+For example:
+
+```{r}
+# Test 1
+page1 <- get_main_page( school_id = "02740075", year = 2022 )
+page2 <- get_second_page( school_id = "02740075", year = 2022 )
+final_table <- extract_final_table( page1, page2 )
+final_table
+
+# Test 2
+page1 <- get_main_page( school_id = "something", year = 2010 )
+page2 <- get_second_page( school_id = "something", year = 2010 )
+final_table <- extract_final_table( page1, page2 )
+final_table
+
+```
+
+\newpage
+
+# Step 3: Scrape all the pages
+
+
+### Step 3(a) Some concept checks
+
+Review the "step 1" script from class and answer the following conceptual check questions.
+
+a)  In lines 27-39 of the step 1 script we use `expand_grid` and then `left_join`.
+    It seems like it would be easier to just use `expand_grid` on year, school, and school ID and skip all these extra steps.
+    What would happen if we tried to do this?
+
+b)  What would our script do differently if we modified line 89 by removing "data/" and instead had:
+
+```{r, eval=FALSE}
+pages = mutate( pages,
+                file_name = str_glue( "school_data_{schoolID}_{year}.xml" ) )
+```
+
+c)  At around line 101 of the step 1 script is a "`walk2()`" command. What is it doing? Why did we use "`walk2()`" instead of a "`map()`" command? Why is the command called "`walk2()`" with the "2"?
+
+### Step 3(b) Define the set of pages to scrape
+
+Based on your scraping plan, make a small dataframe, `schools`, of the list of schools to scrape, and also define a list, `years`, of the years to scrape as well.
+This might involve expanding the scope of your problem to a robust set of schools and years.
+
+Note, for example, that if you are focused on Somerville, not all the schools in Somerville are listed in the provided script.
+E.g., the West Somerville Neighborhood school is missing.
+Figure out how to add it to the list by locating it on the internet.
+There are a few other schools missing as well.
+Should they be included?
+Why or why not?
+Include them if you think it would be interesting and/or appropriate.
+
+For your problem, reflect on similar kinds of questions, and write a few sentences describing how you curated your list of schools and years.
+
+
+### Step 3(c) Scrape all the things!
+
+Possibly using the old "step 1" code from the in-class case study, write code to scrape all of the pages from the *new* set of webpages defined by all combinations of year and school, and save them to your computer in a `data/` folder.
+
+If you have two sets of pages to scrape for each school (e.g., a main page and a secondary page), make sure you save both pages for each school and year, and that you have a clear naming convention for the files so you can easily load them later.
+
+We recommend making an separate R script to do this.
+This will make this script run and compile much faster when you get to the analysis stage, below.
+Re-running a markdown report that does time-consuming work can be very frustrating and often it is easier to have a separate R script that you tweak until things are right. Plus you do not want to keep re-scraping each time you compile your report!
+
+Once you get that script working, use the code chunk below to include your R script into your markdown report as a final step to help the TFs grade.
+
+```{r, echo=FALSE}
+# This block will just paste an entire R file into your script
+cat( readLines("step3_scrape_script.R"), 
+    sep = "\n" )
+```
+
+
+\newpage
+
+# Step 4: Get the demographic table from all pages
+
+Using the code from the in-class "step 2" script as a reference, write a bit of code that will load the saved pages and extract the demographic table from each page.
+Save your final dataset of demographics to a file.
+
+We again recommend making this a stand-alone script that you then include below:
+
+```{r, echo=FALSE}
+# This block will just paste an entire R file into your script
+cat( readLines("step4_process_script.R"), 
+    sep = "\n" )
+```
+
+
+
+
+\newpage
+
+# Step 5: Plot the data
+
+Come up with a visualization for your research question!
+Make this plot "production ready"---give it nice axes and titles, think about how you want to display the information, and write an explanatory caption for your plot as well.
+Try to make the plot clean and readable; you might consider using `facet_wrap()` to help with this.
+
+
+## (a) Your plot here
+
+```{r}
+# Stuff
+```
+
+## (b) Some discussion
+
+In a few sentences, describe what your plot shows about your research question.
+
+## (c) Clean your report
+
+Finally, clean your overall markdown report so the instructions are gone and you are just presenting what you did, the code you used to do it, and your results.
+
