@@ -35,10 +35,10 @@ school.name
 
 # demo of str_glue:
 orgcode = c( "0","5","5","5")
-myID = c( "00000000", "00670000","00510000","06400000" )
-str_glue( "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={myID}&orgtypecode={orgcode}&={myID}&" )
+schoolID = c( "00000000", "00670000","00510000","06400000" )
+str_glue( "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&" )
 
-url_template = "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={myID}&orgtypecode={orgcode}&={myID}&"
+url_template = "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&"
 
 school_list <- mutate( school.name, 
                        url = str_glue( url_template ) )

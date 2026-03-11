@@ -158,13 +158,12 @@ days_missed_table
 
 comb_disc = full_join(discipline_table, days_missed_table)
 
-comb_disc
-
 names(comb_disc)
 
 cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
 comb_disc <- comb_disc %>% select(-all_of(cols_to_remove))
 
+comb_disc
 
 
 
@@ -191,7 +190,42 @@ For this reason, I create a second set of abbreviated demographic labels, `Cat_a
 Do similar cleanup on your scraped table so everything looks nice.
 
 ```{r}
-# stuff
+# refactor student group categories
+
+comb_disc <- comb_disc %>%
+  mutate(
+      `Student Group` = fct_recode(
+        `Student Group`,
+        "AIAN"        = "American Indian or Alaska Native",
+        "Black"       = "Black or African American",
+        "Hispanic"    = "Hispanic or Latino",
+        "Multiracial" = "Multi-Race, Not Hispanic or Latino",
+        "NHPI"        = "Native Hawaiian or Other Pacific Islander",
+        "High_Needs"  = "High Needs",
+        "EL"          = "English Learners",
+        "Low_SES"  = "Low Income",
+        "SWD"         = "Students with Disabilities"
+      )
+    )
+
+comb_disc
+
+# rename the variables
+comb_disc_refact %>%
+  rename(
+         Group                 = "Student Group",                                  
+         Students              = "Students",                                       
+         Disciplined           = "Students Disciplined",                           
+         ISS_pct               = "% In-School Suspension",                         
+         OSS_pct               = "% Out-of-School Suspension",                    
+         Emergency_removal_pct = "% Emergency Removal",                           
+         pct_1d                = "% 1 Day",                                        
+         pct_2_3d              = "% 2 to 3 Days",                                  
+         pct_4_7d              = "% 4 to 7 Days",                                  
+         pct_8_10d             =  "% 8 to 10 Days",                               
+         pct_over_10d          = "% > 10 Days"  
+      )
+
 ```
 
 \newpage
@@ -204,20 +238,87 @@ E.g., you might write a couple of function like this, assuming you are pulling p
 
 ```{r}
 # Given a school ID and year, return the main page needed.
-get_main_page = function( school_id, year ) {
-  # code
-}
 
-# Same as above, but get the second page.
-get_second_page = function( school_id, year ) {
+get_main_page = function( orgcode, schoolID, year ) {
+  
+  orgcode = orgcode
+  schoolID = schoolID
+  year = year
+  str_glue("https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&&fycode={year}")
+  
+  discipline = read_html(url_discipline)
+  discipline_table = html_nodes( discipline, "table" )
+  html_table(discipline_table)
+  discipline_table = html_table(discipline_table[[4]], fill=TRUE)
+  return(discipline_table)
   
 }
 
-# Given the two pages, extract the table and return it in a nice
-# format.
-extract_final_table = function( html_page1, html_page2 ) {
-    # code
+discipline_table <- get_main_page( 0, 00000000, 2025)
+
+# Same as above, but get the second page.
+
+get_second_page = function( orgcode, schoolID, year ) {
+  
+  orgcode = orgcode
+  schoolID = schoolID
+  year = year
+  str_glue("https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&&fycode={year}")
+  
+  days_missed = read_html(url_days_missed)
+  days_missed_table = html_nodes( days_missed, "table" )
+  html_table(days_missed_table)
+  days_missed_table = html_table(days_missed_table[[4]], fill=TRUE)
+  return(days_missed_table)
 }
+
+days_missed_table <- get_second_page( 0, 00000000, 2025)
+
+# Given the two pages, extract the table and return it in a nice format.
+
+extract_final_table = function( table1, table2 ) {
+  
+  comb_disc = full_join(table1, table2, by = join_by(`Student Group`, Students, `Students Disciplined`))
+  names(comb_disc)
+  cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
+comb_disc <- comb_disc %>% select(-all_of(cols_to_remove))
+
+comb_disc <- comb_disc %>%
+  mutate(
+      `Student Group` = fct_recode(
+        `Student Group`,
+        "AIAN"        = "American Indian or Alaska Native",
+        "Black"       = "Black or African American",
+        "Hispanic"    = "Hispanic or Latino",
+        "Multiracial" = "Multi-Race, Not Hispanic or Latino",
+        "NHPI"        = "Native Hawaiian or Other Pacific Islander",
+        "High_Needs"  = "High Needs",
+        "EL"          = "English Learners",
+        "Low_SES"  = "Low Income",
+        "SWD"         = "Students with Disabilities"
+      )
+    )
+
+# rename the variables
+comb_disc <- comb_disc %>%
+  rename(
+         Group                 = "Student Group",                                  
+         Students              = "Students",                                       
+         Disciplined           = "Students Disciplined",                           
+         ISS_pct               = "% In-School Suspension",                         
+         OSS_pct               = "% Out-of-School Suspension",                    
+         Emergency_removal_pct = "% Emergency Removal",                           
+         pct_1d                = "% 1 Day",                                        
+         pct_2_3d              = "% 2 to 3 Days",                                  
+         pct_4_7d              = "% 4 to 7 Days",                                  
+         pct_8_10d             =  "% 8 to 10 Days",                               
+         pct_over_10d          = "% > 10 Days"  
+      )
+comb_disc
+}
+
+extract_final_table( discipline_table, days_missed_table )
+
 ```
 
 Go to the website and find a different year and school.
@@ -226,15 +327,19 @@ For example:
 
 ```{r}
 # Test 1
-page1 <- get_main_page( school_id = "02740075", year = 2022 )
-page2 <- get_second_page( school_id = "02740075", year = 2022 )
-final_table <- extract_final_table( page1, page2 )
+discipline_table <- get_main_page( orgcode = 5, 
+                                   schoolID = "02740075", year = 2022 )
+days_missed_table <- get_second_page( orgcode = 5, 
+                                      schoolID = "02740075", year = 2022 )
+final_table <- extract_final_table( discipline_table, days_missed_table )
 final_table
 
 # Test 2
-page1 <- get_main_page( school_id = "something", year = 2010 )
-page2 <- get_second_page( school_id = "something", year = 2010 )
-final_table <- extract_final_table( page1, page2 )
+discipline_table <- get_main_page( orgcode = 5, 
+                                   schoolID = "06400000", year = 2025 )
+days_missed_table <- get_second_page( orgcode = 5, 
+                                      schoolID = "06400000", year = 2025 )
+final_table <- extract_final_table( discipline_table, days_missed_table )
 final_table
 
 ```
