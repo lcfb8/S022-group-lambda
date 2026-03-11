@@ -162,6 +162,9 @@ comb_disc
 
 names(comb_disc)
 
+cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
+comb_disc <- comb_disc %>% select(-all_of(cols_to_remove))
+
 
 
 
