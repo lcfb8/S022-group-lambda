@@ -1,6 +1,6 @@
 ---
 title: "Problem Set 2: A scaffolded multiple-page webscraping assignment"
-author: "You!"
+author: "Lydia Brosnahan, Luciana D. de Macedo, Dylan Haupt"
 output: pdf_document
 editor_options: 
   chunk_output_type: console
@@ -211,20 +211,20 @@ comb_disc <- comb_disc %>%
 comb_disc
 
 # rename the variables
-comb_disc_refact %>%
+comb_disc <- comb_disc %>%
   rename(
-         Group                 = "Student Group",                                  
-         Students              = "Students",                                       
-         Disciplined           = "Students Disciplined",                           
-         ISS_pct               = "% In-School Suspension",                         
-         OSS_pct               = "% Out-of-School Suspension",                    
-         Emergency_removal_pct = "% Emergency Removal",                           
-         pct_1d                = "% 1 Day",                                        
-         pct_2_3d              = "% 2 to 3 Days",                                  
-         pct_4_7d              = "% 4 to 7 Days",                                  
-         pct_8_10d             =  "% 8 to 10 Days",                               
-         pct_over_10d          = "% > 10 Days"  
-      )
+    Group                 = "Student Group",
+    Students              = "Students",
+    Disciplined           = "Students Disciplined",
+    ISS_pct               = "% In-School Suspension",
+    OSS_pct               = "% Out-of-School Suspension",
+    Emergency_removal_pct = "% Emergency Removal",
+    pct_1d                = "% 1 Day",
+    pct_2_3d              = "% 2 to 3 Days",
+    pct_4_7d              = "% 4 to 7 Days",
+    pct_8_10d             =  "% 8 to 10 Days",
+    pct_over_10d          = "% > 10 Days"
+  )
 
 ```
 
@@ -326,7 +326,7 @@ Test your functions on that new combo to make sure you get a nice table!
 For example:
 
 ```{r}
-# Test 1
+# Test 1 with data from 2022 about school district Arthur D Healey (02740075)
 discipline_table <- get_main_page( orgcode = 5, 
                                    schoolID = "02740075", year = 2022 )
 days_missed_table <- get_second_page( orgcode = 5, 
@@ -334,7 +334,7 @@ days_missed_table <- get_second_page( orgcode = 5,
 final_table <- extract_final_table( discipline_table, days_missed_table )
 final_table
 
-# Test 2
+# Test 2 with data from 2024 about school district Concord-Carlisle (06400000)
 discipline_table <- get_main_page( orgcode = 5, 
                                    schoolID = "06400000", year = 2025 )
 days_missed_table <- get_second_page( orgcode = 5, 
