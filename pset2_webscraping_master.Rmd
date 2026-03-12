@@ -396,7 +396,7 @@ Once you get that script working, use the code chunk below to include your R scr
 
 ```{r, echo=FALSE}
 # This block will just paste an entire R file into your script
-cat( readLines("step3_scrape_script.R"), 
+cat( readLines("PSet2_q3.R"), 
     sep = "\n" )
 ```
 
@@ -412,7 +412,7 @@ We again recommend making this a stand-alone script that you then include below:
 
 ```{r, echo=FALSE}
 # This block will just paste an entire R file into your script
-cat( readLines("step4_process_script.R"), 
+cat( readLines("PSet2_q4.R"), 
     sep = "\n" )
 ```
 
