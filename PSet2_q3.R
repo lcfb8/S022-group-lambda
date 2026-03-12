@@ -75,7 +75,7 @@ dir.create("data_folder", showWarnings = FALSE )
 
 # Make filenames for each of our web pages.
 pages = mutate( pages,
-                file_name = str_glue( "data_folder/school_{unit_id}_{year}.xml" ) )
+                file_name = str_glue( "data_folder/unit_{unit_id}_{year}.xml" ) )
 
 pages
 
