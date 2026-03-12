@@ -1,52 +1,49 @@
-library(tidyverse)
-theme_set( theme_minimal() )
-knitr::opts_chunk$set(echo = TRUE, 
-                      fig.width = 5,
-                      fig.height = 3,
-                      out.width = "5in", 
-                      out.height = "3in", fig.align = "center")
 
+# Web scraping script: Download and save all the pages we want
+#
+# Script by Luke Miratrix (adapted by the Lambda team (Dylan, Luciana, and Lydia)
+
+library( tidyverse )
 library( rvest )
+library(xml2)
 
-#Scrape multiple pages
 
-url_state <- "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode=00000000&orgtypecode=0&=00000000&"
-
-url_concordk8 <- "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00670000&orgtypecode=5&=00670000&"
-
-url_carlislek8 <- "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode=00510000&orgtypecode=5&=00510000&"
-
-url_cchs <- "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode=06400000&orgtypecode=5&=06400000&"
+# Define school districts + MA state to answer our research question
 
 # get the pages (scrape)
-schools = c( Massachusetts="00000000", 
-             Concordk8="00670000", 
-             Carlislek8="00510000", 
-             CCHS="06400000")
-schools
+ma_units = c( Massachusetts="00000000", 
+              Concordk8="00670000", 
+              Carlislek8="00510000", 
+              CCHS="06400000")
+ma_units
 
-# add in the school names
-school.name = tibble( school = names(schools),
-                      schoolID = schools )
-school.name
+# we had to add orgcode, due to Massachusetts having a unique code, 0.
+orgcode = c("0","5","5","5")
+
+# we chose the last 3 years (data was scant during pandemic)
+pages = expand_grid( year = 2022:2025, 
+                     unit_id = ma_units)
+
+pages
+
+# add in the unit names
+unit.name = tibble( unit_name = names(ma_units),
+                      unit_id = ma_units,
+                      orgcode = orgcode)
+unit.name
+pages = left_join( pages, unit.name, by="unit_id" )
+
+pages
 
 
 # Make our systematic URLs with str_glue from the stringr package
 
-# demo of str_glue:
-orgcode = c( "0","5","5","5")
-schoolID = c( "00000000", "00670000","00510000","06400000" )
-str_glue( "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&" )
 
-url_template = "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&"
+pages_url <- pages %>%
+  mutate(url = str_glue( "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={unit_id}&orgtypecode={orgcode}&fycode={year}"))
 
-school_list <- mutate( school.name, 
-                       url = str_glue( url_template ) )
 
-school_list
-
-# scrape the html from the page!
-
+# A helper function to get the pages
 get_page_and_sleep = function( url ) {
   
   cat( "Working on: ", url, "\n" )
@@ -59,99 +56,45 @@ get_page_and_sleep = function( url ) {
   pg
 }
 
-get_page_and_sleep( school_list$url[[1]] )
+
+get_page_and_sleep( pages_url$url[[1]] )
 
 
 # Do the scrape of all our URLs!
-school_list = mutate( school_list,
-                      data = map( url, get_page_and_sleep ) )
+pages = mutate( pages_url,
+                data = map( url, get_page_and_sleep ) )
+names(pages)
 
-school_list
 
-#put our data in folders
+#### Saving our results ####
 
+# Now we have to save the html to a file for safekeeping
+
+# Make a folder to hold all our results
 dir.create("data_folder", showWarnings = FALSE )
 
 # Make filenames for each of our web pages.
-school_list = mutate( school_list,
-                      file_name = str_glue( "data_folder/{school}.xml" ) )
+pages = mutate( pages,
+                file_name = str_glue( "data_folder/school_{unit_id}_{year}.xml" ) )
 
-school_list
+pages
 
-walk2( school_list$data, school_list$file_name, xml2::write_html )
+# Now save each page as a separate file.  This is important because
+# now we don't have to re-scrape the website each time we want to get
+# our raw data.
 
+walk2( pages$data, pages$file_name, write_html )
 
-# Also save our table of pages scraped.
-school_list %>% 
+# NOTE: We might think we could just save the full "pages" table with
+# the webpages inside of it, but this does not work.  The rvest
+# package does something weird with memory management, and thus when
+# you save the pages object, the web pages inside get corrupted.  So
+# we have to save them one at a time like we do.  :-(
+
+# Also save our table of pages scraped, removing the heavy data of the table
+pages %>% 
   dplyr::select(-data ) %>%
-  write_rds( "data_folder/schools_scraped.rds" )
+  write_rds( "pages_scraped.rds" )
 
-
-# We next load our raw data and process each saved webpage.
-
-school_list = readRDS( file="data_folder/schools_scraped.rds" )
-school_list$url= NULL
-school_list
-
-
-#test with one page
-
-test_page = xml2::read_html( school_list$file_name[[2]] )
-test_page
-
-test_page_tables = html_nodes( test_page, "table" )
-test_page_tables
-
-html_table( test_page_tables[[4]], fill = TRUE)
-
-
-# run it on all of our schools
-
-mass = xml2::read_html( school_list$file_name[[1]] )
-concordk8 = xml2::read_html( school_list$file_name[[2]] )
-carlislek8 = xml2::read_html( school_list$file_name[[3]] )
-cchs = xml2::read_html( school_list$file_name[[4]] )
-
-#how do I get the function below to return a table that has run the function but has the original name of school (the variable we input in the function)
-
-#  WE GOT STUCK WRITING THIS FUNCTION BUT WE BRUTE FORCED IT BELOW
-
-extract_table = function( school, x ){
-  
-  school = xml2::read_html( school_list$file_name[[x]] )
-  schools = html_nodes( school, "table" )   
-  html_table( schools[[4]], fill = TRUE) 
-}
-
-
-extract_table( mass, 1)
-
-mass
-
-
-#######
-
-
-mass = xml2::read_html( school_list$file_name[[1]] )
-concordk8 = xml2::read_html( school_list$file_name[[2]] )
-carlislek8 = xml2::read_html( school_list$file_name[[3]] )
-cchs = xml2::read_html( school_list$file_name[[4]] )
-
-
-mass = html_nodes( mass, "table" )   
-mass = html_table( mass[[4]], fill = TRUE) 
-
-concordk8 = html_nodes( concordk8, "table" )   
-concordk8 = html_table( concordk8[[4]], fill = TRUE) 
-
-carlislek8 = html_nodes( carlislek8, "table" )   
-carlislek8 = html_table( carlislek8[[4]], fill = TRUE) 
-
-cchs = html_nodes( cchs, "table" )   
-cchs = html_table( cchs[[4]], fill = TRUE) 
-
-
-mass
-concordk8
-carlislek8
-cchs
+# We are done!  We have stored all the webpages on our own computer as
+# separate files.
