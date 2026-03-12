@@ -1,0 +1,672 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "//www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html ng-app xmlns="//www.w3.org/1999/xhtml" lang="en">
+<head>
+<!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-XR0RNWKW2D"></script><script>
+    window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XR0RNWKW2D');
+</script><title>
+	2021-22 Student Discipline Data Report by All Offenses - Massachusetts (00000000)
+</title>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="search" http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE; Massachusetts Department of Elementary and Secondary Education">
+<link href="/css/common.css" title="ESE Main Style Sheet" rel="stylesheet" type="text/css" media="screen">
+<link href="/css/ese-print.css" rel="stylesheet" type="text/css" media="print">
+<link href="/css/profhome.css" title="ESE Main Style Sheet" rel="stylesheet" type="text/css">
+<link href="/css/ese-tables.css" title="ESE Main Style Sheet" rel="stylesheet" type="text/css" media="screen">
+<link href="/css/ese-tables.css" title="ESE Main Style Sheet" rel="stylesheet" type="text/css" media="print">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.1/css/font-awesome.min.css" type="text/css">
+<link rel="stylesheet" href="/css/ese-tables.css" type="text/css" media="screen">
+<script type="text/javascript" src="https://kit.fontawesome.com/2fdc558176.js" crossorigin="anonymous"></script><style type="text/css">
+    @media print
+    {
+        #dvNavSearch
+        {
+            display: none;
+        }
+        #dvFeedBack
+         {
+            display: none;
+        }
+    }
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<style>
+.miniNavNew {
+color: #001f6a;
+width: 80px;
+font-size: 1.1em;
+position:absolute;
+top: 20px;
+right: 140px;
+font-weight:bold;
+text-align:right;
+}
+.miniNavNew li {
+display: inline;
+margin:0 0 0 12px;
+}
+
+.miniNavNew li a:link    { color: #001f6a; text-decoration: none; font-weight : bold; }
+.miniNavNew li a:visited { color: #001f6a; text-decoration: none; font-weight : bold; }
+.miniNavNew li a:hover   { color: #003366; text-decoration: underline; font-weight : bold; }
+.miniNavNew li a:active  { color: #001f6a; text-decoration: none; font-weight : bold; }
+</style>
+<div id="wrapper">
+    <div id="innerWrapper">
+    <div class="innerContent"> 
+   <!--Start Mass.Gov banner and ESE titlebar-->
+        <div id="header" role="img" aria-label="Page header images">
+        <a href="/" title="Profiles Home"><img src="/images/massdoelogo_r12v23.png" alt="Profiles Home" class="imgleft"></a>
+        <a href="https://www.doe.mass.edu/" title="ESE Home"><img src="/images/massgovlogo-p12.png" alt="Massachusetts Department of Elementary and Secondary Education" class="imgright"></a>
+        </div>
+    <!--End Mass.Gov banner and ESE titlebar-->
+
+
+<script src="https://use.fontawesome.com/b2cf74e80a.js"></script><link href="/css/out/search.css" rel="stylesheet" type="text/css">
+<!-- styles to roughly approximate UW theme -->  
+<link rel="stylesheet" type="text/css" href="/css/uw.css">    
+<!-- styles that make the menu work --> 
+<link rel="stylesheet" type="text/css" href="/css/menu.css">    
+<script src="/jscripts/jquery-1.12.0.min.js" type="text/javascript"></script><script src="/jscripts/search.js?v=3" type="text/javascript"></script><!-- include the jquery-accessibleMegaMenu plugin script --><script src="/jscripts/jquery-accessibleMegaMenu.js"></script><!-- initialize a selector as an accessibleMegaMenu --><script>
+    $(document).ready(function() { 
+
+    $("nav").accessibleMegaMenu({
+        /* prefix for generated unique id attributes, which are required 
+            to indicate aria-owns, aria-controls and aria-labelledby */
+        uuidPrefix: "accessible-megamenu",
+
+        /* css class used to define the megamenu styling */
+        menuClass: "nav-menu",
+
+        /* css class for a top-level navigation item in the megamenu */
+        topNavItemClass: "nav-item",
+
+        /* css class for a megamenu panel */
+        panelClass: "sub-nav",
+
+        /* css class for a group of items within a megamenu panel */
+        panelGroupClass: "sub-nav-group",
+
+        /* css class for the hover state */
+        hoverClass: "hover",
+
+        /* css class for the focus state */
+        focusClass: "focus",
+
+        /* css class for the open state */
+        openClass: "open"
+        });
+          
+    });
+</script> 
+
+ 
+<div id="dvNavSearch" style="width:100%;height:45px;background-color:#264DA7;border-bottom: 1px solid #FFFFFF; border-top: 3px solid #FFFFFF; margin-top: 1px;  box-shadow: 0 1px 4px #9C9C9C;background-image:none;"> 
+
+		<nav id="dawgdrops" style="float:left;"> 
+	    <ul class="nav-menu">
+<li class="nav-item">
+					<a href="/">Profiles Home</a>
+				</li>
+            	<li class="nav-item">
+					<a href="/search/search.aspx?leftNavId=11238">Directories</a>								
+					<div class="sub-nav">
+						<ul class="sub-nav-group">
+<li><a href="/search/search_link.aspx?orgType=5,12&amp;runOrgSearch=Y&amp;leftNavId=11238">Public School Districts</a></li>
+							<li><a href="/search/search_link.aspx?orgType=6,13&amp;runOrgSearch=Y&amp;leftNavId=11238">Public Schools</a></li>
+							<li><a href="/search/search_link.aspx?orgType=13&amp;runOrgSearch=Y&amp;leftNavId=11238">Charter Schools</a></li>
+							<li><a href="/search/search_link.aspx?orgType=3&amp;runOrgSearch=Y&amp;leftNavId=11238">Collaboratives</a></li>
+							<li><a href="/search/search_link.aspx?orgType=11&amp;runOrgSearch=Y&amp;leftNavId=11238">Private Schools</a></li>
+							<li><a href="/search/search_link.aspx?orgType=2&amp;runOrgSearch=Y&amp;leftNavId=11238">Approved Special Education Schools</a></li>
+							<li><a href="/search/search_link.aspx?orgType=95&amp;runOrgSearch=Y&amp;leftNavId=11238">Approved Special Education Programs</a></li>
+							<li><a href="/search/search_link.aspx?orgType=EPPP&amp;runOrgSearch=Y&amp;leftNavId=11238">Educator Preparation Program Providers</a></li>
+                        </ul>
+</div>
+				</li>
+				<li class="nav-item">
+					<a href="/statereport/">Statewide Reports</a>							
+					<div class="sub-nav">
+          	<ul class="sub-nav-group">
+<li><a href="/statereport/#Assessment%20and%20Accountability">Assessment and Accountability</a></li>
+            	<li><a href="/statereport/#Educator%20Preparation">Educator Preparation</a></li>
+            	<li><a href="/statereport/#Educators">Educators</a></li>
+            	<li><a href="/statereport/#Enrollment">Student Enrollment and Indicators</a></li>
+            	<li><a href="/statereport/#Finance">Finance</a></li>
+            	<li><a href="/statereport/#High%20School%20and%20Beyond">High School and Beyond</a></li>
+                  <li><a href="/statereport/#Curriculum%20Data">Curriculum Data</a></li>
+
+            	<li><a href="/statereport/">All Statewide Reports</a></li>
+          	</ul>
+</div>
+				</li>
+
+                            <li class="nav-item">
+					<a href="/home.aspx?orgTypeCode=0&amp;orgCode=00000000">State Profile</a>
+				</li>
+
+				<li class="nav-item">
+					<a href="/help/">Profiles Help</a>								
+    				<div class="sub-nav">
+                        <ul class="sub-nav-group">
+<li><a href="/help/orgs.aspx">Organization Types</a></li>
+							<li><a href="/help/data.aspx">About the Data</a></li>
+							<li><a href="/help/search.aspx?leftNavId=12104">Search, Export and Mailing Labels</a></li>
+							<li><a href="/help/faq.aspx">Frequently Asked Questions</a></li>
+							<li><a href="/help/contact.aspx">Contact Information</a></li>
+                        </ul>
+</div>
+				</li>
+	    </ul>
+
+	</nav>
+
+
+<div id="divautocompleteouter" style="float:right;background-color:#264DA7;height:45px;text-align:right;border-bottom: 1px solid #FFFFFF; background-image:none;">
+<form method="post" id="search" action="/search/search_link_new.aspx">
+                        <div id="divautocompleteinner" style="z-index: 9000; position:relative;margin-top:10px;margin-right:10px;">
+        <input name="searchtext" id="searchtext" aria-label="Search organization" type="text" class="typeahead" autocomplete="off"><div id="divautocomplete" class="tt-menu" style="display:none">
+        </div>
+    <input type="image" src="/images/Search_New1.png" class="go" value="Submit" alt="Submit" style="height:22px;">
+</div>
+    <input name="leftNavId" value="11241" type="hidden"><input name="searchType" id="searchType" value="QUICK" type="hidden"><input name="runQuickSearch" id="runQuickSearch" value="Y" type="hidden"><input name="quickSearchValue" id="quickSearchValue" value="" type="hidden">
+
+      </form>
+
+            </div>
+
+</div>
+  
+<div class="clear"></div>
+
+        
+    <link href="../statereport/css/dataTables.bootstrap.min.css" rel="stylesheet">
+<link href="../css/datatable.css" rel="stylesheet">
+<script type="text/javascript" src="//code.jquery.com/jquery-1.12.3.js"></script><script src="../statereport/bootstrap/js/bootstrap.min.js"></script><script src="../statereport/javascript/jquery.dataTables.min.js"></script><script src="../statereport/javascript/statereport.js"></script> 
+ <style>
+     .table-responsive {
+     width: 100%; 
+    margin-bottom: 15px;
+}
+    #wrapper  {width: 1300px;}
+	#header  {width: 1300px;}
+	#submenu  {width: 1300px;}
+             @media only screen and (min-height: 1050px)  {
+             #wrapper {
+    width:1800px;
+}
+
+#header {
+    width: 1800px;
+}
+
+#submenu {
+    width: 1800px;
+}
+#dvNavSearch {
+    width: 1800px;
+         
+}
+         }
+                  @media only screen and (min-height: 1082px)  {
+             #wrapper {
+    width:2200px;
+}
+
+#header {
+    width: 2200px;
+}
+
+#submenu {
+    width: 2200px;
+}
+#dvNavSearch {
+    width: 2200px;
+         
+}
+         }
+ @media print {
+    @page {
+         size: landscape;
+          }
+    body {
+          overflow: hidden;
+          zoom:0.95;
+          }
+            }
+ </style>
+<div id="onecolumn">
+    <span id="ctl00_ContentPlaceHolder1_lblPrintHeader"></span>
+    <span id="ctl00_ContentPlaceHolder1_lblBreadCrumb" class="lblBreadCrumb"> <div id="breadcrumb">      <a href="/search/search.aspx">Search</a>      <img src="/images/orangerightarrowsm.gif" width="5" height="8" alt="&gt;" class="crumb"><a href="/home.aspx?orgTypeCode=0&amp;orgCode=00000000">Massachusetts</a>      <img src="/images/orangerightarrowsm.gif" width="5" height="8" alt="&gt;" class="crumb"><br><p></p>
+<h1 class="header1">Massachusetts (00000000)</h1>  </div> </span>
+    <span id="ctl00_ContentPlaceHolder1_lblOrgDropDown"> <script language="JavaScript"> 
+ <!-- 
+ function changeOrgCode() { 
+     var i = document.profOrgDrop.orgDropDown.selectedIndex; 
+ 	if ( i != 0 ) { 
+ 		window.location.href = document.profOrgDrop.orgDropDown[i].value; 
+ 	} 
+ } 
+ //--> 
+ </script> 
+ <div id="oscontainer"> 
+<div id="orgselector2" aria-label="Org Dropdown selection"> 
+</div> 
+ 	<form method="post" name="profOrgDrop" id="profOrgDrop" style="vertical-align:middle" class="osdropdown"> 
+     <select id="orgDropDown" aria-label="Organization select" name="orgDropDown" style="font-size: 11px;"> 
+         <option>---Select State Profile---</option> 
+<option selected value="/home.aspx?orgCode=00000000&amp;orgtypecode=0">School/District State Profile</option> 
+<option value="/home.aspx?orgtype=EPPP&amp;orgCode=00000000&amp;orgtypecode=0">Educator Preparation Program Provider(EPPP) State Profile</option> 
+      </select> 
+      <a href="javascript:changeOrgCode();"><img src="/images/btn.gif" alt="Select an Org" border="0"></a>
+      </form> 
+ </div> 
+</span>
+    <span id="ctl00_ContentPlaceHolder1_lblTopNavHtml"><div class="tabs">
+ <div id="yeartoggle">
+  <a id="YTleft" href="/ssdr/default.aspx?orgcode=00000000&amp;orgtypecode=0&amp;fycode=2021" aria-label="Previous Year"><span class="alt"><img alt="View Previous Year" src="/images/yeartogglebgl.gif"></span></a>
+<div style="float:left;font-size:12px;">2022</div>
+  <a id="YTright" href="/ssdr/default.aspx?orgcode=00000000&amp;orgtypecode=0&amp;fycode=2023" aria-label="Next Year"><span class="alt"><img alt="View Next Year" src="/images/yeartogglebgr.gif"></span></a>
+ </div>
+     <ul>
+<li class="" role="img" aria-label="General"><a href="/profiles/general.aspx?topNavId=1&amp;orgcode=00000000&amp;orgtypecode=0&amp;"><span style="font-size:11px;">General</span></a></li>
+<li class="current" role="img" aria-label="Students"><a href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><span style="font-size:11px;">Students</span></a></li>
+<li class="" role="img" aria-label="Teachers"><a href="/profiles/teacher.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><span style="font-size:11px;">Teachers</span></a></li>
+<li class="" role="img" aria-label="Finance"><a href="/profiles/finance.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><span style="font-size:11px;">Finance</span></a></li>
+<li class="" role="img" aria-label="Assessment"><a href="/mcas/achievement_level.aspx?linkid=32&amp;orgcode=00000000&amp;orgtypecode=0&amp;"><span style="font-size:11px;">Assessment</span></a></li>
+<li class="" role="img" aria-label="Accountability"><a href="/accountability/report/district.aspx?linkid=30&amp;orgcode=00000000&amp;orgtypecode=0&amp;"><span style="font-size:11px;">Accountability</span></a></li>
+<li class="" role="img" aria-label="Trends – DART"><a href="/analysis/state.aspx"><span style="font-size:11px;">Trends – DART</span></a></li>
+     </ul>
+</div>
+<!--close tabs-->
+<div class="clear"></div>
+</span>
+    
+	<div id="whitebox">
+        <table bgcolor="#ffffff" border="0">
+<th scope="col" aria-label="main content"></th>
+        <tr>
+<td>
+        
+            <div id="whiteboxLeft">
+                <span id="ctl00_ContentPlaceHolder1_lblSideNavHtml"><ul class="leftNav">
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=300&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Enrollment">Enrollment</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=16817&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Student Attendance">Student Attendance</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=16818&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Student Retention">Student Retention</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=305&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Selected Populations">Selected Populations</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=306&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Technology">Technology</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=307&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Plans of High School Graduates">Plans of High School Graduates</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/dropout/default.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=15627&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Dropout Rate">Dropout Rate</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/grad/grad_report.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Graduation Rate">Graduation Rate</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/mobility/default.aspx?orgcode=00000000&amp;fycode=2022&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Mobility Rate">Mobility Rate</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/masscore/default.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for MassCore Completion">MassCore Completion</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/attrition/default.aspx?orgcode=00000000&amp;fycode=2022&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Attrition Rates">Attrition Rates</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/students/classsizebygenderpopulation.aspx?orgcode=00000000&amp;fycode=2022&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Class Size by Gender and Selected Population">Class Size by Gender and Selected Population</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/nsc/gradsattendingcollege_dist.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Graduates Attending Higher Ed.">Graduates Attending Higher Ed.</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/students/classsizebyraceethnicity.aspx?orgcode=00000000&amp;orgtypecode=0&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Class Size by Race/Ethnicity">Class Size by Race/Ethnicity</a>
+</li>
+<li class="leftcurrent" style="padding-left:0px" height="14px">
+<img style="padding-right:5px" src="/images/orangerightactive.gif" alt="atctive page">Student Discipline
+<ul></ul>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/ssdr/ssdr_days_missed_detail.aspx?orgcode=00000000&amp;orgtypecode=0&amp;=00000000&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Student Discipline Days Missed">Student Discipline Days Missed</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=16822&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Arts Coursetaking">Arts Coursetaking</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=16823&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Grade Nine Course Passing">Grade Nine Course Passing</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftnavId=16825&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Advanced Course Completion">Advanced Course Completion</a>
+</li>
+<li height="14px">
+<a style="padding-left:0px" href="/profiles/student.aspx?orgcode=00000000&amp;orgtypecode=0&amp;leftNavId=16937&amp;"><img style="padding-right:5px" src="/images/orangerightarrowsm.gif" alt="Left Navigation for Digital Literacy and Computer Science Coursetaking">Digital Literacy and Computer Science Coursetaking</a>
+</li>
+</ul></span>
+                <span id="ctl00_ContentPlaceHolder1_lblRelatedLinksHtml"> <div id="relatedLinks" aria-label="Related Links"> 
+ <span class="bold" aria-label="Related Links header">Related Links:</span> 
+   <table>
+<th style="background-color:white;" scope="col" aria-label="Related Links header table"></th>  
+   <tr><td>
+<img src="/images/rbutton.gif" alt="related link">  <a style="text-decoration:none;" target="_blank" href="/statereport/ssdr.aspx" aria-label="Related links Student Discipline">Student Discipline</a>
+</td></tr> 
+ </table> 
+ </div> 
+</span>
+                <span id="ctl00_ContentPlaceHolder1_lblDidYouKnowHtml"></span>
+            </div>
+<!--close whiteboxleft-->
+        
+        </td>
+        <td>
+        <div id="whiteboxRight">
+            <form name="aspnetForm" method="post" action="./default.aspx?orgcode=00000000&amp;orgtypecode=0&amp;fycode=2022" id="aspnetForm">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTkyODE2NDk1Mw9kFgJmD2QWAgIHD2QWEAIBDw8WAh4EVGV4dAWSAyA8ZGl2IGlkPSdicmVhZGNydW1iJz4gICAgICA8YSBocmVmPScvc2VhcmNoL3NlYXJjaC5hc3B4Jz5TZWFyY2g8L2E+ICAgICAgPGltZyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgd2lkdGg9JzUnIGhlaWdodD0nOCcgYWx0PSc+JyBjbGFzcz0nY3J1bWInPiAgICAgIDxhIGhyZWY9Jy9ob21lLmFzcHg/b3JnVHlwZUNvZGU9MCZvcmdDb2RlPTAwMDAwMDAwJz5NYXNzYWNodXNldHRzPC9hPiAgICAgIDxpbWcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIHdpZHRoPSc1JyBoZWlnaHQ9JzgnIGFsdD0nPicgY2xhc3M9J2NydW1iJz4gICAgICA8YnIgLz48cD48aDEgY2xhc3M9J2hlYWRlcjEnPk1hc3NhY2h1c2V0dHMgKDAwMDAwMDAwKTwvaDE+PC9wPiAgPC9kaXY+IGRkAgIPDxYCHwAFhwggPHNjcmlwdCBsYW5ndWFnZT0nSmF2YVNjcmlwdCc+IA0KIDwhLS0gDQogZnVuY3Rpb24gY2hhbmdlT3JnQ29kZSgpIHsgDQogICAgIHZhciBpID0gZG9jdW1lbnQucHJvZk9yZ0Ryb3Aub3JnRHJvcERvd24uc2VsZWN0ZWRJbmRleDsgDQogCWlmICggaSAhPSAwICkgeyANCiAJCXdpbmRvdy5sb2NhdGlvbi5ocmVmID0gZG9jdW1lbnQucHJvZk9yZ0Ryb3Aub3JnRHJvcERvd25baV0udmFsdWU7IA0KIAl9IA0KIH0gDQogLy8tLT4gDQogPC9zY3JpcHQ+IA0KIDxkaXYgaWQ9J29zY29udGFpbmVyJz4gDQo8ZGl2IGlkPSdvcmdzZWxlY3RvcjInIGFyaWEtbGFiZWw9J09yZyBEcm9wZG93biBzZWxlY3Rpb24nPiANCjwvZGl2PiANCiAJPGZvcm0gbWV0aG9kPSdwb3N0JyBuYW1lPSdwcm9mT3JnRHJvcCcgaWQ9J3Byb2ZPcmdEcm9wJyBzdHlsZT0ndmVydGljYWwtYWxpZ246bWlkZGxlJyBjbGFzcz0nb3Nkcm9wZG93bic+IA0KICAgICA8c2VsZWN0IGlkPSdvcmdEcm9wRG93bicgYXJpYS1sYWJlbD0nT3JnYW5pemF0aW9uIHNlbGVjdCcgbmFtZT0nb3JnRHJvcERvd24nIHN0eWxlPSJmb250LXNpemU6IDExcHg7Ij4gDQogICAgICAgICA8b3B0aW9uPi0tLVNlbGVjdCBTdGF0ZSBQcm9maWxlLS0tPC9vcHRpb24+IA0KPG9wdGlvbiBzZWxlY3RlZCB2YWx1ZT0nL2hvbWUuYXNweD9vcmdDb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAnPlNjaG9vbC9EaXN0cmljdCBTdGF0ZSBQcm9maWxlPC9vcHRpb24+IA0KPG9wdGlvbiB2YWx1ZT0nL2hvbWUuYXNweD9vcmd0eXBlPUVQUFAmb3JnQ29kZT0wMDAwMDAwMCZvcmd0eXBlY29kZT0wJz5FZHVjYXRvciBQcmVwYXJhdGlvbiBQcm9ncmFtIFByb3ZpZGVyKEVQUFApIFN0YXRlIFByb2ZpbGU8L29wdGlvbj4gDQogICAgICA8L3NlbGVjdD4gDQogICAgICA8YSBocmVmPSdqYXZhc2NyaXB0OmNoYW5nZU9yZ0NvZGUoKTsnPjxpbWcgc3JjPScvaW1hZ2VzL2J0bi5naWYnIGFsdD0nU2VsZWN0IGFuIE9yZycgYm9yZGVyPScwJz48L2E+DQogICAgICA8L2Zvcm0+IA0KIDwvZGl2PiANCmRkAgMPDxYCHwAFjA48ZGl2IGNsYXNzPSd0YWJzJz4NCiA8ZGl2IGlkPSd5ZWFydG9nZ2xlJz4NCiAgPGEgaWQ9J1lUbGVmdCcgaHJlZj0nL3NzZHIvZGVmYXVsdC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCZmeWNvZGU9MjAyMScgYXJpYS1sYWJlbD0nUHJldmlvdXMgWWVhcic+PHNwYW4gY2xhc3M9J2FsdCc+PGltZyBhbHQ9J1ZpZXcgUHJldmlvdXMgWWVhcicgc3JjPScvaW1hZ2VzL3llYXJ0b2dnbGViZ2wuZ2lmJz48L3NwYW4+PC9hPg0KPGRpdiBzdHlsZT0iZmxvYXQ6bGVmdDtmb250LXNpemU6MTJweDsiPjIwMjI8L2Rpdj4NCiAgPGEgaWQ9J1lUcmlnaHQnIGhyZWY9Jy9zc2RyL2RlZmF1bHQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmZnljb2RlPTIwMjMnIGFyaWEtbGFiZWw9J05leHQgWWVhcic+PHNwYW4gY2xhc3M9J2FsdCc+PGltZyBhbHQ9J1ZpZXcgTmV4dCBZZWFyJyBzcmM9Jy9pbWFnZXMveWVhcnRvZ2dsZWJnci5naWYnPjwvc3Bhbj48L2E+DQogPC9kaXY+DQogICAgIDx1bD4NCjxsaSBjbGFzcz0nJyByb2xlPSdpbWcnIGFyaWEtbGFiZWw9J0dlbmVyYWwnPjxhIGhyZWY9Jy9wcm9maWxlcy9nZW5lcmFsLmFzcHg/dG9wTmF2SWQ9MSZvcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmJz48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExcHg7Ij5HZW5lcmFsPC9zcGFuPjwvYT48L2xpPg0KPGxpIGNsYXNzPSdjdXJyZW50JyByb2xlPSdpbWcnIGFyaWEtbGFiZWw9J1N0dWRlbnRzJz48YSBocmVmPScvcHJvZmlsZXMvc3R1ZGVudC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCYnPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTFweDsiPlN0dWRlbnRzPC9zcGFuPjwvYT48L2xpPg0KPGxpIGNsYXNzPScnIHJvbGU9J2ltZycgYXJpYS1sYWJlbD0nVGVhY2hlcnMnPjxhIGhyZWY9Jy9wcm9maWxlcy90ZWFjaGVyLmFzcHg/b3JnY29kZT0wMDAwMDAwMCZvcmd0eXBlY29kZT0wJic+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMXB4OyI+VGVhY2hlcnM8L3NwYW4+PC9hPjwvbGk+DQo8bGkgY2xhc3M9Jycgcm9sZT0naW1nJyBhcmlhLWxhYmVsPSdGaW5hbmNlJz48YSBocmVmPScvcHJvZmlsZXMvZmluYW5jZS5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCYnPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTFweDsiPkZpbmFuY2U8L3NwYW4+PC9hPjwvbGk+DQo8bGkgY2xhc3M9Jycgcm9sZT0naW1nJyBhcmlhLWxhYmVsPSdBc3Nlc3NtZW50Jz48YSBocmVmPScvbWNhcy9hY2hpZXZlbWVudF9sZXZlbC5hc3B4P2xpbmtpZD0zMiZvcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmJz48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExcHg7Ij5Bc3Nlc3NtZW50PC9zcGFuPjwvYT48L2xpPg0KPGxpIGNsYXNzPScnIHJvbGU9J2ltZycgYXJpYS1sYWJlbD0nQWNjb3VudGFiaWxpdHknPjxhIGhyZWY9Jy9hY2NvdW50YWJpbGl0eS9yZXBvcnQvZGlzdHJpY3QuYXNweD9saW5raWQ9MzAmb3JnY29kZT0wMDAwMDAwMCZvcmd0eXBlY29kZT0wJic+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMXB4OyI+QWNjb3VudGFiaWxpdHk8L3NwYW4+PC9hPjwvbGk+DQo8bGkgY2xhc3M9Jycgcm9sZT0naW1nJyBhcmlhLWxhYmVsPSdUcmVuZHMg4oCTIERBUlQnPjxhIGhyZWY9Jy9hbmFseXNpcy9zdGF0ZS5hc3B4Jz48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExcHg7Ij5UcmVuZHMg4oCTIERBUlQ8L3NwYW4+PC9hPjwvbGk+DQogICAgIDwvdWw+DQo8L2Rpdj48IS0tY2xvc2UgdGFicy0tPg0KPGRpdiBjbGFzcz0nY2xlYXInPjwvZGl2Pg0KZGQCBA8PFgIfAAXFKjx1bCBjbGFzcz0nbGVmdE5hdic+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTMwMCYnPjxpbWcgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgYWx0PSdMZWZ0IE5hdmlnYXRpb24gZm9yIEVucm9sbG1lbnQnPjwvaW1nPkVucm9sbG1lbnQ8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTE2ODE3Jic+PGltZyBzdHlsZT0ncGFkZGluZy1yaWdodDo1cHgnIHNyYz0nL2ltYWdlcy9vcmFuZ2VyaWdodGFycm93c20uZ2lmJyBhbHQ9J0xlZnQgTmF2aWdhdGlvbiBmb3IgU3R1ZGVudCBBdHRlbmRhbmNlJz48L2ltZz5TdHVkZW50IEF0dGVuZGFuY2U8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTE2ODE4Jic+PGltZyBzdHlsZT0ncGFkZGluZy1yaWdodDo1cHgnIHNyYz0nL2ltYWdlcy9vcmFuZ2VyaWdodGFycm93c20uZ2lmJyBhbHQ9J0xlZnQgTmF2aWdhdGlvbiBmb3IgU3R1ZGVudCBSZXRlbnRpb24nPjwvaW1nPlN0dWRlbnQgUmV0ZW50aW9uPC9hPg0KPGxpIGhlaWdodD0nMTRweCc+PGEgc3R5bGU9J3BhZGRpbmctbGVmdDowcHgnIGhyZWY9Jy9wcm9maWxlcy9zdHVkZW50LmFzcHg/b3JnY29kZT0wMDAwMDAwMCZvcmd0eXBlY29kZT0wJmxlZnROYXZJZD0zMDUmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBTZWxlY3RlZCBQb3B1bGF0aW9ucyc+PC9pbWc+U2VsZWN0ZWQgUG9wdWxhdGlvbnM8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTMwNiYnPjxpbWcgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgYWx0PSdMZWZ0IE5hdmlnYXRpb24gZm9yIFRlY2hub2xvZ3knPjwvaW1nPlRlY2hub2xvZ3k8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTMwNyYnPjxpbWcgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgYWx0PSdMZWZ0IE5hdmlnYXRpb24gZm9yIFBsYW5zIG9mIEhpZ2ggU2Nob29sIEdyYWR1YXRlcyc+PC9pbWc+UGxhbnMgb2YgSGlnaCBTY2hvb2wgR3JhZHVhdGVzPC9hPg0KPGxpIGhlaWdodD0nMTRweCc+PGEgc3R5bGU9J3BhZGRpbmctbGVmdDowcHgnIGhyZWY9Jy9kcm9wb3V0L2RlZmF1bHQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTE1NjI3Jic+PGltZyBzdHlsZT0ncGFkZGluZy1yaWdodDo1cHgnIHNyYz0nL2ltYWdlcy9vcmFuZ2VyaWdodGFycm93c20uZ2lmJyBhbHQ9J0xlZnQgTmF2aWdhdGlvbiBmb3IgRHJvcG91dCBSYXRlJz48L2ltZz5Ecm9wb3V0IFJhdGU8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL2dyYWQvZ3JhZF9yZXBvcnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBHcmFkdWF0aW9uIFJhdGUnPjwvaW1nPkdyYWR1YXRpb24gUmF0ZTwvYT4NCjxsaSBoZWlnaHQ9JzE0cHgnPjxhIHN0eWxlPSdwYWRkaW5nLWxlZnQ6MHB4JyBocmVmPScvbW9iaWxpdHkvZGVmYXVsdC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmZnljb2RlPTIwMjImb3JndHlwZWNvZGU9MCYnPjxpbWcgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgYWx0PSdMZWZ0IE5hdmlnYXRpb24gZm9yIE1vYmlsaXR5IFJhdGUnPjwvaW1nPk1vYmlsaXR5IFJhdGU8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL21hc3Njb3JlL2RlZmF1bHQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBNYXNzQ29yZSBDb21wbGV0aW9uJz48L2ltZz5NYXNzQ29yZSBDb21wbGV0aW9uPC9hPg0KPGxpIGhlaWdodD0nMTRweCc+PGEgc3R5bGU9J3BhZGRpbmctbGVmdDowcHgnIGhyZWY9Jy9hdHRyaXRpb24vZGVmYXVsdC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmZnljb2RlPTIwMjImb3JndHlwZWNvZGU9MCYnPjxpbWcgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgYWx0PSdMZWZ0IE5hdmlnYXRpb24gZm9yIEF0dHJpdGlvbiBSYXRlcyc+PC9pbWc+QXR0cml0aW9uIFJhdGVzPC9hPg0KPGxpIGhlaWdodD0nMTRweCc+PGEgc3R5bGU9J3BhZGRpbmctbGVmdDowcHgnIGhyZWY9Jy9zdHVkZW50cy9jbGFzc3NpemVieWdlbmRlcnBvcHVsYXRpb24uYXNweD9vcmdjb2RlPTAwMDAwMDAwJmZ5Y29kZT0yMDIyJm9yZ3R5cGVjb2RlPTAmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBDbGFzcyBTaXplIGJ5IEdlbmRlciBhbmQgU2VsZWN0ZWQgUG9wdWxhdGlvbic+PC9pbWc+Q2xhc3MgU2l6ZSBieSBHZW5kZXIgYW5kIFNlbGVjdGVkIFBvcHVsYXRpb248L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL25zYy9ncmFkc2F0dGVuZGluZ2NvbGxlZ2VfZGlzdC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCYnPjxpbWcgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhcnJvd3NtLmdpZicgYWx0PSdMZWZ0IE5hdmlnYXRpb24gZm9yIEdyYWR1YXRlcyBBdHRlbmRpbmcgSGlnaGVyIEVkLic+PC9pbWc+R3JhZHVhdGVzIEF0dGVuZGluZyBIaWdoZXIgRWQuPC9hPg0KPGxpIGhlaWdodD0nMTRweCc+PGEgc3R5bGU9J3BhZGRpbmctbGVmdDowcHgnIGhyZWY9Jy9zdHVkZW50cy9jbGFzc3NpemVieXJhY2VldGhuaWNpdHkuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBDbGFzcyBTaXplIGJ5IFJhY2UvRXRobmljaXR5Jz48L2ltZz5DbGFzcyBTaXplIGJ5IFJhY2UvRXRobmljaXR5PC9hPg0KPGxpIGNsYXNzPSdsZWZ0Y3VycmVudCcgc3R5bGU9J3BhZGRpbmctbGVmdDowcHgnIGhlaWdodD0nMTRweCc+PGltZyAgc3R5bGU9J3BhZGRpbmctcmlnaHQ6NXB4JyBzcmM9Jy9pbWFnZXMvb3JhbmdlcmlnaHRhY3RpdmUuZ2lmJyBhbHQ9J2F0Y3RpdmUgcGFnZSc+PC9pbWc+U3R1ZGVudCBEaXNjaXBsaW5lDQo8dWw+DQo8L3VsPg0KPC9saT4NCjxsaSBoZWlnaHQ9JzE0cHgnPjxhIHN0eWxlPSdwYWRkaW5nLWxlZnQ6MHB4JyBocmVmPScvc3Nkci9zc2RyX2RheXNfbWlzc2VkX2RldGFpbC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCY9MDAwMDAwMDAmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBTdHVkZW50IERpc2NpcGxpbmUgRGF5cyBNaXNzZWQnPjwvaW1nPlN0dWRlbnQgRGlzY2lwbGluZSBEYXlzIE1pc3NlZDwvYT4NCjxsaSBoZWlnaHQ9JzE0cHgnPjxhIHN0eWxlPSdwYWRkaW5nLWxlZnQ6MHB4JyBocmVmPScvcHJvZmlsZXMvc3R1ZGVudC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCZsZWZ0TmF2SWQ9MTY4MjImJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBBcnRzIENvdXJzZXRha2luZyc+PC9pbWc+QXJ0cyBDb3Vyc2V0YWtpbmc8L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTE2ODIzJic+PGltZyBzdHlsZT0ncGFkZGluZy1yaWdodDo1cHgnIHNyYz0nL2ltYWdlcy9vcmFuZ2VyaWdodGFycm93c20uZ2lmJyBhbHQ9J0xlZnQgTmF2aWdhdGlvbiBmb3IgR3JhZGUgTmluZSBDb3Vyc2UgUGFzc2luZyc+PC9pbWc+R3JhZGUgTmluZSBDb3Vyc2UgUGFzc2luZzwvYT4NCjxsaSBoZWlnaHQ9JzE0cHgnPjxhIHN0eWxlPSdwYWRkaW5nLWxlZnQ6MHB4JyBocmVmPScvcHJvZmlsZXMvc3R1ZGVudC5hc3B4P29yZ2NvZGU9MDAwMDAwMDAmb3JndHlwZWNvZGU9MCZsZWZ0bmF2SWQ9MTY4MjUmJz48aW1nIHN0eWxlPSdwYWRkaW5nLXJpZ2h0OjVweCcgc3JjPScvaW1hZ2VzL29yYW5nZXJpZ2h0YXJyb3dzbS5naWYnIGFsdD0nTGVmdCBOYXZpZ2F0aW9uIGZvciBBZHZhbmNlZCBDb3Vyc2UgQ29tcGxldGlvbic+PC9pbWc+QWR2YW5jZWQgQ291cnNlIENvbXBsZXRpb248L2E+DQo8bGkgaGVpZ2h0PScxNHB4Jz48YSBzdHlsZT0ncGFkZGluZy1sZWZ0OjBweCcgaHJlZj0nL3Byb2ZpbGVzL3N0dWRlbnQuYXNweD9vcmdjb2RlPTAwMDAwMDAwJm9yZ3R5cGVjb2RlPTAmbGVmdE5hdklkPTE2OTM3Jic+PGltZyBzdHlsZT0ncGFkZGluZy1yaWdodDo1cHgnIHNyYz0nL2ltYWdlcy9vcmFuZ2VyaWdodGFycm93c20uZ2lmJyBhbHQ9J0xlZnQgTmF2aWdhdGlvbiBmb3IgRGlnaXRhbCBMaXRlcmFjeSBhbmQgQ29tcHV0ZXIgU2NpZW5jZSBDb3Vyc2V0YWtpbmcnPjwvaW1nPkRpZ2l0YWwgTGl0ZXJhY3kgYW5kIENvbXB1dGVyIFNjaWVuY2UgQ291cnNldGFraW5nPC9hPg0KPC91bD4NCmRkAgUPDxYCHwAF8AMgPGRpdiBpZD0ncmVsYXRlZExpbmtzJyBhcmlhLWxhYmVsPSdSZWxhdGVkIExpbmtzJz4gDQogPHNwYW4gY2xhc3M9J2JvbGQnIGFyaWEtbGFiZWw9J1JlbGF0ZWQgTGlua3MgaGVhZGVyJz5SZWxhdGVkIExpbmtzOjwvc3Bhbj4gDQogICA8dGFibGU+PHRoICBzdHlsZT0nYmFja2dyb3VuZC1jb2xvcjp3aGl0ZTsnIHNjb3BlPSdjb2wnIGFyaWEtbGFiZWw9J1JlbGF0ZWQgTGlua3MgaGVhZGVyIHRhYmxlJz48L3RoPiAgDQogICA8dHI+PHRkPjxpbWcgc3JjPScvaW1hZ2VzL3JidXR0b24uZ2lmJyBhbHQ9J3JlbGF0ZWQgbGluayc+Jm5ic3A7Jm5ic3A7PGEgc3R5bGU9J3RleHQtZGVjb3JhdGlvbjpub25lOycgdGFyZ2V0PSdfYmxhbmsnIGhyZWY9Jy9zdGF0ZXJlcG9ydC9zc2RyLmFzcHgnIGFyaWEtbGFiZWw9J1JlbGF0ZWQgbGlua3MgU3R1ZGVudCBEaXNjaXBsaW5lJyA+U3R1ZGVudCBEaXNjaXBsaW5lPC9hPjwvdGQ+PC90cj4gDQogPC90YWJsZT4gDQogPC9kaXY+IA0KZGQCBg8PFgIfAGVkZAIHD2QWBmYPDxYCHwAFQjxoMj4yMDIxLTIyIFN0dWRlbnQgRGlzY2lwbGluZSBEYXRhIFJlcG9ydCA8YnIgLz5BbGwgT2ZmZW5zZXM8L2gyPmRkAgEPDxYCHwAFpQUgPHNjcmlwdCB0eXBlPSd0ZXh0L2phdmFzY3JpcHQnPiANCiBmdW5jdGlvbiBwcmludEFydGljbGUoKSB7IA0KICAgICB2YXIgYWd0PW5hdmlnYXRvci51c2VyQWdlbnQudG9Mb3dlckNhc2UoKTsgDQogICAgIGlmICh3aW5kb3cucHJpbnQpIHsgDQogICAgICAgICBzZXRUaW1lb3V0KCd3aW5kb3cucHJpbnQoKTsnLDIwMCk7IA0KICAgICB9IA0KICAgICBlbHNlIGlmIChhZ3QuaW5kZXhPZigibWFjIikgIT0gLTEpIHsgDQogICAgICAgICBhbGVydCgiUHJlc3MgJ0NNRCtQJyBvbiB5b3VyIGtleWJvYXJkIHRvIHByaW50IGFydGljbGUuIik7IA0KICAgICB9IA0KICAgICBlbHNlIHsgDQogICAgICAgICBhbGVydCgiUHJlc3MgJ0NUUkwrUCcgb24geW91ciBrZXlib2FyZCB0byBwcmludCBhcnRpY2xlLiIpOyANCiAgICAgfSANCiB9IA0KIDwvc2NyaXB0PiANCiA8ZGl2ICBpZD0ndXRpbGJhcicgY2xhc3M9J2xlZnQnIHdpZHRoPScxMDAnPiANCiA8YSBpZD0ndXRpbF9wcmludCcgYXJpYS1sYWJlbD0ncHJpbnQnIGhyZWY9J2phdmFzY3JpcHQ6dm9pZChwcmludEFydGljbGUoKSk7Jz48c3BhbiBjbGFzcz0nYWx0Jz48aW1nIHNyYz0nL2ltYWdlcy91dGlsX3ByaW50LmdpZicgYWx0PSdwcmludCBwYWdlJyByb2xlPSdpbWcnIHRpdGxlPSdwcmludCcvPjwvc3Bhbj48L2E+IA0KIDwvZGl2PiANCmRkAgIPZBYEZg9kFgICAQ9kFgICAQ8QDxYGHg1EYXRhVGV4dEZpZWxkBQpTU0RSX0xBQkVMHg5EYXRhVmFsdWVGaWVsZAUJU1NEUl9DT0RFHgtfIURhdGFCb3VuZGdkEBUTDEFsbCBPZmZlbnNlcwhCdWxseWluZytEZXN0cnVjdGlvbiBvZiBzY2hvb2wgcHJvcGVydHkgZHVlIHRvIGFyc29uHkZlbG9ueSBjb252aWN0aW9uIG9yIGNvbXBsYWludCFIb21pY2lkZSAobXVyZGVyIG9yIG1hbnNsYXVnaHRlcikSSWxsZWdhbCBzdWJzdGFuY2VzFktpZG5hcHBpbmcgKGFiZHVjdGlvbik1Tm9uLWRydWcsIG5vbi12aW9sZW50IG9yIG5vbi1jcmltaW5hbC1yZWxhdGVkIG9mZmVuc2UrT3RoZXIgdmlvbGVuY2Ugb3Igc3Vic3RhbmNlLXJlbGF0ZWQgb2ZmZW5zZRlQaHlzaWNhbCBhdHRhY2sgKGJhdHRlcnkpD1BoeXNpY2FsIGZpZ2h0IBNSb2JiZXJ5IHVzaW5nIGZvcmNlDlNleHVhbCBhc3NhdWx0EVNleHVhbCBoYXJhc3NtZW50KVRoZWZ0IChzY2hvb2wsIHN0YWZmIG9yIHN0dWRlbnQgcHJvcGVydHkpGVRocmVhdCBvZiBwaHlzaWNhbCBhdHRhY2sRVGhyZWF0IG9mIHJvYmJlcnkhVmFuZGFsaXNtL2Rlc3RydWN0aW9uIG9mIHByb3BlcnR5GVdlYXBvbiBvbiBzY2hvb2wgcHJlbWlzZXMVEwNBTEwFQlVMTFkFQVJTT04GRkVMT05ZCEhPTUlDSURFCklMTF9TVUJTVDIGS0lETkFQA05PTgdWX09USEVSB0JBVFRFUlkFRklHSFQHUk9CQkVSWQlTX0FTU0FVTFQIU19IQVJBU1MFVEhFRlQKVEhSRUFUX0FUVApUSFJFQVRfUk9CBlZBTkRBTAdXRUFQT04yFCsDE2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dkZAIDD2QWAmYPFgIeB1Zpc2libGVoZAIIDw8WAh8ABbU0PGRpdiBjbGFzcz0ndGFibGUtcmVzcG9uc2l2ZScgaWQ9J2RpdlN0YXRlUmVwb3J0Jz48dGFibGUgIGlkPSd0YmxTdGF0ZVJlcG9ydCcgY2xhc3M9J3RhYmxlIHRhYmxlLXN0cmlwZWQgdGFibGUtYm9yZGVyZWQgZGlzcGxheSB0YWJsZS1ob3Zlcicgc3VtbWFyeT0nU3R1ZGVudCBEaXNjaXBsaW5lJyBjZWxsc3BhY2luZz0nMCcgd2lkdGg9JzEwMCUnPjx0aGVhZCA+PHRyPjx0aCBzY29wZT0nY29sJyBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInIHdpZHRoPScxOSUnPlN0dWRlbnQgR3JvdXA8L3RoPjx0aCBzY29wZT0nY29sJyBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInIHdpZHRoPSc5JSc+U3R1ZGVudHM8L3RoPjx0aCBzY29wZT0nY29sJyBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInIHdpZHRoPSc5JSc+U3R1ZGVudHMgRGlzY2lwbGluZWQ8L3RoPjx0aCBzY29wZT0nY29sJyBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInIHdpZHRoPSc5JSc+JSBJbi1TY2hvb2wgU3VzcGVuc2lvbjwvdGg+PHRoIHNjb3BlPSdjb2wnIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcicgd2lkdGg9JzklJz4lIE91dC1vZi1TY2hvb2wgU3VzcGVuc2lvbjwvdGg+PHRoIHNjb3BlPSdjb2wnIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcicgd2lkdGg9JzklJz4lIEV4cHVsc2lvbjwvdGg+PHRoIHNjb3BlPSdjb2wnIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcicgd2lkdGg9JzklJz4lIEFsdGVybmF0ZSBTZXR0aW5nPC90aD48dGggc2NvcGU9J2NvbCcgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJyB3aWR0aD0nOSUnPiUgRW1lcmdlbmN5IFJlbW92YWw8L3RoPjx0aCBzY29wZT0nY29sJyBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInIHdpZHRoPSc5JSc+JSBTdHVkZW50cyB3aXRoIGEgU2Nob29sLUJhc2VkIEFycmVzdDwvdGg+PHRoIHNjb3BlPSdjb2wnIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcicgd2lkdGg9JzklJz4lIFN0dWRlbnRzIHdpdGggYSBOb24tQXJyZXN0IExhdyBFbmZvcmNlbWVudCBSZWZlcnJhbDwvdGg+PC90cj48L3RoZWFkPjx0Ym9keSA+PHRyPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpMZWZ0Jz5BbGwgU3R1ZGVudHM8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiA5NDMsNTQ5PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gIDM5LDY3NjwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MS42PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4zLjE8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuMzwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PC90cj48dHI+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOkxlZnQnPkFtZXJpY2FuIEluZGlhbiBvciBBbGFza2EgTmF0aXZlPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gICAyLDIwMzwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+ICAgICAxMzQ8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjIuNDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+NC4zPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wLjQ8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuMTwvdGQ+PC90cj48dHI+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOkxlZnQnPkFzaWFuPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gIDY4LDUwMzwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+ICAgICA3Mjc8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuNDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MC43PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wLjE8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjwvdHI+PHRyPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpMZWZ0Jz5CbGFjayBvciBBZnJpY2FuIEFtZXJpY2FuPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gIDg4LDgxODwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+ICAgNiw3OTQ8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjIuMjwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+Ni4yPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wLjY8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjwvdHI+PHRyPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpMZWZ0Jz5IaXNwYW5pYyBvciBMYXRpbm88L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAyMjUsNTQyPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gIDE0LDA3NTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+Mi4xPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz40Ljk8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuNDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PC90cj48dHI+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOkxlZnQnPk11bHRpLVJhY2UsIE5vdCBIaXNwYW5pYyBvciBMYXRpbm88L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAgNDAsNDkwPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gICAxLDkyMDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MS44PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4zLjU8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuNDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PC90cj48dHI+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOkxlZnQnPk5hdGl2ZSBIYXdhaWlhbiBvciBPdGhlciBQYWNpZmljIElzbGFuZGVyPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gICAgIDgzMTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+ICAgICAgNDE8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjEuOTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+My42PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wLjI8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjwvdHI+PHRyPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpMZWZ0Jz5XaGl0ZTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+IDUxNywxNjI8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAgMTUsOTg1PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4xLjQ8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjIuMTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MC4yPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48L3RyPjx0cj48dGQgc3R5bGU9J3RleHQtYWxpZ246TGVmdCc+SGlnaCBOZWVkczwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+IDU0OSwwODI8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAgMzMsMzU5PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4yLjI8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjQuNjwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MC40PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48L3RyPjx0cj48dGQgc3R5bGU9J3RleHQtYWxpZ246TGVmdCc+RW5nbGlzaCBMZWFybmVyczwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+IDExOCw1NDk8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAgIDUsMzE2PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4xLjQ8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjMuNTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MC4zPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48L3RyPjx0cj48dGQgc3R5bGU9J3RleHQtYWxpZ246TGVmdCc+TG93IEluY29tZTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+IDQzOSw5NDQ8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAgMjksNTAyPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4yLjM8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjUuMjwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MC41PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48L3RyPjx0cj48dGQgc3R5bGU9J3RleHQtYWxpZ246TGVmdCc+U3R1ZGVudHMgd2l0aCBEaXNhYmlsaXRpZXM8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAxOTAsODMxPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gIDE0LDQ0NDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+Mi44PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz41Ljg8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuNjwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PC90cj48dHI+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOkxlZnQnPkZlbWFsZTwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+IDQ1Niw1MTA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiAgMTMsMjE4PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4xPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4yLjI8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjAuMjwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+MDwvdGQ+PC90cj48dHI+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOkxlZnQnPk1hbGU8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPiA0ODUsNjkyPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4gIDI2LDQwODwvdGQ+PHRkIHN0eWxlPSd0ZXh0LWFsaWduOmNlbnRlcic+Mi4xPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz40PC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wPC90ZD48dGQgc3R5bGU9J3RleHQtYWxpZ246Y2VudGVyJz4wLjM8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjx0ZCBzdHlsZT0ndGV4dC1hbGlnbjpjZW50ZXInPjA8L3RkPjwvdHI+PC90Ym9keT48L3RhYmxlPjwvZGl2PmRkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBSJjdGwwMCRDb250ZW50UGxhY2VIb2xkZXIxJENvbnRpbnVlJwkqzY9ui2S1pb4G9EiSa76WI4o=">
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="B2C16F34"><!--Start Page Content--><span id="ctl00_ContentPlaceHolder1_TitleString"><h2>2021-22 Student Discipline Data Report <br>All Offenses</h2></span>
+                <span id="ctl00_ContentPlaceHolder1_lblUtilBarHtml"> <script type="text/javascript"> 
+ function printArticle() { 
+     var agt=navigator.userAgent.toLowerCase(); 
+     if (window.print) { 
+         setTimeout('window.print();',200); 
+     } 
+     else if (agt.indexOf("mac") != -1) { 
+         alert("Press 'CMD+P' on your keyboard to print article."); 
+     } 
+     else { 
+         alert("Press 'CTRL+P' on your keyboard to print article."); 
+     } 
+ } 
+ </script> 
+ <div id="utilbar" class="left" width="100"> 
+ <a id="util_print" aria-label="print" href="javascript:void(printArticle());"><span class="alt"><img src="/images/util_print.gif" alt="print page" role="img" title="print"></span></a> 
+ </div> 
+</span>
+                <table id="ctl00_ContentPlaceHolder1_tblssrdDesc" border="0" width="800" cellspacing="5" cellpadding="10">
+<tr>
+<th width="80" title="StudentGroup" aria-label="StudentGroup" style="background-color:white" class="center middle"><label for="ctl00_ContentPlaceHolder1_StudentGroup" id="ctl00_ContentPlaceHolder1_lblStuGroup">Offense:</label></th>
+		<td class="left" title="StudentGroup" aria-label="Select Student Group">
+                        <select name="ctl00$ContentPlaceHolder1$StudentGroup" id="ctl00_ContentPlaceHolder1_StudentGroup" style="width:300px;height:25px;border-radius:4px;"><option selected value="ALL">All Offenses</option>
+<option value="BULLY">Bullying</option>
+<option value="ARSON">Destruction of school property due to arson</option>
+<option value="FELONY">Felony conviction or complaint</option>
+<option value="HOMICIDE">Homicide (murder or manslaughter)</option>
+<option value="ILL_SUBST2">Illegal substances</option>
+<option value="KIDNAP">Kidnapping (abduction)</option>
+<option value="NON">Non-drug, non-violent or non-criminal-related offense</option>
+<option value="V_OTHER">Other violence or substance-related offense</option>
+<option value="BATTERY">Physical attack (battery)</option>
+<option value="FIGHT">Physical fight </option>
+<option value="ROBBERY">Robbery using force</option>
+<option value="S_ASSAULT">Sexual assault</option>
+<option value="S_HARASS">Sexual harassment</option>
+<option value="THEFT">Theft (school, staff or student property)</option>
+<option value="THREAT_ATT">Threat of physical attack</option>
+<option value="THREAT_ROB">Threat of robbery</option>
+<option value="VANDAL">Vandalism/destruction of property</option>
+<option value="WEAPON2">Weapon on school premises</option>
+
+		</select>
+                           
+                        <input type="image" name="ctl00$ContentPlaceHolder1$Continue" id="ctl00_ContentPlaceHolder1_Continue" alt="Continue" alternativetext="Continue -&gt;" class="center middle" src="/images/search.gif" border="0" style="height:20px;">
+</td>
+	</tr>
+<tr>
+<td colspan="8"> </td>
+	</tr>
+<tr>
+<td colspan="8">The Student Discipline Data Report reports the disciplines that public school students in Massachusetts received for the offenses committed, as reported by school districts in the School Safety Discipline Report (SSDR). For more detailed information on the SSDR collection, see the 
+                documents at the <a href="http://www.doe.mass.edu/infoservices/data/ssdr/">School Safety Discipline Report (SSDR)</a> page on the ESE website. </td>
+	</tr>
+<tr></tr>
+<tr>
+<td colspan="8">
+<br><a href="/help/data.aspx?section=students#ssdr">More about the data.</a>
+</td>
+	</tr>
+<tr>
+<td colspan="8"> </td>
+	</tr>
+</table>
+
+                
+                <p></p>
+
+            </form>
+                    <span id="ctl00_ContentPlaceHolder1_lblStateReport"><div class="table-responsive" id="divStateReport"><table id="tblStateReport" class="table table-striped table-bordered display table-hover" summary="Student Discipline" cellspacing="0" width="100%">
+<thead><tr>
+<th scope="col" style="text-align:center" width="19%">Student Group</th>
+<th scope="col" style="text-align:center" width="9%">Students</th>
+<th scope="col" style="text-align:center" width="9%">Students Disciplined</th>
+<th scope="col" style="text-align:center" width="9%">% In-School Suspension</th>
+<th scope="col" style="text-align:center" width="9%">% Out-of-School Suspension</th>
+<th scope="col" style="text-align:center" width="9%">% Expulsion</th>
+<th scope="col" style="text-align:center" width="9%">% Alternate Setting</th>
+<th scope="col" style="text-align:center" width="9%">% Emergency Removal</th>
+<th scope="col" style="text-align:center" width="9%">% Students with a School-Based Arrest</th>
+<th scope="col" style="text-align:center" width="9%">% Students with a Non-Arrest Law Enforcement Referral</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:Left">All Students</td>
+<td style="text-align:center"> 943,549</td>
+<td style="text-align:center">  39,676</td>
+<td style="text-align:center">1.6</td>
+<td style="text-align:center">3.1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.3</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">American Indian or Alaska Native</td>
+<td style="text-align:center">   2,203</td>
+<td style="text-align:center">     134</td>
+<td style="text-align:center">2.4</td>
+<td style="text-align:center">4.3</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.1</td>
+</tr>
+<tr>
+<td style="text-align:Left">Asian</td>
+<td style="text-align:center">  68,503</td>
+<td style="text-align:center">     727</td>
+<td style="text-align:center">0.4</td>
+<td style="text-align:center">0.7</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Black or African American</td>
+<td style="text-align:center">  88,818</td>
+<td style="text-align:center">   6,794</td>
+<td style="text-align:center">2.2</td>
+<td style="text-align:center">6.2</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.6</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Hispanic or Latino</td>
+<td style="text-align:center"> 225,542</td>
+<td style="text-align:center">  14,075</td>
+<td style="text-align:center">2.1</td>
+<td style="text-align:center">4.9</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Multi-Race, Not Hispanic or Latino</td>
+<td style="text-align:center">  40,490</td>
+<td style="text-align:center">   1,920</td>
+<td style="text-align:center">1.8</td>
+<td style="text-align:center">3.5</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Native Hawaiian or Other Pacific Islander</td>
+<td style="text-align:center">     831</td>
+<td style="text-align:center">      41</td>
+<td style="text-align:center">1.9</td>
+<td style="text-align:center">3.6</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.2</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">White</td>
+<td style="text-align:center"> 517,162</td>
+<td style="text-align:center">  15,985</td>
+<td style="text-align:center">1.4</td>
+<td style="text-align:center">2.1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.2</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">High Needs</td>
+<td style="text-align:center"> 549,082</td>
+<td style="text-align:center">  33,359</td>
+<td style="text-align:center">2.2</td>
+<td style="text-align:center">4.6</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">English Learners</td>
+<td style="text-align:center"> 118,549</td>
+<td style="text-align:center">   5,316</td>
+<td style="text-align:center">1.4</td>
+<td style="text-align:center">3.5</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.3</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Low Income</td>
+<td style="text-align:center"> 439,944</td>
+<td style="text-align:center">  29,502</td>
+<td style="text-align:center">2.3</td>
+<td style="text-align:center">5.2</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.5</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Students with Disabilities</td>
+<td style="text-align:center"> 190,831</td>
+<td style="text-align:center">  14,444</td>
+<td style="text-align:center">2.8</td>
+<td style="text-align:center">5.8</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.6</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Female</td>
+<td style="text-align:center"> 456,510</td>
+<td style="text-align:center">  13,218</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2.2</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.2</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:Left">Male</td>
+<td style="text-align:center"> 485,692</td>
+<td style="text-align:center">  26,408</td>
+<td style="text-align:center">2.1</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0.3</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+</tbody>
+</table></div></span> 
+              
+            <!--End Page Content-->
+        </div>
+<!--close whiteboxright-->
+
+        <div class="clear"></div>
+        </td>
+        </tr>
+</table>
+</div>
+<!--close whitebox-->
+</div>
+<!--close onecolumn-->
+
+
+  <!--End Main Content-->
+
+        
+  <div class="clear"></div>  
+    <div id="footer" role="img" style="background-image:url(/images/footer_bg.png);" aria-label="Footer background image">
+            <ul class="miniNav">
+<li> <span style="font-size:14px;font-weight:normal;padding-right:100px;" aria-label="Release version">Release 9.14.0.0</span>
+</li>
+                <li><a style="font-size:14px;" href="https://www.doe.mass.edu/resources/policy.html" target="blank" aria-label="Policies">Policies</a></li>
+                <li><a style="font-size:14px;" href="/help/contact.aspx" aria-label="Contact DESE">Contact DESE</a></li>        
+            </ul>        
+    </div>
+
+
+</div> <!--close innerContent -->
+</div>
+<!--close innerWrapper>-->
+</div>
+<!--close Wrapper-->
+
+<label for="searchtext" id="leblsearch" style="visibility:hidden">search</label>
+<h1 style="visibility:hidden;width:0px;height:0px">School and District Profiles</h1>
+</body>
+</html>
