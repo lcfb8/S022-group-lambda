@@ -403,7 +403,7 @@ cat( readLines("PSet2_q3.R"),
 
 \newpage
 
-# Step 4: Get the demographic table from all pages
+# Step 4: Get the tables from all pages
 
 Using the code from the in-class "step 2" script as a reference, write a bit of code that will load the saved pages and extract the demographic table from each page.
 Save your final dataset of demographics to a file.
