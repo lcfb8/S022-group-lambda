@@ -105,8 +105,6 @@ For example, for the original question you could pull the demographic table and 
 
 url_discipline = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00000000&orgtypecode=0&=00000000&&fycode=2025"
 
-url_days_missed = "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode=00000000&orgtypecode=0&=00000000&&fycode=2025"
-
 # scrape the html from the page!
 
 #read the html from the page
@@ -124,23 +122,6 @@ discipline_table = html_table(discipline_table[[4]], fill=TRUE)
 #now we have a table of the discipline data for MA from 2024-25
 discipline_table
 
-
-#repeat for days missed data for MA 2024-25
-#read the html from the page
-days_missed = read_html(url_days_missed)
-
-#find the tables
-days_missed_table = html_nodes( days_missed, "table" )
-
-#read the tables to identify which chunk we want
-html_table(days_missed_table)
-
-#extract the table we want
-days_missed_table = html_table(days_missed_table[[4]], fill=TRUE)
-
-#now we have a table of the days missed data for MA from 2024-25
-days_missed_table
-
 ```
 
 ### 1(b): Format!
@@ -153,16 +134,15 @@ E.g., for the demographics question, you would add a column for the total number
 # stuff
 
 discipline_table
-days_missed_table
 
-comb_disc = full_join(discipline_table, days_missed_table)
 
-names(comb_disc)
+# we also do a lot of refactoring and cleaning on the script: Pset2_q4.R
+# Luciana: should we copy and paste those lines of code here?
 
 cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
-comb_disc <- comb_disc %>% select(-all_of(cols_to_remove))
+discipline_table <- discipline_table %>% select(-all_of(cols_to_remove))
 
-comb_disc
+
 
 
 
@@ -191,7 +171,7 @@ Do similar cleanup on your scraped table so everything looks nice.
 ```{r}
 # refactor student group categories
 
-comb_disc <- comb_disc %>%
+discipline_table <- discipline_table %>%
   mutate(
       `Student Group` = fct_recode(
         `Student Group`,
@@ -207,22 +187,14 @@ comb_disc <- comb_disc %>%
       )
     )
 
-comb_disc
-
-# rename the variables
-comb_disc <- comb_disc %>%
+discipline_table <- discipline_table %>%
   rename(
     Group                 = "Student Group",
     Students              = "Students",
     Disciplined           = "Students Disciplined",
     ISS_pct               = "% In-School Suspension",
     OSS_pct               = "% Out-of-School Suspension",
-    Emergency_removal_pct = "% Emergency Removal",
-    pct_1d                = "% 1 Day",
-    pct_2_3d              = "% 2 to 3 Days",
-    pct_4_7d              = "% 4 to 7 Days",
-    pct_8_10d             =  "% 8 to 10 Days",
-    pct_over_10d          = "% > 10 Days"
+    Emergency_removal_pct = "% Emergency Removal"
   )
 
 ```
@@ -236,12 +208,12 @@ Make a function out of the above code that takes raw HTML, not the URL, and retu
 E.g., you might write a couple of function like this, assuming you are pulling pages from two different spots of the website:
 
 ```{r}
-# Given a school ID and year, return the main page needed.
+# Given an orgcode, a unit ID and year, return the main page needed.
 
-get_main_page = function( orgcode, schoolID, year ) {
+get_main_page = function( unit_id, year ) {
   
   orgcode = orgcode
-  schoolID = schoolID
+  unit_id = unit_id
   year = year
   str_glue("https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&&fycode={year}")
   
@@ -253,36 +225,56 @@ get_main_page = function( orgcode, schoolID, year ) {
   
 }
 
-discipline_table <- get_main_page( 0, 00000000, 2025)
 
-# Same as above, but get the second page.
-
-get_second_page = function( orgcode, schoolID, year ) {
+# function that takes raw html and returns full table (but not all tables)
+from_raw_html_to_table <- function(unit_id, year) {
   
-  orgcode = orgcode
-  schoolID = schoolID
-  year = year
-  str_glue("https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&&fycode={year}")
+  raw_html <- 
+    read_file(
+    file.path(paste0("data_folder/unit_", unit_id, "_", year, ".xml")))
+  discipline = read_html(raw_html)
+  discipline_table = html_nodes( discipline, "table" )
+  html_table(discipline_table)
+  discipline_table = html_table(discipline_table[[4]], fill=TRUE)
   
-  days_missed = read_html(url_days_missed)
-  days_missed_table = html_nodes( days_missed, "table" )
-  html_table(days_missed_table)
-  days_missed_table = html_table(days_missed_table[[4]], fill=TRUE)
-  return(days_missed_table)
+  return(discipline_table)
+  
 }
 
-days_missed_table <- get_second_page( 0, 00000000, 2025)
+# this returns the school district table for Concordk8 from 2024
 
-# Given the two pages, extract the table and return it in a nice format.
+from_raw_html_to_table("00670000", 2024)
 
-extract_final_table = function( table1, table2 ) {
-  
-  comb_disc = full_join(table1, table2, by = join_by(`Student Group`, Students, `Students Disciplined`))
-  names(comb_disc)
-  cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
-comb_disc <- comb_disc %>% select(-all_of(cols_to_remove))
 
-comb_disc <- comb_disc %>%
+# code below returns all the tables, but not merged yet.
+
+ma_units = c( Massachusetts="00000000",
+              Concordk8="00670000",
+              Carlislek8="00510000",
+              CCHS="06400000")
+ma_units
+
+pages = expand_grid( year = 2022:2025,
+                     unit_id = ma_units)
+
+unit.name = tibble(unit_id = ma_units)
+unit.name
+all_units = right_join( pages, unit.name, by="unit_id" )
+
+all_units <- all_units %>% 
+  relocate(unit_id, year)
+
+#asked help from chatgpt, map wasn't working, it suggested using pmap()
+all_tables <- pmap(all_units, from_raw_html_to_table)
+
+# Luciana: I think we should make sure the below function is correct, our experience with it on Pset2_q4 says it doesn't do the right thing? Btw, I can't make it work now.
+
+extract_final_table = function( table ) {
+
+cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
+table <- table %>% select(-all_of(cols_to_remove))
+
+table <- table %>%
   mutate(
       `Student Group` = fct_recode(
         `Student Group`,
@@ -299,24 +291,18 @@ comb_disc <- comb_disc %>%
     )
 
 # rename the variables
-comb_disc <- comb_disc %>%
+table <- table %>%
   rename(
          Group                 = "Student Group",                                  
          Students              = "Students",                                       
          Disciplined           = "Students Disciplined",                           
          ISS_pct               = "% In-School Suspension",                         
          OSS_pct               = "% Out-of-School Suspension",                    
-         Emergency_removal_pct = "% Emergency Removal",                           
-         pct_1d                = "% 1 Day",                                        
-         pct_2_3d              = "% 2 to 3 Days",                                  
-         pct_4_7d              = "% 4 to 7 Days",                                  
-         pct_8_10d             =  "% 8 to 10 Days",                               
-         pct_over_10d          = "% > 10 Days"  
+         Emergency_removal_pct = "% Emergency Removal"                        
       )
-comb_disc
 }
 
-extract_final_table( discipline_table, days_missed_table )
+extract_final_table( all_tables )
 
 ```
 
@@ -328,17 +314,14 @@ For example:
 # Test 1 with data from 2022 about school district Arthur D Healey (02740075)
 discipline_table <- get_main_page( orgcode = 5, 
                                    schoolID = "02740075", year = 2022 )
-days_missed_table <- get_second_page( orgcode = 5, 
-                                      schoolID = "02740075", year = 2022 )
-final_table <- extract_final_table( discipline_table, days_missed_table )
+
+final_table <- extract_final_table( discipline_table )
 final_table
 
 # Test 2 with data from 2024 about school district Concord-Carlisle (06400000)
 discipline_table <- get_main_page( orgcode = 5, 
                                    schoolID = "06400000", year = 2025 )
-days_missed_table <- get_second_page( orgcode = 5, 
-                                      schoolID = "06400000", year = 2025 )
-final_table <- extract_final_table( discipline_table, days_missed_table )
+final_table <- extract_final_table( discipline_table )
 final_table
 
 ```
@@ -360,7 +343,7 @@ b)  What would our script do differently if we modified line 89 by removing "dat
 
 ```{r, eval=FALSE}
 pages = mutate( pages,
-                file_name = str_glue( "school_data_{schoolID}_{year}.xml" ) )
+                file_name = str_glue( "unit_{unit_id}_{year}.xml" ) )
 ```
 
 c)  At around line 101 of the step 1 script is a "`walk2()`" command. What is it doing? Why did we use "`walk2()`" instead of a "`map()`" command? Why is the command called "`walk2()`" with the "2"?
