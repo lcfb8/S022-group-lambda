@@ -39,7 +39,7 @@ test
 
 
 
-all_tables <- map(pages$file_name[1:32], all_units)
+all_tables <- map(pages$file_name[1:16], all_units)
 #asked chatgpt to help me with this, I wasn't using map()
 
 
@@ -51,61 +51,46 @@ pages$tables = all_tables
 
 pages
 names(pages)
-df1 <- pages$tables[[1]] 
 
 # add a column where we name our tables
 
 pages <- pages %>%
-  mutate( table_name = as.character(str_glue("{unit_name}_{data_type}_{year}")))
+  mutate( table_name = as.character(str_glue("{unit_name}_{year}")))
 
 pages$table_name
 
-# LB question: I'm just hoping the order of the tables in our list was
-# the same as the order of the files in data_folder. If not, the names
-# won't match the tables. We can cross-check with the website...
 
-# LDM question: isn't everything already inside pages_scraped.rds, 
-# including the tables? I don't think we'll have any issues here.
+# Before merging, I decided to add a column with unit_id, unit_name, and year 
+# inside each table, I was struggling with this part of the code:  
+# ~ mutate(.x, unit_id = .y), so I asked chatgpt 
 
-
-# Formatting/cleaning for all tables in the list:
-# remove variables that include all 0s, clean up variable names
-
-# THIS DOESN'T WORK, WE NEED TO MERGE TABLES FIRST
-
-# Before merging, I decided to add a column with unit_id inside each table, I was struggling with this 
-# part of the code:  ~ mutate(.x, unit_id = .y), so I asked chatgpt 
-# (we should find an alternative for repetitive lines below:)
 
 
 pages <- pages %>%
   mutate(
     tables = map2(tables, unit_id, ~ mutate(.x, unit_id = .y))
-  )
-
-pages <- pages %>%
+  )  %>%
   mutate(
-    tables = map2(tables, unit_name, ~ mutate(.x, unit_name = .y))
-  )
-
-pages <- pages %>%
+  tables = map2(tables, unit_name, ~ mutate(.x, unit_name = .y))
+  )  %>%
   mutate(
     tables = map2(tables, year, ~ mutate(.x, year = .y))
   )
 
 
-# Merge all tables
-
-
-
-
 clean_tables = function( table ) {
-
+  # The conversions below (from numeric to character and then character back to 
+  # numeric) were suggested by Claude, we were trying to do it outside the 
+  # function before binding the rows, but we were unsuccessful
+ table <- table %>% mutate(across(everything(), as.character))
+  
   cols_to_remove <- c("% Expulsion", "% Alternate Setting",
                       "% Students with a School-Based Arrest",
                       "% Students with a Non-Arrest Law Enforcement Referral")
-  table <- table %>% select(-all_of(cols_to_remove))
-
+  table <- table %>% select(-any_of(cols_to_remove))
+  # our original function had all_of instead of any_of and this was causing 
+  # errors when binding rows, this was a suggestion from Claude.
+  
   table <- table %>%
     mutate(
       `Student Group` = fct_recode(
@@ -117,14 +102,14 @@ clean_tables = function( table ) {
         "NHPI"        = "Native Hawaiian or Other Pacific Islander",
         "High_Needs"  = "High Needs",
         "EL"          = "English Learners",
-        "Low_SES"  = "Low Income",
+        "Low_SES"     = "Low Income",
         "SWD"         = "Students with Disabilities"
       )
     )
-
+  
   # rename the variables
   table <- table %>%
-    rename(
+    rename(any_of(c(
       Group                 = "Student Group",
       Students              = "Students",
       Disciplined           = "Students Disciplined",
@@ -136,20 +121,29 @@ clean_tables = function( table ) {
       pct_4_7d              = "% 4 to 7 Days",
       pct_8_10d             = "% 8 to 10 Days",
       pct_over_10d          = "% > 10 Days"
-    )
+    )))
+  # Convert numeric columns back
+  table <- table %>% 
+    mutate(across(c(Students, Disciplined), as.numeric))
   table
 }
 
+# Apply cleaning to each table individually, skipping failures
+tables_clean <- map(pages$tables, clean_tables)
 
-?full_join
-
-clean_tables(pages$tables[[2]])
-
-# THIS DOES NOT WORK BECAUSE SOME OF THE TABLES ARE DISCIPLINE AND
-# SOME ARE DAYS MISSED AND THEY DON'T HAVE THE SAME VARIABLES
-tables_clean = map( all_tables, clean_tables  )
+class(tables_clean)
+# Now bind
+combined <- bind_rows(tables_clean)
 
 
+dim(combined)
 
 
+combined %>%
+  group_by(year) %>%
+  filter(unit_id == "00000000") %>%
+  summarise(n())
 
+
+(32 * 4)
+  

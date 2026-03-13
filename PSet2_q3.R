@@ -22,7 +22,7 @@ ma_units
 
 orgcode = c("0","5","5","5")
 
-# we chose the last 3 years (data was scant during pandemic)
+# we chose the last 3 years (data was scant during the pandemic)
 pages = expand_grid( year = 2022:2025,
                      unit_id = ma_units)
 
@@ -42,20 +42,12 @@ pages
 
 # URL for the data on discipline
 pages_url <- pages %>%
-  mutate(discipline = str_glue(
+  mutate(url = str_glue(
     "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={unit_id}&orgtypecode={orgcode}&fycode={year}"))
 
-# URL for the data on days missed related to discipline
-pages_url <- pages_url %>%
-  mutate(days_missed = str_glue(
-    "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={unit_id}&orgtypecode={orgcode}&fycode={year}"))
 
 pages_url
 
-pages_url <- pages_url %>%
-  pivot_longer(discipline:days_missed,
-               names_to = "data_type",
-               values_to = "url")
 
 
 # A helper function to get the pages
@@ -94,7 +86,7 @@ dir.create("data_folder", showWarnings = FALSE )
 # Make filenames for each of our web pages.
 pages = mutate( pages,
                 file_name = str_glue(
-                  "data_folder/{data_type}_unit_{unit_id}_{year}.xml" ) )
+                  "data_folder/unit_{unit_id}_{year}.xml" ) )
 
 
 pages
@@ -104,12 +96,6 @@ pages
 # our raw data.
 
 walk2( pages$data, pages$file_name, write_html )
-
-# NOTE: We might think we could just save the full "pages" table with
-# the webpages inside of it, but this does not work.  The rvest
-# package does something weird with memory management, and thus when
-# you save the pages object, the web pages inside get corrupted.  So
-# we have to save them one at a time like we do.  :-(
 
 # Also save our table of pages scraped, removing the heavy data of the table
 pages %>%
