@@ -1,6 +1,5 @@
 ---
 title: "Problem Set 2: A scaffolded multiple-page webscraping assignment"
-author: "Lydia Brosnahan, Luciana D. de Macedo, Dylan Haupt"
 output: pdf_document
 editor_options: 
   chunk_output_type: console
@@ -203,7 +202,7 @@ comb_disc <- comb_disc %>%
         "NHPI"        = "Native Hawaiian or Other Pacific Islander",
         "High_Needs"  = "High Needs",
         "EL"          = "English Learners",
-        "Low_SES"  = "Low Income",
+        "Low_SES"     = "Low Income",
         "SWD"         = "Students with Disabilities"
       )
     )
