@@ -1,16 +1,17 @@
 
 # Clean our raw data to get all test scores
 #
-# Script by Luke Miratrix
+# Script by Luke Miratrix adapted to our analysis
 
 library( tidyverse )
 library( rvest )
 library(xml2)
 library(purrr)
+library(dplyr)
 
 # We next load our raw data and process each saved webpage.
 
-pages = readRDS( file=".gitignore/pages_scraped.rds" )
+pages = readRDS( file="pages_scraped.rds" )
 pages$url= NULL
 pages
 
@@ -49,6 +50,8 @@ all_tables
 pages$tables = all_tables
 
 pages
+names(pages)
+df1 <- pages$tables[[1]] 
 
 # add a column where we name our tables
 
@@ -61,11 +64,40 @@ pages$table_name
 # the same as the order of the files in data_folder. If not, the names
 # won't match the tables. We can cross-check with the website...
 
+# LDM question: isn't everything already inside pages_scraped.rds, 
+# including the tables? I don't think we'll have any issues here.
+
 
 # Formatting/cleaning for all tables in the list:
 # remove variables that include all 0s, clean up variable names
 
 # THIS DOESN'T WORK, WE NEED TO MERGE TABLES FIRST
+
+# Before merging, I decided to add a column with unit_id inside each table, I was struggling with this 
+# part of the code:  ~ mutate(.x, unit_id = .y), so I asked chatgpt 
+# (we should find an alternative for repetitive lines below:)
+
+
+pages <- pages %>%
+  mutate(
+    tables = map2(tables, unit_id, ~ mutate(.x, unit_id = .y))
+  )
+
+pages <- pages %>%
+  mutate(
+    tables = map2(tables, unit_name, ~ mutate(.x, unit_name = .y))
+  )
+
+pages <- pages %>%
+  mutate(
+    tables = map2(tables, year, ~ mutate(.x, year = .y))
+  )
+
+
+# Merge all tables
+
+
+
 
 clean_tables = function( table ) {
 
@@ -107,6 +139,11 @@ clean_tables = function( table ) {
     )
   table
 }
+
+
+?full_join
+
+clean_tables(pages$tables[[2]])
 
 # THIS DOES NOT WORK BECAUSE SOME OF THE TABLES ARE DISCIPLINE AND
 # SOME ARE DAYS MISSED AND THEY DON'T HAVE THE SAME VARIABLES

@@ -1,7 +1,7 @@
 
 # Web scraping script: Download and save all the pages we want
 #
-# Script by Luke Miratrix (adapted by the Lambda team (Dylan, Luciana, and Lydia)
+# Script by Luke Miratrix adapted to our analysis
 
 library( tidyverse )
 library( rvest )
@@ -40,10 +40,12 @@ pages
 
 # Make our systematic URLs with str_glue from the stringr package
 
+# URL for the data on discipline
 pages_url <- pages %>%
   mutate(discipline = str_glue(
     "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={unit_id}&orgtypecode={orgcode}&fycode={year}"))
 
+# URL for the data on days missed related to discipline
 pages_url <- pages_url %>%
   mutate(days_missed = str_glue(
     "https://profiles.doe.mass.edu/ssdr/ssdr_days_missed_detail.aspx?orgcode={unit_id}&orgtypecode={orgcode}&fycode={year}"))
