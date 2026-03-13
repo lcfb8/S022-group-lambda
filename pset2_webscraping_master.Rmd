@@ -101,26 +101,57 @@ For example, for the original question you could pull the demographic table and 
 
 ```{r}
 
-# commonwealth of massachusetts discipline and days missed totals for 2024-25
+# We'll scrape 16 tables in total of 4 different units through the years 2022-2025
+# Below we show a few examples of urls
 
-url_discipline = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00000000&orgtypecode=0&=00000000&&fycode=2025"
+# commonwealth of massachusetts discipline totals for 2025
+
+url_ma = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00000000&orgtypecode=0&=00000000&&fycode=2025"
+
+# school district  Concordk8 discipline totals for 2025
+
+url_conc = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00670000&orgtypecode=5&=00670000&&fycode=2025"
+
+
+# school district Carlislek8 discipline totals for 2025
+
+url_carl = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00510000&orgtypecode=5&=00510000&&fycode=2025"
+
+# school district  CCHS discipline totals for 2025
+
+url_chs = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=06400000&orgtypecode=5&=06400000&&fycode=2025"
 
 # scrape the html from the page!
 
 #read the html from the page
-discipline = read_html(url_discipline)
+discipline_ma = read_html(url_ma)
+discipline_conc = read_html(url_conc)
+discipline_carl = read_html(url_carl)
+discipline_chs = read_html(url_chs)
 
 #find the tables
-discipline_table = html_nodes( discipline, "table" )
+discipline_table_ma = html_nodes( discipline_ma, "table" )
+discipline_table_conc = html_nodes( discipline_conc, "table" )
+discipline_table_carl = html_nodes( discipline_carl, "table" )
+discipline_table_chs = html_nodes( discipline_chs, "table" )
 
 #read the tables to identify which chunk we want
-html_table(discipline_table)
+html_table(discipline_table_ma)
+html_table(discipline_table_conc)
+html_table(discipline_table_carl)
+html_table(discipline_table_chs)
 
 #extract the table we want
-discipline_table = html_table(discipline_table[[4]], fill=TRUE)
+discipline_table_ma = html_table(discipline_table_ma[[4]], fill=TRUE)
+discipline_table_conc = html_table(discipline_table_conc[[4]], fill=TRUE)
+discipline_table_carl = html_table(discipline_table_carl[[4]], fill=TRUE)
+discipline_table_chs = html_table(discipline_table_chs[[4]], fill=TRUE)
 
-#now we have a table of the discipline data for MA from 2024-25
-discipline_table
+#now we have tables of disciplined students in 2025 from 4 different units
+discipline_table_ma
+discipline_table_conc
+discipline_table_carl
+discipline_table_chs
 
 ```
 
@@ -133,7 +164,10 @@ E.g., for the demographics question, you would add a column for the total number
 ```{r}
 # stuff
 
-discipline_table
+discipline_table_ma
+discipline_table_conc
+discipline_table_carl
+discipline_table_chs
 
 
 # we also do a lot of refactoring and cleaning on the script: Pset2_q4.R
