@@ -64,8 +64,6 @@ pages$table_name
 # inside each table, I was struggling with this part of the code:  
 # ~ mutate(.x, unit_id = .y), so I asked chatgpt 
 
-
-
 pages <- pages %>%
   mutate(
     tables = map2(tables, unit_id, ~ mutate(.x, unit_id = .y))
@@ -77,13 +75,25 @@ pages <- pages %>%
     tables = map2(tables, year, ~ mutate(.x, year = .y))
   )
 
+# Before using bind_rows function we were getting an error related to inconsistent
+# class types for columns containing the word "Students". So we decided to 
+# convert all instances to characters and then convert them back to numbers
+
+pages$tables <- map(
+  pages$tables,
+  ~ mutate(.x, across(any_of("Students"), as.character))
+)
+
+all_units_tbl <- bind_rows(pages$tables)
+
+all_units_tbl <- all_units_tbl %>%
+  mutate(across(any_of("Students"), parse_number))
+
+
+# function to do the cleanup
 
 clean_tables = function( table ) {
-  # The conversions below (from numeric to character and then character back to 
-  # numeric) were suggested by Claude, we were trying to do it outside the 
-  # function before binding the rows, but we were unsuccessful
- table <- table %>% mutate(across(everything(), as.character))
-  
+
   cols_to_remove <- c("% Expulsion", "% Alternate Setting",
                       "% Students with a School-Based Arrest",
                       "% Students with a Non-Arrest Law Enforcement Referral")
@@ -115,35 +125,16 @@ clean_tables = function( table ) {
       Disciplined           = "Students Disciplined",
       ISS_pct               = "% In-School Suspension",
       OSS_pct               = "% Out-of-School Suspension",
-      Emergency_removal_pct = "% Emergency Removal",
-      pct_1d                = "% 1 Day",
-      pct_2_3d              = "% 2 to 3 Days",
-      pct_4_7d              = "% 4 to 7 Days",
-      pct_8_10d             = "% 8 to 10 Days",
-      pct_over_10d          = "% > 10 Days"
+      Emergency_removal_pct = "% Emergency Removal"
     )))
-  # Convert numeric columns back
-  table <- table %>% 
-    mutate(across(c(Students, Disciplined), as.numeric))
   table
 }
 
 # Apply cleaning to each table individually, skipping failures
-tables_clean <- map(pages$tables, clean_tables)
+tables_clean <- clean_tables(all_units_tbl)
 
 class(tables_clean)
-# Now bind
-combined <- bind_rows(tables_clean)
 
+dim(tables_clean)
 
-dim(combined)
-
-
-combined %>%
-  group_by(year) %>%
-  filter(unit_id == "00000000") %>%
-  summarise(n())
-
-
-(32 * 4)
   
