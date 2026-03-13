@@ -24,6 +24,7 @@ test_page_tables
 
 html_table( test_page_tables[[4]], fill = TRUE)
 
+
 all_units <- function(file_name) {
   page = read_html( file_name )
 
@@ -36,6 +37,8 @@ all_units <- function(file_name) {
 test = all_units(pages$file_name[[3]])
 
 test
+page <- read_html(file_path)
+page
 
 
 
