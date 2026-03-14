@@ -9,12 +9,11 @@ library(xml2)
 library(purrr)
 library(dplyr)
 
-# We next load our raw data and process each saved webpage.
+# load our raw data and process each saved webpage.
 
 pages = readRDS( file="pages_scraped.rds" )
 pages$url= NULL
 pages
-
 
 test_page = read_html( pages$file_name[[1]] )
 test_page
@@ -37,10 +36,9 @@ all_units <- function(file_name) {
 test = all_units(pages$file_name[[3]])
 
 test
+
 page <- read_html(file_path)
 page
-
-
 
 all_tables <- map(pages$file_name[1:16], all_units)
 #asked chatgpt to help me with this, I wasn't using map()
@@ -53,6 +51,7 @@ all_tables
 pages$tables = all_tables
 
 pages
+
 names(pages)
 
 # add a column where we name our tables
@@ -81,6 +80,7 @@ pages <- pages %>%
 # Before using bind_rows function we were getting an error related to inconsistent
 # class types for columns containing the word "Students". So we decided to 
 # convert all instances to characters and then convert them back to numbers
+# before running the function that follows
 
 pages$tables <- map(
   pages$tables,
@@ -133,7 +133,7 @@ clean_tables = function( table ) {
   table
 }
 
-# Apply cleaning to each table individually, skipping failures
+# Apply cleaning to each table individually
 tables_clean <- clean_tables(all_units_tbl)
 
 class(tables_clean)
