@@ -17,10 +17,10 @@ ma_units = c( Massachusetts="00000000",
               CCHS="06400000")
 ma_units
 
-# we had to add orgcode, due to the Massachusetts state-wide data
+# we had to add orgtype, due to the Massachusetts state-wide data
 # having a unique code, 0.
 
-orgcode = c("0","5","5","5")
+orgtype = c("0","5","5","5")
 
 # we chose the last 3 years (data was scant during the pandemic)
 pages = expand_grid( year = 2022:2025,
@@ -31,24 +31,21 @@ pages
 # add in the unit names
 unit.name = tibble( unit_name = names(ma_units),
                       unit_id = ma_units,
-                      orgcode = orgcode)
+                      orgtype = orgtype)
 unit.name
 pages = left_join( pages, unit.name, by="unit_id" )
 
 pages
-
 
 # Make our systematic URLs with str_glue from the stringr package
 
 # URL for the data on discipline
 pages_url <- pages %>%
   mutate(url = str_glue(
-    "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={unit_id}&orgtypecode={orgcode}&fycode={year}"))
-
+    "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={unit_id}&",
+    "orgtypecode={orgtype}&fycode={year}"))
 
 pages_url
-
-
 
 # A helper function to get the pages
 get_page_and_sleep = function( url ) {
@@ -63,24 +60,17 @@ get_page_and_sleep = function( url ) {
   pg
 }
 
-
 get_page_and_sleep( pages_url$url[[1]] )
-
 
 # Do the scrape of all our URLs!
 pages = mutate( pages_url,
                 data = map( url, get_page_and_sleep ) )
 
-
 names(pages)
-
 
 #### Saving our results ####
 
-# Now we have to save the html to a file for safekeeping
-
 # Make a folder to hold all our results
-# (don't run if you've already created the folder!)
 dir.create("data_folder", showWarnings = FALSE )
 
 # Make filenames for each of our web pages.
@@ -88,19 +78,12 @@ pages = mutate( pages,
                 file_name = str_glue(
                   "data_folder/unit_{unit_id}_{year}.xml" ) )
 
-
 pages
 
-# Now save each page as a separate file.  This is important because
-# now we don't have to re-scrape the website each time we want to get
-# our raw data.
-
+# Now save each page as a separate file.
 walk2( pages$data, pages$file_name, write_html )
 
 # Also save our table of pages scraped, removing the heavy data of the table
 pages %>%
   dplyr::select(-data ) %>%
   write_rds( "pages_scraped.rds" )
-
-# We are done!  We have stored all the webpages on our own computer as
-# separate files.
