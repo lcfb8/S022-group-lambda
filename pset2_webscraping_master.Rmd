@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       out.height = "3in", fig.align = "center")
 
 library( rvest )
+library(purrr)
 ```
 
 ## Motivating problem
@@ -102,26 +103,23 @@ For example, for the original question you could pull the demographic table and 
 ```{r}
 
 # We'll scrape 16 tables in total of 4 different units through the years 2022-2025
-# Below we show a few examples of urls
+# Below we show a few examples of urls from 4 different units (1 state + 3 schools)
+
+#TODO: Luciana check if there districts instead of schools in other sections
 
 # commonwealth of massachusetts discipline totals for 2025
-
 url_ma = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00000000&orgtypecode=0&=00000000&&fycode=2025"
 
-# school district  Concordk8 discipline totals for 2025
-
+# school: Concordk8 discipline totals for 2025
 url_conc = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00670000&orgtypecode=5&=00670000&&fycode=2025"
 
 
-# school district Carlislek8 discipline totals for 2025
-
+# school: Carlislek8 discipline totals for 2025
 url_carl = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=00510000&orgtypecode=5&=00510000&&fycode=2025"
 
-# school district  CCHS discipline totals for 2025
-
+# school: CCHS discipline totals for 2025
 url_chs = "https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode=06400000&orgtypecode=5&=06400000&&fycode=2025"
 
-# scrape the html from the page!
 
 #read the html from the page
 discipline_ma = read_html(url_ma)
@@ -162,23 +160,37 @@ Merge your scraped data and format your table.
 E.g., for the demographics question, you would add a column for the total number of kids in each category, using the grand total you scraped separately.
 
 ```{r}
-# stuff
 
-discipline_table_ma
-discipline_table_conc
-discipline_table_carl
-discipline_table_chs
+# before merging we have to add a column with the name of each unit
+ma <- discipline_table_ma %>%
+  mutate(unit_name = "Massachusetts")
+
+conc <- discipline_table_conc %>%
+  mutate(unit_name = "Concord")
+
+carl <- discipline_table_carl %>%
+  mutate(unit_name = "Carlisle")
+
+cchs <- discipline_table_chs %>%
+  mutate(unit_name = "CCHS")
 
 
-# we also do a lot of refactoring and cleaning on the script: Pset2_q4.R
-# Luciana: should we copy and paste those lines of code here?
+# when trying to merge, we were getting this error: "! Can't combine `..1$Students Disciplined` 
+# <character> and `..2$Students Disciplined` <integer>." so we converted
+# everything into one class type before merging the tables
+ma   <- map(ma, as.character)
+conc <- map(conc, as.character)
+carl <- map(carl, as.character)
+cchs <- map(cchs, as.character)
 
+# we used bind_rows to merge the tables, full_join doesn't merge more than 2 tables
+merged_units <- bind_rows(ma, conc, carl, cchs)
+
+
+# we removed the columns below because "Cells that contain 0.0% may be percentages
+# that are more than 0.0% but less than 0.05%"so there was no data to be used
 cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
-discipline_table <- discipline_table %>% select(-all_of(cols_to_remove))
-
-
-
-
+merged_units <- merged_units %>% select(-all_of(cols_to_remove))
 
 ```
 
@@ -203,9 +215,9 @@ For this reason, I create a second set of abbreviated demographic labels, `Cat_a
 Do similar cleanup on your scraped table so everything looks nice.
 
 ```{r}
-# refactor student group categories
 
-discipline_table <- discipline_table %>%
+# refactor student group categories
+merged_units <- merged_units %>%
   mutate(
       `Student Group` = fct_recode(
         `Student Group`,
@@ -221,7 +233,9 @@ discipline_table <- discipline_table %>%
       )
     )
 
-discipline_table <- discipline_table %>%
+
+# make column names shorter
+merged_units <- merged_units %>%
   rename(
     Group                 = "Student Group",
     Students              = "Students",
@@ -242,30 +256,29 @@ Make a function out of the above code that takes raw HTML, not the URL, and retu
 E.g., you might write a couple of function like this, assuming you are pulling pages from two different spots of the website:
 
 ```{r}
-# Given an orgcode, a unit ID and year, return the main page needed.
+# we need to create files to store the raw html of our pages
+dir.create("raw_htmls", showWarnings = FALSE)
 
-get_main_page = function( unit_id, year ) {
-  
-  orgcode = orgcode
-  unit_id = unit_id
-  year = year
-  str_glue("https://profiles.doe.mass.edu/ssdr/default.aspx?orgcode={orgcode}&orgtypecode={schoolID}&={orgcode}&&fycode={year}")
-  
-  discipline = read_html(url_discipline)
-  discipline_table = html_nodes( discipline, "table" )
-  html_table(discipline_table)
-  discipline_table = html_table(discipline_table[[4]], fill=TRUE)
-  return(discipline_table)
-  
-}
+# raw HTML objects into a list
+html_list <- list(
+  "ma"   = discipline_ma,
+  "conc" = discipline_conc,
+  "carl" = discipline_carl,
+  "cchs"  = discipline_chs
+)
 
+# file paths one for each unit, they are all from 2025
+file_paths <- paste0("raw_htmls/unit_", names(html_list), ".xml")
 
-# function that takes raw html and returns full table (but not all tables)
-from_raw_html_to_table <- function(unit_id, year) {
+# save raw htmls 
+walk2(html_list, file_paths, write_html)
+
+# function that takes raw html and returns full table
+from_raw_html_to_table <- function(unit_name) {
   
   raw_html <- 
     read_file(
-    file.path(paste0("data_folder/unit_", unit_id, "_", year, ".xml")))
+    file.path(paste0("raw_htmls/unit_", unit_name, ".xml")))
   discipline = read_html(raw_html)
   discipline_table = html_nodes( discipline, "table" )
   html_table(discipline_table)
@@ -275,35 +288,25 @@ from_raw_html_to_table <- function(unit_id, year) {
   
 }
 
-# this returns the school district table for Concordk8 from 2024
+# this returns the state wide table for Massachusetts from 2025
+from_raw_html_to_table("ma")
 
-from_raw_html_to_table("00670000", 2024)
+# this returns the school district table for Carlisle from 2025 
+from_raw_html_to_table("carl")
+
+# this returns the state wide table for CCHS from 2025
+from_raw_html_to_table("cchs")
+
+# this returns the school district table for Concord from 2025 
+from_raw_html_to_table("conc")
+
+all_units = list("ma", "conc", "carl", "cchs")
+
+# converting all raw html pages into tables for the 4 units
+all_tables <- map(all_units, from_raw_html_to_table)
 
 
-# code below returns all the tables, but not merged yet.
-
-ma_units = c( Massachusetts="00000000",
-              Concordk8="00670000",
-              Carlislek8="00510000",
-              CCHS="06400000")
-ma_units
-
-pages = expand_grid( year = 2022:2025,
-                     unit_id = ma_units)
-
-unit.name = tibble(unit_id = ma_units)
-unit.name
-all_units = right_join( pages, unit.name, by="unit_id" )
-
-all_units <- all_units %>% 
-  relocate(unit_id, year)
-
-#asked help from chatgpt, map wasn't working, it suggested using pmap()
-all_tables <- pmap(all_units, from_raw_html_to_table)
-
-# Luciana: I think we should make sure the below function is correct, our experience with it on Pset2_q4 says it doesn't do the right thing? Btw, I can't make it work now.
-
-extract_final_table = function( table ) {
+refactoring_table = function( table ) {
 
 cols_to_remove <- c("% Expulsion", "% Alternate Setting", "% Students with a School-Based Arrest", "% Students with a Non-Arrest Law Enforcement Referral")
 table <- table %>% select(-all_of(cols_to_remove))
@@ -336,7 +339,9 @@ table <- table %>%
       )
 }
 
-extract_final_table( all_tables )
+all_tables <- map(all_tables, refactoring_table )
+
+## Add the extra function just to answer the below question
 
 ```
 
@@ -378,6 +383,8 @@ b)  What would our script do differently if we modified line 89 by removing "dat
 ```{r, eval=FALSE}
 pages = mutate( pages,
                 file_name = str_glue( "unit_{unit_id}_{year}.xml" ) )
+
+#TODO: Dylan - add the answers to the conceptual questions
 ```
 
 c)  At around line 101 of the step 1 script is a "`walk2()`" command. What is it doing? Why did we use "`walk2()`" instead of a "`map()`" command? Why is the command called "`walk2()`" with the "2"?
@@ -447,7 +454,10 @@ Try to make the plot clean and readable; you might consider using `facet_wrap()`
 ## (a) Your plot here
 
 ```{r}
-# Stuff
+
+#TODO: facet_wrap for race, students with disability
+# y axis: OSS discipline x race (units)
+
 ```
 
 ## (b) Some discussion
