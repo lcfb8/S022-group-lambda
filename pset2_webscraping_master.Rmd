@@ -424,8 +424,8 @@ Re-running a markdown report that does time-consuming work can be very frustrati
 
 Once you get that script working, use the code chunk below to include your R script into your markdown report as a final step to help the TFs grade.
 
-```{r, echo=FALSE}
-# This block will just paste an entire R file into your script
+```{r, echo=FALSE, message=FALSE}
+
 cat( readLines("PSet2_q3.R"), 
     sep = "\n" )
 ```
@@ -440,10 +440,11 @@ Save your final dataset of demographics to a file.
 
 We again recommend making this a stand-alone script that you then include below:
 
-```{r, echo=FALSE}
-# This block will just paste an entire R file into your script
+```{r, echo=FALSE, message=FALSE}
+
 cat( readLines("PSet2_q4.R"), 
     sep = "\n" )
+
 ```
 
 
@@ -464,6 +465,95 @@ Try to make the plot clean and readable; you might consider using `facet_wrap()`
 
 #TODO: facet_wrap for race, students with disability
 # y axis: OSS discipline x race (units)
+
+# Before generating our plot, we needed to do some work on the data
+
+# first, remove groups of students in the Group column that are not part of our scope 
+
+# if we choose the version of Lydia's code, we won't need to run this:
+tables_clean %>%
+  distinct(Group)
+groups_to_remove <- c("All Students", "High_Needs", "EL", "Low_SES", "SWD", "Female", "Male")
+
+# Filter the data
+plot_data <- tables_clean %>%
+  filter(!(Group %in% groups_to_remove))
+  # filter(!(unit_name %in% "Massachusetts"))
+
+
+# merge the three districts into one region called Concord-Carlisle
+
+plot_data <- plot_data %>% 
+  mutate(Region = ifelse(unit_name %in% c("Concordk8", "Carlislek8", "CCHS"), "Concord-Carlisle", "Massachusetts"))
+
+
+class(plot_data$Disciplined)  
+
+
+plot_data <- plot_data %>%
+  mutate(disciplined_pct = (Disciplined / Students) * 100)
+
+
+clean_data <- plot_data %>%
+  mutate(
+    ploted_group = case_match(
+      Group,
+      "AIAN"        ~ "Other",
+      "Multiracial" ~ "Other",
+      "NHPI"        ~ "Other",
+      .default = Group
+    )
+  )
+
+plot_data %>%
+  filter(!is.na(disciplined_pct)) %>%
+  ggplot(aes(x = Group, y = disciplined_pct, fill = Group)) +
+  geom_col() +
+  facet_wrap(~unit_name) +
+  labs(
+    title = "Discipline Rates by Student Group",
+    x = "Student Race/Ethnicity",
+    y = "Percentage (%)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+tables_clean %>%
+  distinct(unit_name)
+
+
+# some plots to consider:
+
+# time district vs mass
+
+clean_data %>%
+  ggplot(aes(x = year, y = disciplined_pct, color = ploted_group, group = ploted_group)) +
+  geom_line(size = 0.5) +
+  geom_point(size = 1) +
+  facet_wrap(~unit_name) +
+  theme_minimal() 
+
+
+
+# time region vs mass
+clean_data %>%
+  ggplot(aes(x = year, y = disciplined_pct, color = ploted_group, group = ploted_group)) +
+  geom_line(size = 0.5) +
+  geom_point(size = 1) +
+  facet_wrap(~Region) +
+  theme_minimal() 
+
+
+# time region vs mass (Lydia's code)
+clean_data %>% 
+  filter(Group %in% c("Asian","Black", "Multiracial", "Hispanic",
+                    "White")) %>% 
+  group_by(Group) %>% 
+  ggplot(aes(year, disciplined_pct, color = Group)) +
+  facet_wrap(~Region) +
+  geom_point()
+
 
 ```
 
