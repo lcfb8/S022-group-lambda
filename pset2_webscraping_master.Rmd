@@ -105,7 +105,7 @@ discipline_table_chs
 
 ## 1(b): Formatting
 
-In this step, we do some formatting and merge the pages scraped. We add a column with each unit name; we convert data type into character, so we're able to merge the for datasets; and remove columns with zero.
+In this step, we do some formatting and merge the pages scraped. We add a column with each unit name; we convert data type into character, so we're able to merge the four datasets; and remove columns with zero.
 ```{r messages = FALSE, results='hide'}
 
 # before merging we have to add a column with the name of each unit
