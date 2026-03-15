@@ -27,12 +27,12 @@ library(xml2)
 
 One of our group members attended a school district in Massachusetts, where the majority of students are White and the community leans toward a progressive agenda. They began to wonder whether the district’s stated values truly aligned with how they treat students of color. Consequently, our research question is:
 
-RQ: Are black, hispanic, and multiracial students disciplined at disproportionately higher rates than their white peers?
+RQ: Are Black, Hispanic, and multiracial students disciplined at disproportionately higher rates than their White peers?
 
 
 To investigate this, we analyzed student discipline data. Because data collected during the pandemic was scant, we limited our scope to the last four years: 2022–2025.
 
-We found that the school district remains predominantly white (72.5%), followed by asian students (8.8%), multiracial students (7.5%), hispanic students (7%), and black students (4%). Other races and ethnicities each represent less than 1% of the population, so we will focus our analysis on these most prevalent groups.
+We found that the school district remains predominantly White (72.5%), followed by Asian students (8.8%), multiracial students (7.5%), Hispanic students (7%), and Black students (4%). Other races and ethnicities each represent less than 1% of the population, so we will focus our analysis on these most prevalent groups.
 
 
 ## Our goals
@@ -44,7 +44,7 @@ Because these school districts are small and share a region, we are merging them
 
 \newpage
 
-## Scraping: 
+## 1(a): Scraping 
 
 In this step, we scrape Student Discipline Data Reports for 2025 from four different units: Concord K-8, Carlisle K-8, Concord-Carlisle High School (CCHS), and Massachussets. The scope is extended into 4 years in the dedicated script: "PSet2_q3.R".
 ```{r messages = FALSE, results='hide'}
@@ -103,7 +103,7 @@ discipline_table_chs
 
 ```
 
-## Formatting:
+## 1(b): Formatting
 
 In this step, we do some formatting and merge the pages scraped. We add a column with each unit name; we convert data type into character, so we're able to merge the for datasets; and remove columns with zero.
 ```{r messages = FALSE, results='hide'}
@@ -147,7 +147,7 @@ merged_units <- merged_units %>% select(-all_of(cols_to_remove))
 ```
 
 
-## Re-factor:
+## 1(c): Re-factor
 
 We now refactor the column containing demographic information about the students and edit column names to shorter version.
 ```{r messages = FALSE, results='hide'}
@@ -185,7 +185,7 @@ merged_units <- merged_units %>%
 
 \newpage
 
-## Functions for raw html and refactoring
+## 2: Functions for raw html and refactoring
 
 In this step, we save the raw HTML of each scraped unit into a local folder. Next, we define a function that parses these raw HTML files and converts them into structured tables. After validating this function on a single unit, we use map() to bulk-process all four units. Finally, we iterate a refactoring function across the four resulting tables to standardize column names and shorten values in demographics. 
 
@@ -316,16 +316,16 @@ discipline_conc_2024
 
 \newpage
 
-## Concept: expand_grid  
+## 3(a)(a): Concept: expand_grid  
 
 Based on the Rdocumentation site, `expand_grid` creates a tibble from all combinations of inputs. If we were to just use `expand_grid`⁠ on year, school, and school_ID we would get every possible combination of those three inputs. This is not what we want because school and school_ID are matching pairs. Using left_join() is what preserves the pairing between school and school_ID.  
 
 
-## Concept: what happens if we delete "data/"
+## 3(a)(b): Concept: what happens if we delete "data/"
 
 What the "data/" part does is tell the script to look to a specific folder within the working directory called "data". By removing it, the script would save and look for the .xml files directly in the working directory that was set instead of within the "data" folder. 
 
-## Concept: walk2
+## 3(a)(c): Concept: walk2
 
 We use `walk2()` instead of `map()` because there are two inputs (pages$data and pages$file_name) plus a function. The "2" in `walk2()` indicates that it iterates over two inputs, whereas `map()` can only iterate over one.
 
@@ -342,12 +342,12 @@ RDocumentation: https://www.rdocumentation.org/packages/tidyr/versions/1.3.2/top
 2023 tidyverse blog purr::walk() this way link: https://tidyverse.org/blog/2023/05/purrr-walk-this-way/
 
 
-### The set of pages to scrape
+### 3(b): The set of pages to scrape
 
 Details on how and why we curated our list of units to be analyzed are described in section ## Problem Set Goals.
 
 
-## Script that scrapes our data:
+## 3(c): Script that scrapes our data:
 
 ```{r, echo=FALSE, message=FALSE}
 
@@ -358,7 +358,7 @@ cat( readLines("PSet2_q3.R"),
 
 \newpage
 
-## Script thats gets the 16 tables for our analysis:
+## 4: Script thats gets the 16 tables for our analysis:
 
 ```{r, echo=FALSE, message=FALSE}
 
@@ -372,7 +372,7 @@ cat( readLines("PSet2_q4.R"),
 
 \newpage
 
-# Plotting the data on student discipline for Concord-Carlisle and Massachusetts
+# 5: Plotting the data on student discipline for Concord-Carlisle and Massachusetts
 
 ```{r, message=FALSE, warning=FALSE}
 source("PSet2_q4.R")
@@ -419,4 +419,6 @@ plot_data %>%
 Between 2022 and 2025, students of color—specifically Black and Hispanic students—were disciplined at disproportionate rates in both the Concord-Carlisle region and across Massachusetts. When compared to the state average, Concord-Carlisle generally maintains a lower overall percentage of disciplinary actions across all racial and ethnic groups.
 
 In Concord-Carlisle, disciplinary reports for Black and Hispanic students saw a decline in 2024; however, 2025 data indicates a significant spike in reported discipline for Black students.
+
+In order to expand our analysis, we could analyze data across school districts in Massachusetss or nationwide that are similar to Concord-Carlisle in terms of demographics and see how discipline rates compare. We would also like to see whether the spike in 2025 of Black students being disciplined will sustain or whether 2025 was an atypical year.
 

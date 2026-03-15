@@ -19,10 +19,9 @@ ma_units
 
 # we had to add orgtype, due to the Massachusetts state-wide data
 # having a unique code, 0.
-
 orgtype = c("0","5","5","5")
 
-# we chose the last 3 years (data was scant during the pandemic)
+# we chose the last 4 years (data was scant during the pandemic)
 pages = expand_grid( year = 2022:2025,
                      unit_id = ma_units)
 
@@ -33,6 +32,8 @@ unit.name = tibble( unit_name = names(ma_units),
                       unit_id = ma_units,
                       orgtype = orgtype)
 unit.name
+
+# join data to have a unified list
 pages = left_join( pages, unit.name, by="unit_id" )
 
 pages

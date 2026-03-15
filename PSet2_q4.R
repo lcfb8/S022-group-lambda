@@ -10,7 +10,6 @@ library(purrr)
 library(dplyr)
 
 # load our raw data and process each saved webpage.
-
 pages = readRDS( file="pages_scraped.rds" )
 pages$url= NULL
 pages
@@ -36,7 +35,6 @@ all_units <- function(file_name) {
 test = all_units(pages$file_name[[3]])
 
 all_tables <- map(pages$file_name[1:16], all_units)
-#asked chatgpt to help me with this, I wasn't using map()
 
 
 # now we have a list of all of our tables
@@ -50,7 +48,6 @@ pages
 names(pages)
 
 # add a column where we name our tables
-
 pages <- pages %>%
   mutate( table_name = as.character(str_glue("{unit_name}_{year}")))
 
@@ -94,7 +91,6 @@ class(all_units_tbl$`Students Disciplined`)
 
 
 # function to do the cleanup
-
 clean_tables = function( table ) {
 
   cols_to_remove <- c("% Expulsion", "% Alternate Setting",
@@ -135,9 +131,3 @@ clean_tables = function( table ) {
 
 # Apply cleaning to each table individually
 tables_clean <- clean_tables(all_units_tbl)
-
-class(tables_clean)
-
-dim(tables_clean)
-
-  
