@@ -384,17 +384,42 @@ Review the "step 1" script from class and answer the following conceptual check 
 a)  In lines 27-39 of the step 1 script we use `expand_grid` and then `left_join`.
     It seems like it would be easier to just use `expand_grid` on year, school, and school ID and skip all these extra steps.
     What would happen if we tried to do this?
+    
+	Based on the Rdocumentation site, `expand_grid` creates a tibble from all combinations of inputs. If we were to just use `expand_grid`⁠ on year, school, and school_ID we would get every possible combination of those three inputs. This is not what we want because school and school_ID are matching pairs. Using left_join() is what preserves the pairing between school and school_ID.  
+
 
 b)  What would our script do differently if we modified line 89 by removing "data/" and instead had:
+
+What the "data/" part does is tell the script to look to a specific folder within the working directory called "data". By removing it, the script would save and look for the .xml files directly in the working directory that was set instead of within the "data" folder. 
+
 
 ```{r, eval=FALSE}
 pages = mutate( pages,
                 file_name = str_glue( "unit_{unit_id}_{year}.xml" ) )
 
 #TODO: Dylan - add the answers to the conceptual questions
+
+
+
 ```
 
 c)  At around line 101 of the step 1 script is a "`walk2()`" command. What is it doing? Why did we use "`walk2()`" instead of a "`map()`" command? Why is the command called "`walk2()`" with the "2"?
+
+
+We use `walk2()` instead of `map()` because there are two inputs (pages$data and pages$file_name) plus a function. The "2" in `walk2()` indicates that it iterates over two inputs, whereas `map()` can only iterate over one.
+
+Then, why don't we use `map2()` instead of walk2()? According to the 2023 tidyverse blog, purrr::walk() this way, the key difference between "walk2()" and "map2()" is the output:
+
+`map()` and `map2()`: These return a list of results.
+
+`walk()` and `walk2()`: These are used when we care about the side effect (such as writing a file) and do not return a list.
+
+Since the goal of the script is to iterate over two inputs and write the HTML files, `walk2()` is the correct command to use.
+
+References:
+RDocumentation: https://www.rdocumentation.org/packages/tidyr/versions/1.3.2/topics/expand_grid
+2023 tidyverse blog purr::walk() this way link: https://tidyverse.org/blog/2023/05/purrr-walk-this-way/
+
 
 ### Step 3(b) Define the set of pages to scrape
 
@@ -538,7 +563,10 @@ clean_data %>%
 
 # time region vs mass
 clean_data %>%
-  ggplot(aes(x = year, y = disciplined_pct, color = ploted_group, group = ploted_group)) +
+  filter(Group %in% c("Asian","Black", "Multiracial", "Hispanic",
+                    "White")) %>% 
+  group_by(Group) %>%
+  ggplot(aes(x = year, y = disciplined_pct, color = Group, group = Group)) +
   geom_line(size = 0.5) +
   geom_point(size = 1) +
   facet_wrap(~Region) +
@@ -554,6 +582,65 @@ clean_data %>%
   facet_wrap(~Region) +
   geom_point()
 
+
+
+# time region vs mass (Lydia's code)
+clean_data %>% 
+  filter(Group %in% c("Asian","Black", "Multiracial", "Hispanic",
+                    "White")) %>% 
+  group_by(Group) %>% 
+  ggplot(aes(x = Group, y = disciplined_pct, fill = Region)) +
+  geom_col() +
+  facet_wrap(~year) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+# time region vs mass (Lydia's code)
+clean_data %>% 
+  filter(Group %in% c("Asian","Black", "Hispanic",
+                    "White")) %>% 
+  group_by(Group) %>% 
+  ggplot(aes(x = year, y = disciplined_pct, fill = Region)) +
+  geom_col() +
+  facet_wrap(~Group) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+# all years: region vs mass (Lydia's code)
+clean_data %>% 
+  filter(Group %in% c("Asian","Black", "Hispanic",
+                    "White")) %>% 
+  group_by(Group) %>% 
+  ggplot(aes(x = Group, y = disciplined_pct, fill = Group)) +
+  geom_col() +
+  facet_wrap(~Region) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+
+# plot with error bars
+plot_summary <- clean_data %>%
+  filter(Group %in% c("Asian", "Black", "Hispanic", "White")) %>%
+  group_by(Region, Group) %>%
+  summarize(
+    mean_pct = mean(disciplined_pct, na.rm = TRUE),
+    se = sd(disciplined_pct, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# 2. Plot with geom_errorbar
+plot_summary %>%
+  ggplot(aes(x = Group, y = mean_pct, fill = Group)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean_pct - (1.96 * se), 
+                    ymax = mean_pct + (1.96 * se)), 
+                width = 0.2) +
+  facet_wrap(~Region) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
