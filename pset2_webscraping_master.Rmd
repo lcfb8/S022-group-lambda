@@ -241,7 +241,7 @@ all_units = list("ma", "conc", "carl", "cchs")
 # converting all raw html pages into tables for the 4 units
 all_tables <- map(all_units, from_raw_html_to_table)
 
-# function to refactor all tables
+# function to refactor and format all tables
 refactoring_table = function( table ) {
 
 cols_to_remove <- c(
@@ -349,7 +349,7 @@ Details on how and why we curated our list of units to be analyzed are described
 
 ## 3(c): Script that scrapes our data:
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 cat( readLines("PSet2_q3.R"), 
     sep = "\n" )
@@ -360,7 +360,7 @@ cat( readLines("PSet2_q3.R"),
 
 ## 4: Script thats gets the 16 tables for our analysis:
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 cat( readLines("PSet2_q4.R"), 
     sep = "\n" )
@@ -395,7 +395,7 @@ plot_data <- tables_clean %>%
                     "White"))
 ```
 
-# Plot
+# Plotting on discipline rates by students' race/ethnicity
 
 ```{r, message=FALSE, warning=FALSE}
 # time region vs mass
@@ -414,7 +414,7 @@ plot_data %>%
 
 ```
 
-## Our thoughts:
+## What does the plot tell us?:
 
 Between 2022 and 2025, students of color—specifically Black and Hispanic students—were disciplined at disproportionate rates in both the Concord-Carlisle region and across Massachusetts. When compared to the state average, Concord-Carlisle generally maintains a lower overall percentage of disciplinary actions across all racial and ethnic groups.
 
