@@ -3,7 +3,7 @@
     "path": "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/S022-group-lambda/mini_4_prediction/data_challenge_LB.R",
     "project_path": "data_challenge_LB.R",
     "type": "r_source",
-    "hash": "2153076243",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1774730210234.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "152,0",
-        "scrollLine": "133"
+        "cursorPosition": "690,54",
+        "scrollLine": "671"
     },
     "folds": "",
-    "lastKnownWriteTime": 1774730945,
+    "lastKnownWriteTime": 1774734522,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1774730945490,
+    "last_content_update": 1774734522689,
     "read_only": false,
     "read_only_alternatives": []
 }
