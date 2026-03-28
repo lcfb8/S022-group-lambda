@@ -1,0 +1,486 @@
+---
+title: "**S022 Lab 8: Getting loose with loess**"
+author: "Written by Jonathan Seiden, Tiffany Tang, Jahred Liddie and Sanjana Bhaskar"
+date: "Mar 27, 2025"
+format: PrettyPDF-pdf
+editor_options: 
+  chunk_output_type: console
+include-in-header: 
+  text: |
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+---
+
+Welcome!
+
+Today we are working on loess models and predictions, and trying to reinforce some foundational concepts in machine learning. In doing so, we will discuss how R generates random numbers, create a test-train split, and see how changing the span of a loess model affects its performance.
+
+# Setup your workspace
+
+Let's start with loading the required packages and our data. We don't want to include this in the PDF, so we add `include = FALSE` to the chunk header.
+
+```{r setup, include = FALSE}
+# load up our trusty friend, tidyverse
+library(tidyverse)
+library(skimr)
+library(gridExtra) # you may need to install this with install.packages()
+library(modelr) # you also may need to install this
+
+# load school-level data from the TN Star experiment
+STAR_School <- read_csv(file = "STAR_K-3_Schools.csv")
+
+theme_set(theme_bw()) # set a plot theme for the entire doc
+
+```
+
+# Exploring the data
+
+We will explore the relationship between two school-level variables using both a familiar *parametric* approach (linear regression) and our newfound non-parametric friend loess. We will be investigating the relationship between the proportion of Kindergartners receiving free lunch (`gkfrlnch`) and the proportion of kindergartners that are White (`gkwhite`). First we'll get started by just examining a scatter plot and the distributions of the data.
+
+```{r data_explore}
+# skim the two variables we are exploring
+STAR_School %>% 
+  select(gkfrlnch, gkwhite) %>%
+  skim() # note that we have some missing values
+
+# drop missing values
+STAR_School <- STAR_School %>% 
+  filter(!is.na(gkfrlnch) & !is.na(gkwhite))
+
+# get a simple scatter plot
+p1 <- ggplot(STAR_School, aes(x = gkwhite, y = gkfrlnch)) +
+        geom_point() +
+        labs(x = "Percent of White Kindergarten students",
+             y = "Percent of Kindergarten students on\nFree or Reduced Price Lunch")
+
+p1
+
+```
+
+1)  Is there a relationship between these two variables?
+
+Maybe? 
+
+2)  If so, do you think it follows a linear pattern?
+
+Not really, maybe a bit of a negative relationship
+
+# Making a test-train split
+
+Before we move on, let's make a test-train split of our data. There are many ways to do this. One way is to randomly separate to our data into two parts. We'll need some random numbers for this, so before we dive in, let's also briefly discuss how random numbers and sampling in R work.
+
+```{r seed_sample}
+# set a seed to the random number generator as your birthday or a favorite number
+set.seed(12341234)
+
+# as a demonstration of how seeds and samples work, we will each sample and see 
+# what the mean and distribution is for the class
+sample(STAR_School$gkfrlnch, size = 1) # group activity, what do you get from here?
+
+```
+
+OK, now for the fun part. We will take our STAR school sample and divide it into two samples, a **training** dataset and a **testing** dataset. Dividing our data into two groups allows us to create a model using the training data, and evaluate how well it performs by applying it to the testing data.
+
+Split can be 50/50, 30/70, 10/90, depends on the size of your dataset
+
+```{r test_train, warning=FALSE}
+train_ids <- sample(STAR_School$schid, 
+                    size = length(STAR_School$schid) / 2, 
+                    # we want the sample to be half the size
+                    replace = FALSE) # we do not want to draw the same ID twice
+
+# filter the full dataset to get the training and test splits
+STAR_train <- STAR_School %>%
+  filter(schid %in% train_ids)
+
+nrow(STAR_train) # half of the data
+
+STAR_test <- STAR_School %>%
+  filter(!schid %in% train_ids) 
+# the "!" negates the statement and provides the opposite result 
+
+nrow(STAR_test)
+
+# check out the results of our Training and Test Data by looking at scatters
+p2 <- ggplot(STAR_train, aes(x = gkwhite, y = gkfrlnch)) +
+  geom_point() +
+  labs(x = "Percent of White Kindergarten students",
+       y = "Percent of Kindergarten students on\nFree or Reduced Price Lunch", 
+       title = "Training data")
+
+p3 <- ggplot(STAR_test, aes(x = gkwhite, y = gkfrlnch)) +
+  geom_point() +
+  labs(x = "Percent of White Kindergarten students",
+       y = "Percent of Kindergarten students on\nFree or Reduced Price Lunch",
+       title = "Testing data")
+
+grid.arrange(p2, p3, ncol = 2)
+
+```
+
+**Concept question:** Do the two datasets differ in any notable way?  How do they differ, if so?
+
+# Fitting Loess models
+
+Now we will use our training data to fit a series of loess models using different spans and create predictions. We will also fit a linear model. Recall that when we move from parametric models to non-parametric models (like loess) we trade simplicity and interpretability of a model for greater flexibility and more accurate predictions.
+
+To examine how these look, we will also plot the results, and evaluate each model by calculating the RMSE on (at first) just the *training* data. As a reminder, the RMSE which tells us "how wrong" on average a prediction is for a given dataset. This is a critical concept in data science, so it is important to develop a good understanding of what it means.
+
+```{r train_loess_model, warning=FALSE, message=FALSE}
+# set some span variables for us to test
+span_m1 <- .5
+span_m2 <- .8
+span_m3 <- 1.4
+
+# create Loess models for the spans we set and also a linear model
+m1 <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_m1)
+m2 <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_m2)
+m3 <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_m3)
+mlm <- lm(gkfrlnch ~ gkwhite, data = STAR_train)
+
+# plot the three loess predictions
+STAR_train %>%
+  ggplot(aes(y = gkfrlnch, x = gkwhite)) +
+  geom_point() +
+  geom_smooth(span = span_m1, method = "loess", se = FALSE, aes(color = "Span 0.5")) + 
+  geom_smooth(span = span_m2, method = "loess", se = FALSE, aes(color = "Span 0.8"))  +
+ geom_smooth(span = span_m3, method = "loess", se = FALSE, aes(color = "Span 1.4")) + 
+  geom_smooth(aes(color = "Linear model"), method = "lm", se = FALSE) +
+  scale_color_manual(values = c("red", "blue", "darkgreen", "orange"),
+                     name = "Model")
+
+STAR_train <- STAR_train %>%
+  mutate(pred_m1 = predict(m1),
+         pred_m2 = predict(m2),
+         pred_m3 = predict(m3),
+         pred_mlm = predict(mlm))
+
+# get the error for each observation
+STAR_train <- STAR_train %>%
+  mutate(error_m1 = gkfrlnch - pred_m1,
+         error_m2 = gkfrlnch - pred_m2,
+         error_m3 = gkfrlnch - pred_m3,
+         error_mlm = gkfrlnch - pred_mlm)
+
+# calculate the RMSE for each model
+m1_rmse_train <- sqrt(mean(STAR_train$error_m1^2))
+m2_rmse_train <- sqrt(mean(STAR_train$error_m2^2))
+m3_rmse_train <- sqrt(mean(STAR_train$error_m3^2))
+mlm_rmse_train <- sqrt(mean(STAR_train$error_mlm^2))
+
+# compare train RMSE
+train_rmse <- tibble(span = c( span_m1, span_m2, span_m3, "linear" ),
+                    train_rmse = c( m1_rmse_train, m2_rmse_train, 
+                                    m3_rmse_train, mlm_rmse_train)
+                   )
+
+knitr::kable(train_rmse, digits = 2)
+
+```
+
+**Group discussion - 5 minutes**
+
+1)  Which model had the lowest RMSE? Which model had the highest?
+
+2)  How does the RMSE of the loess models compare to that of the linear model?
+
+3)  Which model do you think had the best fit?
+
+Very very low RMSE means it is overfitting on your training data - won't be generalizable to your tresting data
+
+4)  Bonus: Is there a rule to what happens to RMSE on *training* data when the span changes? Why?
+
+Side note: `modelr` (introduced more in [this chapter of the online textbook](https://lmiratrix.github.io/S022/Prediction_and_Visualization_with_Models.html)) provides a neat way to generate predictions and residuals for all of our multiple models:
+
+```{r modelr}
+# predictions from each model for each observation
+# make sure to remove "pred" and "error" columns here first
+STAR_train_mdlr <- STAR_train %>%
+  select(-starts_with("pred"), 
+  -starts_with("error"))
+STAR_train_mdlr1 <- STAR_train_mdlr %>% 
+  gather_predictions(m1, m2, m3, mlm)
+
+STAR_train_mdlr2 <- STAR_train_mdlr %>% 
+  gather_residuals(m1, m2, m3, mlm) %>%
+  select(schid, model, resid) # only need schid, model, and residuals columns
+
+# we can then pivot both of these dataframes wider since we have
+# rows for each model, and join them together again for easy ggplotting !
+STAR_train_mdlr1 <- STAR_train_mdlr1 %>% 
+  pivot_wider(names_from = model, values_from = pred,
+              names_prefix = "pred_")
+
+STAR_train_mdlr2 <- STAR_train_mdlr2 %>% 
+  pivot_wider(names_from = model, values_from = resid,
+               names_prefix = "error_")
+
+STAR_train_mdlr <- left_join(STAR_train_mdlr1, STAR_train_mdlr2, by = "schid")
+
+STAR_train_mdlr
+  
+```
+
+## More info on Loess regression
+
+Loess fits a polynomial equation within a sliding window of the data - the span determines how "large" this window is. More precisely, when the span is less than 1, it represents the proportion of the data that are considered to be neighbors of *x*. Neighboring points are weighted using a tricubic function: $(1 - (dist/maxdist)^3)^3$, where $maxdist$ is the maximum observed distance for the $p$ explanatory variables specified. When span is larger than 1, all points are used and the maximum distance is set to be $span^{1/p}$ times the maximum distance.
+
+A very large span will approximate a quadratic function:
+
+```{r large span, message=FALSE, warning=FALSE}
+span_large <- 1e6
+
+m1_span_large <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_large)
+
+STAR_train %>%
+  ggplot(aes(y = gkfrlnch, x = gkwhite)) +
+  geom_point() +
+  geom_smooth(span = span_large, method = "loess", se = FALSE, 
+              aes(color = "Large span"),
+              linewidth = 2) + 
+  geom_smooth(aes(color = "Quadratic model"), 
+              method = "lm", formula = y ~ x + I(x^2), se = FALSE) +
+  scale_color_manual(values = c("red", "blue"),
+                     name = "Model")
+
+```
+
+# Evaluating the models by using the "test" split
+
+We've now run 3 loess models and calculated the RMSE of each in order to evaluate how they perform **on the data with which they were trained**. An important limitation is that smaller spans will *always* have lower RMSE for the data that they were trained on. Using the RMSE of the data that it was trained on is dangerous, because it causes you to choose over-fit models.
+
+Now we will see how the models perform on the the "test" data which we haven't touched. Again, we will get the predictions for each model on the _new data_ (**without refitting the models**) and calculate the RMSE for each using the `STAR_test` data.
+
+## Breakout coding - 15 minutes
+
+```{r test_performance}
+### Copy the code the {r train_loess_model} chunk, and adapt it to work on the test data
+
+STAR_test
+
+# set some span variables for us to test
+span_m1 <- .5
+span_m2 <- .8
+span_m3 <- 1.4
+
+# create Loess models for the spans we set and also a linear model
+m1 <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_m1)
+m2 <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_m2)
+m3 <- loess(gkfrlnch ~ gkwhite, data = STAR_train, span = span_m3)
+mlm <- lm(gkfrlnch ~ gkwhite, data = STAR_train)
+
+
+STAR_test <- STAR_test %>%
+  mutate(pred_m1 = predict(m1, newdata = STAR_test),
+         pred_m2 = predict(m2, newdata = STAR_test),
+         pred_m3 = predict(m3, newdata = STAR_test),
+         pred_mlm = predict(mlm, newdata = STAR_test))
+
+
+
+#pred_m1
+gm1 <- STAR_test %>%
+  ggplot(aes(y = pred_m1, x = gkwhite)) +
+  geom_point() 
+
+#pred_m2
+gm2 <- STAR_test %>%
+  ggplot(aes(y = pred_m2, x = gkwhite)) +
+  geom_point() 
+
+#pred_m3
+gm3 <- STAR_test %>%
+  ggplot(aes(y = pred_m3, x = gkwhite)) +
+  geom_point() 
+
+#pred_mlm
+gmmlm <- STAR_test %>%
+  ggplot(aes(y = pred_mlm, x = gkwhite)) +
+  geom_point() 
+
+
+grid.arrange(gm1, gm2, gm3, gmmlm, ncol = 2)
+
+# get the error for each observation
+STAR_test <- STAR_test %>%
+  mutate(error_m1 = gkfrlnch - pred_m1,
+         error_m2 = gkfrlnch - pred_m2,
+         error_m3 = gkfrlnch - pred_m3,
+         error_mlm = gkfrlnch - pred_mlm)
+
+# calculate the RMSE for each model
+m1_rmse_test <- sqrt(mean(STAR_test$error_m1^2))
+m2_rmse_test <- sqrt(mean(STAR_test$error_m2^2))
+m3_rmse_test <- sqrt(mean(STAR_test$error_m3^2))
+mlm_rmse_test <- sqrt(mean(STAR_test$error_mlm^2))
+
+# compare train RMSE
+test_rmse <- tibble(span = c( span_m1, span_m2, span_m3, "linear" ),
+                    test_rmse = c( m1_rmse_test, m2_rmse_test, 
+                                    m3_rmse_test, mlm_rmse_test)
+                   )
+
+knitr::kable(test_rmse, digits = 2)
+
+# calculate the prediction for each observation on the test data using the models
+    # note here that we need to specify "newdata" to be our testing data
+    # otherwise, we'll return the fitted values from the training data
+
+# get the error for each observation
+
+# calculate the RMSE for each model
+
+# compare training RMSE and test RMSE
+
+all_rmse = left_join(test_rmse, train_rmse, by = "span")
+
+knitr::kable(all_rmse, digits = 2)
+
+```
+
+## Questions on test RMSE
+
+5)  Which model had the best fit on the *testing* data?
+
+Linear
+
+6)  Have you noticed any patterns between training RMSE and test RMSE for the given span values?
+
+Goal is to find a situation where the test RMSE and train RMSE are balanced, so we can use it on a dataset where we actually want to predict
+
+# Extension 1: finding the optimal span (this is cool, so you should try it):
+
+Using the above steps, we saw how to find the model with the lowest RMSE on the test data. But we only tested 3 spans. So how do we find the best-fitting model when we want to test a lot of spans? That is what we will do now. We will do this by creating a function and then using that function a bunch of times with `map`.
+
+```{r extension 1}
+
+# create a function that takes a span and returns the RMSE on the test data 
+# after fitting a loess on the training data with the given span 
+
+get_rmse <- function(span = 0.5) {
+  
+  test <- STAR_test
+  train <- STAR_train
+  
+  # fit the model with the given span on the TRAINING data
+  model <- loess(gkfrlnch ~ gkwhite, data = train, span = span)
+
+  # get the predictions with the model on the TESTING data
+  test$predictions <- predict(model, newdata = test)
+  train$predictions <- predict(model)
+
+  # calculate the error for each observation in the test data
+  rmse_test <- sqrt(mean((test$predictions - test$gkfrlnch)^2))
+  rmse_train <- sqrt(mean((train$predictions - train$gkfrlnch)^2))
+  rmse_list = tibble(span = span,
+                     test_rmse = rmse_test, 
+                     train_rmse = rmse_train)
+  
+  return(rmse_list)
+}
+
+# test to make sure it matches
+get_rmse(0.5) 
+
+# now we will create a vector of spans to try 
+spans <- seq(from = 0.5, to = 2, by = .05)
+
+# run the function on each value of the spans vector
+rmse <- map_dfr(spans, get_rmse) # run the function on each of the spans
+
+# get the best span to minimize RMSE
+best.span <- rmse %>% 
+  slice_min(test_rmse) %>% 
+  pull(span)
+
+best.span
+
+# indicate whether spans result in under or overfit models
+rmse <- rmse %>%
+  mutate(span.fit = ifelse(span == best.span, "Best",
+                           ifelse(span > best.span, "Underfit", "Overfit")))
+
+# plot the rmses and spans
+p5 <- rmse %>% 
+  ggplot(aes(x = span, y = test_rmse)) +
+  geom_line( color = "grey" ) +
+  geom_point( aes(color = span.fit) ) +
+  labs(x = "Span", y = "RMSE", color = "Quality of span",
+       title = "Span performance on Testing data RMSE")
+
+p5
+
+# compare train and test rmse
+rmsesL <- pivot_longer(rmse, cols = c(train_rmse, test_rmse), 
+                       names_to = "dataset",
+                       values_to = "rmse")
+
+p6 <- rmsesL %>% 
+  ggplot(aes( span, rmse, col = dataset) ) +
+    geom_line() +
+    labs(x = "Span", y = "RMSE", color = "Dataset",
+         title = "Comparing span performance on training vs. test data RMSE") +
+  scale_color_manual(values = c("red", "blue"),
+                     labels = c("Test RMSE", "Train RMSE"))
+
+p6
+```
+
+# Extension 2: Using our model to predict outcomes in fake data
+
+With prediction models, we can extend our models to predict outcomes in new data with fake covariates, and then plot our results for interpretation purposes. This is discussed more in [this chapter](https://lmiratrix.github.io/S022/Prediction_and_Visualization_with_Models.html). Feel free to come back to this or the handouts to use as a reference!
+
+This example does not use loess, but instead fits a new linear model to our full `STAR_school` dataset. First load up `modelr`, which we'll be using to generate the fake covariate data.
+
+```{r extension 2a}
+
+# A new, more saturated linear model
+extension_model <- lm(gkfrlnch ~ gkwhite * schlurbn, data = STAR_School)
+# note: this introduces `schlurbn` (categorical variable for school urbanicity) 
+# and an interaction term between `schlurbn` and `gkwhite`
+
+texreg::screenreg(extension_model) # let's view these results
+
+
+```
+
+Now, use `modelr` to make all combinations between `gkwhite` and the categories of school urbanicity.
+
+```{r extension 2b}
+
+fake_data <- STAR_School %>% data_grid(gkwhite, schlurbn)
+
+# data_grid calls on tidyr's `expand` function
+# the default here uses the unique values of gkwhite 
+# present in the original data
+
+# how many rows of fake_data do we end up with?
+fake_data
+
+# how many would we have ended up with if we did: 
+  data_grid(gkwhite = 1:100, schlurbn)
+
+```
+
+Now let's generate predictions for our fake data using our new model and plot these predictions.
+
+```{r extension 2c, warning=FALSE, message=FALSE}
+# you can use modelr directly to add predictions to the fake data
+fake_data <- fake_data %>% add_predictions(extension_model)
+
+ggplot(fake_data, aes(x = gkwhite, y = pred)) +
+  geom_line() +
+  facet_wrap(~schlurbn) +
+  labs(y = "Percent of Kindergarten students on\nFree or Reduced Price Lunch",
+       x = "Percent of White Kindergarten students")
+
+ggplot(fake_data, aes(x = gkwhite, y = pred)) +
+  geom_line() +
+  facet_wrap(~schlurbn) +
+  geom_point(data = STAR_School, aes(y = gkfrlnch), alpha = 0.5) +
+  labs(y = "Percent of Kindergarten students on\nFree or Reduced Price Lunch",
+       x = "Percent of White Kindergarten students")
+
+```
+
+Anything you notice here when we plot our original data over these slopes? Note: If we wanted to compare different models, we could also use the handy `gather_predictions` function to generate predictions from each of these models for our fake data.
