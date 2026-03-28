@@ -39,24 +39,20 @@ trainA
 testA
 
 # This is maybe not a good prediction
-M = lm( Y ~ X, trainA )
-testA$Y = predict( M, newdata = testA )
+# M = lm( Y ~ X, trainA )
+# testA$Y = predict( M, newdata = testA )
 
 # Let's see what the data looks like
 
 trainA %>% 
     ggplot(aes( X, Y )) +
     geom_point() +
-    geom_smooth( method = "loess", span = 0.5, se = FALSE )
+    geom_smooth( method = "loess", span = 0.5, se = FALSE )+
+    geom_smooth( method = lm, se = FALSE, col = "red")
 
-# Looks like garbage
+# The data looks like noise. How can we predict anything from this??
 
-# You can try to test-train split your data to estimate predictive
-# accuracy like this (this is a 50-50 split, but you can try other
-# splits, or even try splitting multiple times to see if the numbers
-# change!):
-
-# FUNCTION FOR TEST/TRAIN SPLIT LOOKING AT MULTIPLE ITERATIONS AND SPLITS
+# Let's make a function for test/train splits
 # We'll test out different test/train splits for loess and linear models
 
 train_split_lm = function(data, pct){
@@ -102,12 +98,12 @@ splits <- seq(from = 0.1, to = 0.5, by = 0.1)
 #pct in splits, and replicate this 1000 times
 #copilot helped me figure out some of this code
 
-#if this code is running super slowly, change the 1000 to 100
-splits_rmse_lm <- replicate(1000, map_dfr(splits, ~train_split_lm(trainA, .x)), 
+# run it 100 times
+splits_rmse_lm <- replicate(100, map_dfr(splits, ~train_split_lm(trainA, .x)), 
           simplify = TRUE)
 
 splits_rmse_loess <- 
-    replicate(1000, map_dfr(splits, ~train_split_loess(trainA, .x)), 
+    replicate(100, map_dfr(splits, ~train_split_loess(trainA, .x)), 
                          simplify = TRUE)
 
 #convert these to a tibble (necessary)?
@@ -115,12 +111,10 @@ splits_rmse_loess <-
 splits_rmse_lm <- tibble(splits_rmse_lm)
 splits_rmse_loess <- tibble(splits_rmse_loess)
 
-splits_rmse_lm
-splits_rmse_loess
-
 
 #in the splits_rmse tibbles, separate the lists in the splits_rmse column into 
 # five columns labeled 0.1, 0.2, 0.3, 0.4, and 0.5
+# copilot helped me with this
 
 splits_rmse_lm <- splits_rmse_lm %>% 
     unnest_wider(col = splits_rmse_lm, names_sep = "pct") %>% 
@@ -148,12 +142,15 @@ summary(splits_rmse_loess)
 
 
 #OK it seems like a 10/90 split generates the lowest RMSE for both linear and 
-#Loess models. Is this a good thing? I'll go with it. According to my results
-#this time, rmse is actually lower for linear than for loess
+#Loess models. Is this a good thing? 0.1 also gives the widest range of rmses.
+# I'll go with it. According to my results, mean rmse is usuallly 
+# lower for linear (14ish) than for loess (15ish)
 
 # Now let's see which span is best for the loess models
-
 # We can create the split using our code from above
+
+# I have not set a seed on purpose, so I can rerun this and see the variety
+# among the results
 
     N = nrow(trainA)
     val_rows = sample( N, N*0.1 )
@@ -181,11 +178,12 @@ span_rmse <- function(span = 0.5) {
     train$predictions <- predict(model)
     
     # calculate the error for each observation in the test data
-    rmse_test <- sqrt(mean((test$predictions - test$Y)^2))
+    rmse_test <- sqrt(mean((test$predictions - test$Y)^2, na.rm = TRUE))
     rmse_train <- sqrt(mean((train$predictions - train$Y)^2))
     rmse_list = tibble(span = span,
                        test_rmse = rmse_test, 
                        train_rmse = rmse_train)
+    #got some NAs for rmse_test a few times so I added na.rm = TRUE
     
     return(rmse_list)
 }
@@ -193,6 +191,7 @@ span_rmse <- function(span = 0.5) {
 
 # test the function
 span_rmse(0.5) 
+
 
 # now we will create a vector of spans to try 
 spans <- seq(from = 0.1, to = 2, by = .05)
@@ -204,7 +203,6 @@ rmse <- map_dfr(spans, span_rmse) # run the function on each of the spans
 #"neighborhood radius 8," "reciprocal condition number 5.2015e-17"? I think
 #loess models don't cope with random selection so well?
 
-
 # get the best span to minimize RMSE
 best.span <- rmse %>% 
     slice_min(test_rmse) %>% 
@@ -212,8 +210,9 @@ best.span <- rmse %>%
 
 best.span
 
-rmse %>% 
-    filter(span == 2)
+# on running this multiple times I get a wide range of results for the best span
+# and the lowest test_rmse. Which I think is just demonstrating that the data 
+# is very noisy and the 10/90 test/train split leads to a lot of variation
 
 
 # indicate whether spans result in under or overfit models
@@ -232,8 +231,8 @@ p5 <- rmse %>%
 p5
 
 #ok every time I run this I get vastly different results which I also think
-#is because our data is garbage. It keeps telling me the best span is 2, which
-#is basically just a linear model. 
+#is because our data is noise. Often, it keeps telling me the best span is 2, 
+# which is basically just a linear model. 
 
 # compare train and test rmse
 rmsesL <- pivot_longer(rmse, cols = c(train_rmse, test_rmse), 
@@ -265,6 +264,15 @@ trainA %>%
 M = loess(Y ~ X, trainA, control = 
                     loess.control(surface = "direct"), span = 2)
 
+#calculate RMSE for this model
+
+trainA$predictions <- predict(M)
+rmse_train <- sqrt(mean((trainA$predictions - trainA$Y)^2))
+
+round(rmse_train, digits = 2)
+
+#use the model to predict Y values for the testA dataset
+
 testA$Y = predict(M, newdata = testA)
 
 testA
@@ -273,7 +281,7 @@ testA %>%
     ggplot(aes(X,Y))+
     geom_point()
 
-#this has much more of a pattern than it should
+# should it really look like this? 
 
 # Let's try overfitting the model with span = 0.1 
 # because garbage in, garbage out
@@ -281,6 +289,12 @@ testA %>%
 M = loess(Y ~ X, trainA, control = 
               loess.control(surface = "direct"), span = 0.1)
 
+# calculate RMSE for this model
+
+trainA$predictions <- predict(M)
+rmse_train <- sqrt(mean((trainA$predictions - trainA$Y)^2))
+round(rmse_train, digits = 2)
+
 testA$Y = predict(M, newdata = testA)
 
 testA
@@ -289,7 +303,8 @@ testA %>%
     ggplot(aes(X,Y))+
     geom_point()
 
-# This looks like noise. Is that what we want?
+# This looks like noise, just like trainA does. Is that what we want? We need
+# to decide which to go with
 
 # Once you have your analysis, print out your predictions
 format_answer( testA )
@@ -389,6 +404,7 @@ val_rows = sample( N, N*0.1 )
 val_B = trainB[ val_rows, ]
 real_trainB = trainB[ -val_rows, ]
 
+
 #Now we have our training data split into two sets: real_trainB (90%)
 #and 10% to test (val_B)
 
@@ -409,7 +425,7 @@ span_rmse <- function(span = 0.5) {
     train$predictions <- predict(model)
     
     # calculate the error for each observation in the test data
-    rmse_test <- sqrt(mean((test$predictions - test$Y)^2))
+    rmse_test <- sqrt(mean((test$predictions - test$Y)^2, na.rm = TRUE))
     rmse_train <- sqrt(mean((train$predictions - train$Y)^2))
     rmse_list = tibble(span = span,
                        test_rmse = rmse_test, 
@@ -421,6 +437,7 @@ span_rmse <- function(span = 0.5) {
 
 # test the function
 span_rmse(0.5) 
+
 
 # now we will create a vector of spans to try 
 spans <- seq(from = 0.1, to = 2, by = .05)
@@ -480,6 +497,11 @@ trainB %>%
 #the internet says to add surface = "direct" to extrapolate NAs
 M = loess(Y ~ X, trainB, span = 0.6, control = 
               loess.control(surface = "direct"))
+
+#caculate rmse for this model
+trainB$predictions <- predict(M)
+rmse_train <- sqrt(mean((trainB$predictions - trainB$Y)^2))
+round(rmse_train, digits = 2)
 
 testB$Y = predict(M, newdata = testB)
 
@@ -679,6 +701,11 @@ trainC %>%
     geom_smooth(method = lm) 
 
 M = lm(Y ~ X, trainC)
+
+#caculate rmse for this model
+trainC$predictions <- predict(M)
+rmse_train <- sqrt(mean((trainC$predictions - trainC$Y)^2))
+round(rmse_train, digits = 2)
 
 testC$Y = predict(M, newdata = testC)
 
