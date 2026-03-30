@@ -46,7 +46,7 @@ testA
 
 trainA %>% 
     ggplot(aes( X, Y )) +
-    geom_point() +
+    geom_point() 
     geom_smooth( method = "loess", span = 0.5, se = FALSE )+
     geom_smooth( method = lm, se = FALSE, col = "red")
 
@@ -98,12 +98,11 @@ splits <- seq(from = 0.1, to = 0.5, by = 0.1)
 #pct in splits, and replicate this 1000 times
 #copilot helped me figure out some of this code
 
-# run it 100 times
-splits_rmse_lm <- replicate(100, map_dfr(splits, ~train_split_lm(trainA, .x)), 
+splits_rmse_lm <- replicate(1000, map_dfr(splits, ~train_split_lm(trainA, .x)), 
           simplify = TRUE)
 
 splits_rmse_loess <- 
-    replicate(100, map_dfr(splits, ~train_split_loess(trainA, .x)), 
+    replicate(1000, map_dfr(splits, ~train_split_loess(trainA, .x)), 
                          simplify = TRUE)
 
 #convert these to a tibble (necessary)?
@@ -330,53 +329,21 @@ trainB %>%
 # Does not look like it's just noise!! this will obviously be better with loess
 # than a linear model
 
-# You can try to test-train split your data to estimate predictive
-# accuracy like this (this is a 50-50 split, but you can try other
-# splits, or even try splitting multiple times to see if the numbers
-# change!):
+# We'll test out different test/train splits for loess using the function we
+# built for part A (code is the same as part A but with trainB data and only
+# testing on loess)
 
-# FUNCTION FOR TEST/TRAIN SPLIT LOOKING AT MULTIPLE ITERATIONS AND SPLITS
-# We'll test out different test/train splits for loess 
-
-train_split_loess = function(data, pct){
-    N = nrow(data)
-    val_rows = sample( N, N*pct )
-    
-    val = data[ val_rows, ]
-    real_train = data[ -val_rows, ]
-    
-    M = loess( Y ~ X, real_train )
-    val$Yhat = predict( M, newdata = val )
-    
-    val %>%
-        summarize( rmse = sqrt( mean( ((Yhat - Y)^2), na.rm = TRUE ) ) )
-}
-
-# let's test out the function for a 50/50 split
 train_split_loess(trainB, 0.5)
-
-# let's make a list of splits from 10% to 50% 
 
 splits <- seq(from = 0.1, to = 0.5, by = 0.1)
 
-#run the train_split_loess function for every value of pct in splits, 
-# and replicate this 1000 times
-#copilot helped me figure out some of this code
-
-#if this code is running super slowly, change the 1000 to 100
 splits_rmse_loess <- 
     replicate(1000, map_dfr(splits, ~train_split_loess(trainB, .x)), 
               simplify = TRUE)
 
-#convert these to a tibble (necessary)?
-
 splits_rmse_loess <- tibble(splits_rmse_loess)
 
 splits_rmse_loess
-
-
-#in the splits_rmse tibbles, separate the lists in the splits_rmse column into 
-# five columns labeled 0.1, 0.2, 0.3, 0.4, and 0.5
 
 splits_rmse_loess <- splits_rmse_loess %>% 
     unnest_wider(col = splits_rmse_loess, names_sep = "pct") %>% 
@@ -392,7 +359,8 @@ summary(splits_rmse_loess)
 
 
 # Mean RMSEs are very similar for all the splits. 10/90 is slightly lower,
-# so I'll go with that. 
+# so I'll go with that. Is it an issue that 10/90 split shows a much wider
+# range of RMSEs, meaning it varies much more in terms of ability to predict?
 
 # Now let's see which span is best for the loess models
 
@@ -404,18 +372,40 @@ val_rows = sample( N, N*0.1 )
 val_B = trainB[ val_rows, ]
 real_trainB = trainB[ -val_rows, ]
 
+# Can I make a function for this so I can replicate it 1000 times, 
+# to take into account variation from random sampling?
 
-#Now we have our training data split into two sets: real_trainB (90%)
-#and 10% to test (val_B)
+
+
+tt_rep = function(data){
+    
+    N = nrow(data)
+    val_rows = sample( N, N*0.1 )
+    
+    val_B <- data[ val_rows, ]
+    real_trainB <- data[ -val_rows, ]
+    
+    test_train = bind_rows(val_B, real_trainB)
+    
+    test_train
+}
+
+tt_rep(trainB)
+
+#Now we have our function to split the training data into two sets and put 
+#it back together again. We'll split it apart again in the next function. This
+#allows us to run many trials (monte carlo simluation-ish) to find the best span
 
 
 #Let's see which span is best for loess models using our test/train split data
-#from trainB. The code below is from lab 8
+#from trainB. The code below is adapted from lab 8
 
-span_rmse <- function(span = 0.5) {
+span_rmse <- function(span) {
     
-    train <- real_trainB
-    test <- val_B
+    test_train <- tt_rep(trainB)
+    
+    test <- test_train[1:10,]
+    train <- test_train[11:100,]
     
     # fit the model with the given span on the TRAINING data
     model <- loess( Y ~ X, data = train, span = span)
@@ -442,8 +432,25 @@ span_rmse(0.5)
 # now we will create a vector of spans to try 
 spans <- seq(from = 0.1, to = 2, by = .05)
 
-# run the function on each value of the spans vector
-rmse <- map_dfr(spans, span_rmse) # run the function on each of the spans
+# I asked chatGPT to help me write the following code to replicate the function 
+# 10 times and put the output into a tibble (I was using replicate before,
+# but it led to a mess of nested vectors)
+
+rmse <- map_dfr(1:100, \(i) {
+    map_dfr(spans, span_rmse) %>%
+        mutate(rep = i)
+})
+
+# in rmse, mutate rep so it's a factor
+rmse <- rmse %>% 
+    mutate(rep = as.factor(rep))
+
+rmse %>% 
+    ggplot(aes(span, test_rmse))+
+    geom_point() +
+    geom_smooth()
+
+
 
 # get the best span to minimize RMSE
 best.span <- rmse %>% 
@@ -452,6 +459,8 @@ best.span <- rmse %>%
 
 best.span
 
+# I keep getting very different spans every time I run it because of the 
+# 90/10 split. Maybe there's too much variation and a 50/50 split would be better
 
 # ran this a few times, best span appears to be around 0.6
 
@@ -532,48 +541,12 @@ trainC %>%
     ggplot(aes( X, Y )) +
     geom_point() +
     geom_smooth( method = "loess", span = 0.5, se = FALSE ) +
-    geom_smooth( method = "lm", col = "red")
+    geom_smooth( method = "lm", col = "red", se = FALSE)
 
 # Looks pretty linear, but could maybe also use loess. I'll try both.
 
-# You can try to test-train split your data to estimate predictive
-# accuracy like this (this is a 50-50 split, but you can try other
-# splits, or even try splitting multiple times to see if the numbers
-# change!):
-
-# FUNCTION FOR TEST/TRAIN SPLIT LOOKING AT MULTIPLE ITERATIONS AND SPLITS
-# We'll test out different test/train splits for loess and linear
-
-train_split_lm = function(data, pct){
-    N = nrow(data)
-    val_rows = sample( N, N*pct )
-    
-    val = data[ val_rows, ]
-    real_train = data[ -val_rows, ]
-    
-    M = lm( Y ~ X, real_train )
-    val$Yhat = predict( M, newdata = val )
-    
-    val %>%
-        summarize( rmse = sqrt( mean( (Yhat - Y)^2 ) ) )
-    
-}
-
-train_split_loess = function(data, pct){
-    N = nrow(data)
-    val_rows = sample( N, N*pct )
-    
-    val = data[ val_rows, ]
-    real_train = data[ -val_rows, ]
-    
-    M = loess( Y ~ X, real_train )
-    val$Yhat = predict( M, newdata = val )
-    
-    val %>%
-        summarize( rmse = sqrt( mean( ((Yhat - Y)^2), na.rm = TRUE ) ) )
-    #had to add na.rm = TRUE because I kept randomly getting NAs, but
-    #I'm not sure why? didn't get NA for the linear model
-}
+# We'll test out different test/train splits for loess and linear using the 
+# function created in part A
 
 # let's test out the function for a 50/50 split
 train_split_loess(trainC, 0.5)
@@ -599,6 +572,8 @@ splits_rmse_loess <-
 
 splits_rmse_lm <- tibble(splits_rmse_lm)
 splits_rmse_loess <- tibble(splits_rmse_loess)
+
+splits_rmse_loess
 
 #in the splits_rmse tibbles, separate the lists in the splits_rmse column into 
 # five columns labeled 0.1, 0.2, 0.3, 0.4, and 0.5
