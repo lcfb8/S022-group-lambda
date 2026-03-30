@@ -333,7 +333,7 @@ trainB %>%
 # built for part A (code is the same as part A but with trainB data and only
 # testing on loess)
 
-train_split_loess(trainB, 0.5)
+train_split_loess(trainB, 0.1)
 
 splits <- seq(from = 0.1, to = 0.5, by = 0.1)
 
@@ -450,14 +450,22 @@ rmse %>%
     geom_point() +
     geom_smooth()
 
+# figure out the best span to minimize RMSE
 
+rmse = rmse %>% 
+    group_by(span) %>% 
+    mutate(test_rmsemean = mean(test_rmse)) %>% 
+    arrange(test_rmsemean) 
 
-# get the best span to minimize RMSE
-best.span <- rmse %>% 
-    slice_min(test_rmse) %>% 
-    pull(span)
+head(rmse)
 
-best.span
+# OLD CODE get the best span to minimize RMSE
+
+#best.span <- rmse %>% 
+ #   slice_min(test_rmse) %>% 
+  #  pull(span)
+
+# best.span
 
 # I keep getting very different spans every time I run it because of the 
 # 90/10 split. Maybe there's too much variation and a 50/50 split would be better

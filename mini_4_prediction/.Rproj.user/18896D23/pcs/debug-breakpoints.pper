@@ -64,12 +64,12 @@
             {
                 "id": 6,
                 "path": "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/S022-group-lambda/mini_4_prediction/data_challenge_LB.R",
-                "line_number": 468,
+                "line_number": 476,
                 "function_steps": "",
                 "function_name": "toplevel",
                 "state": 1,
                 "editor_state": 1,
-                "editor_line_number": 468,
+                "editor_line_number": 476,
                 "is_pending_debug_completion": false,
                 "needs_updated_steps": true,
                 "type": 1,
@@ -133,21 +133,6 @@
                 "is_pending_debug_completion": false,
                 "needs_updated_steps": true,
                 "type": 0,
-                "is_package_breakpoint": false,
-                "package_name": ""
-            },
-            {
-                "id": 18,
-                "path": "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/S022-group-lambda/mini_4_prediction/data_challenge_LB.R",
-                "line_number": 456,
-                "function_steps": "",
-                "function_name": "toplevel",
-                "state": 1,
-                "editor_state": 1,
-                "editor_line_number": 456,
-                "is_pending_debug_completion": false,
-                "needs_updated_steps": true,
-                "type": 1,
                 "is_package_breakpoint": false,
                 "package_name": ""
             }
