@@ -42,27 +42,86 @@ df2020 <- df2020 %>% mutate(year = 2020)
 df2022 <- df2022 %>% mutate(year = 2022)
 df2024 <- df2024 %>% mutate(year = 2024)
 
-# Combine the data frames into one
-# combined_df <- bind_rows(df1980, 
-                         #df1986, 
-                         #df1994,
-                         #df1996,
-                         #df1998,
-                         #df2000,
-                         #df2002,
-                         #df2004,
-                         #df2006,
-                         #df2008,
-                         #df2010, 
-                         #df2012, 
-                         #df2014, 
-                         #df2016, 
-                         #df2018, 
-                         #df2020, 
-                         #df2022, 
-                         #df2024)
+# 2008 already has new variable names so do NOT put it in old_df
+# Instead handle it separately using the derived variables
 
-combined_df <- bind_rows(df2010, 
+df2008 <- df2008 %>%
+  rename_with(toupper) %>%
+  mutate(
+    # AIAN - derived
+    EFAIANT = DVEFAIT,
+    EFAIANM = DVEFAIM,
+    EFAIANW = DVEFAIW,
+    # Asian/NHPI combined - derived
+    EFASIAT = DVEFAPT,
+    EFASIAM = DVEFAPM,
+    EFASIAW = DVEFAPW,
+    # Black - derived
+    EFBKAAT = DVEFBKT,
+    EFBKAAM = DVEFBKM,
+    EFBKAAW = DVEFBKW,
+    # Hispanic - derived
+    EFHISPT = DVEFHST,
+    EFHISPM = DVEFHSM,
+    EFHISPW = DVEFHSW,
+    # White - derived (THIS WAS MISSING BEFORE!)
+    EFWHITT = DVEFWHT,
+    EFWHITM = DVEFWHM,
+    EFWHITW = DVEFWHW,
+    # NHPI did not exist separately in 2008
+    EFNHPIT = NA,
+    EFNHPIM = NA,
+    EFNHPIW = NA
+    # EF2MORT, EFUNKNT, EFNRALT already exist in 2008
+  )
+
+
+# Standardize all column names to uppercase before renaming
+df2002 <- df2002 %>% rename_with(toupper) %>% mutate(year = 2002)
+df2004 <- df2004 %>% rename_with(toupper) %>% mutate(year = 2004)
+df2006 <- df2006 %>% rename_with(toupper) %>% mutate(year = 2006)
+
+# Combine old years together
+old_df <- bind_rows(df2002, df2004, df2006)
+
+# Rename old EFRACE variables to match new variable names
+old_df <- old_df %>%
+  rename(
+    EFNRALM = EFRACE01,   # Nonresident alien men
+    EFNRALW = EFRACE02,   # Nonresident alien women
+    EFBKAAM = EFRACE03,   # Black men
+    EFBKAAW = EFRACE04,   # Black women
+    EFAIANM = EFRACE05,   # AIAN men
+    EFAIANW = EFRACE06,   # AIAN women
+    EFASIAM = EFRACE07,   # Asian men
+    EFASIAW = EFRACE08,   # Asian women
+    EFHISPM = EFRACE09,   # Hispanic men
+    EFHISPW = EFRACE10,   # Hispanic women
+    EFWHITM = EFRACE11,   # White men
+    EFWHITW = EFRACE12,   # White women
+    EFUNKNM = EFRACE13,   # Unknown men
+    EFUNKNW = EFRACE14,   # Unknown women
+    EFTOTLM = EFRACE15,   # Total men
+    EFTOTLW = EFRACE16,   # Total women
+    EFNRALT = EFRACE17,   # Nonresident alien total
+    EFBKAAT = EFRACE18,   # Black total
+    EFAIANT = EFRACE19,   # AIAN total
+    EFASIAT = EFRACE20,   # Asian total
+    EFHISPT = EFRACE21,   # Hispanic total
+    EFWHITT = EFRACE22,   # White total
+    EFUNKNT = EFRACE23,   # Unknown total
+    EFTOTLT = EFRACE24    # Grand total
+  ) %>%
+  # Add NA columns for categories that didn't exist pre-2008
+  mutate(
+    EFNHPIT = NA, EFNHPIM = NA, EFNHPIW = NA,   # NHPI didn't exist
+    EF2MORT = NA, EF2MORM = NA, EF2MORW = NA    # Two or more races didn't exist
+  )
+
+
+combined_df <- bind_rows(old_df,     # 2002, 2004, 2006
+                         df2008,     # 2008 transition year
+                         df2010, 
                          df2012, 
                          df2014, 
                          df2016, 
@@ -272,46 +331,7 @@ final_df %>%
   theme(legend.position = "bottom",
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Proportional Diversity Stacked Bar Chart
-final_df %>%
-  mutate(Major = factor(Major,
-                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
-                        labels = c("Education", "Engineering", "Biological Sciences",
-                                   "Mathematics", "Physical Sciences", "Business",
-                                   "Law", "Dentistry", "Medicine"))) %>%
-  pivot_longer(cols = c(AIAN_total, A_total, B_total, H_total,
-                        NHPI_total, W_total, TwoMor_total, UNK_total, NR_total),
-               names_to = "Ethnicity",
-               values_to = "Total") %>%
-  ggplot(aes(x = factor(year), y = Total, fill = Ethnicity)) +
-  geom_bar(stat = "identity", position = "fill") +
-  facet_wrap(~ Major) +
-  scale_y_continuous(labels = scales::percent) +
-  scale_fill_manual(values = okabe_ito,       # Okabe-Ito handles up to 9 colors
-                    labels = c("AIAN", "Asian", "Black", "Hispanic",
-                               "NHPI", "White", "Two or More",
-                               "Unknown", "Non-Resident")) +
-  labs(title = "Proportional Ethnic Diversity by Major Over Time",
-       x = "Year", y = "Proportion") +
-  theme_minimal() +
-  theme(legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Heatmap of Enrollment by Major and Year
-final_df %>%
-  mutate(Major = factor(Major,
-                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
-                        labels = c("Education", "Engineering", "Biological Sciences",
-                                   "Mathematics", "Physical Sciences", "Business",
-                                   "Law", "Dentistry", "Medicine"))) %>%
-  ggplot(aes(x = factor(year), y = Major, fill = Grand_total)) +
-  geom_tile() +
-  scale_fill_viridis_c(option = "mako") +    # viridis options: "viridis", "magma", "plasma", "mako"
-  labs(title = "Enrollment Heatmap by Major and Year",
-       x = "Year", y = "Major", fill = "Total Enrollment") +
-  theme_minimal()
-
-# Percent Change in Enrollment from 2010 Baseline
+# Percent Change in Enrollment from 2008 Baseline
 final_df %>%
   mutate(Major = factor(Major,
                         levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
@@ -325,42 +345,7 @@ final_df %>%
   geom_point() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_color_manual(values = okabe_ito) +    # Okabe-Ito for 9 majors
-  labs(title = "Percent Change in Enrollment from 2010 Baseline",
+  labs(title = "Percent Change in Enrollment from 2002 Baseline",
        x = "Year", y = "Percent Change (%)") +
   theme_minimal() +
   theme(legend.position = "bottom")
-
-
-final_df %>%
-  mutate(Major = factor(Major,
-                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
-                        labels = c("Education", "Engineering", "Biological Sciences",
-                                   "Mathematics", "Physical Sciences", "Business",
-                                   "Law", "Dentistry", "Medicine"))) %>%
-  pivot_longer(cols = c(AIAN_total, A_total, B_total, H_total,
-                        NHPI_total, W_total, TwoMor_total, UNK_total, NR_total),
-               names_to = "Ethnicity",
-               values_to = "Total") %>%
-  mutate(Ethnicity = factor(Ethnicity,
-                            levels = c("AIAN_total", "A_total", "B_total", "H_total",
-                                       "NHPI_total", "W_total", "TwoMor_total",
-                                       "UNK_total", "NR_total"),
-                            labels = c("AIAN", "Asian", "Black",
-                                       "Hispanic", "NHPI", "White",
-                                       "Two or More", "Unknown", "Non-Resident"))) %>%
-  group_by(Ethnicity, Major) %>%
-  mutate(pct_change = (Total - first(Total)) / first(Total) * 100) %>%
-  ggplot(aes(x = year, y = pct_change, color = Ethnicity, group = Ethnicity)) +
-  geom_line(linewidth = 1.2) +
-  geom_point() +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  scale_color_manual(values = okabe_ito) +
-  facet_wrap(~ Major, scales = "free_y") +
-  labs(title = "Percent Change in Enrollment by Ethnicity from 2010 Baseline",
-       x = "Year",
-       y = "Percent Change (%)",
-       color = "Ethnicity") +
-  theme_minimal() +
-  theme(legend.position = "bottom",
-        strip.text = element_text(size = 8),
-        axis.text.x = element_text(angle = 45, hjust = 1))
