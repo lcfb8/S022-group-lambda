@@ -2,8 +2,7 @@
 ## Data Challenge: Prediction Competition
 ## Your goal: predict Y for the 10 test points in each dataset.
 
-# To whomever is grading this: I apologize, and one thing you should know about 
-# me is that I'm weirdly obsessed with Monte Carlo simulations
+## Secret name: Potato Salad
 
 library(tidyverse)
 
@@ -100,9 +99,10 @@ train_split_lm(trainA, 0.5)
 
 splits <- seq(from = 0.1, to = 0.5, by = 0.1)
 
-#run the train_split_loess and train_split_lm function for every value of 
-#pct in splits, and replicate this 1000 times
-#copilot helped me figure out some of this code
+# run the train_split_loess and train_split_lm function for every value of 
+# pct in splits, and replicate this 1000 times
+# copilot helped me figure out some of this code to get replicate and map_dfr 
+# to work together
 
 splits_rmse_lm <- replicate(1000, map_dfr(splits, ~train_split_lm(trainA, .x)), 
           simplify = TRUE)
@@ -115,7 +115,6 @@ splits_rmse_loess <-
 
 splits_rmse_lm <- tibble(splits_rmse_lm)
 splits_rmse_loess <- tibble(splits_rmse_loess)
-
 
 #in the splits_rmse tibbles, separate the lists in the splits_rmse column into 
 # five columns labeled 0.1, 0.2, 0.3, 0.4, and 0.5
@@ -148,8 +147,8 @@ summary(splits_rmse_loess)
 #OK it seems like a 10/90 split generates the lowest RMSE for both linear and 
 #Loess models. Is this a good thing? 0.1 also gives the widest range of RMSEs.
 # It's probably wonky because 10% of 35 is only 3-4 data points. I'll go with it.
-# According to my results, mean rmse is usually 
-# lower for linear (14ish) than for loess (15ish)
+# According to my results, mean rmse is usually lower for linear (14ish) than 
+# for loess (15ish)
 
 # Now let's see which span is best for the loess models
 # We can create the split using 10/90 as determined above
@@ -181,9 +180,9 @@ tt_rep(trainA)
 # this just takes the data apart, mixes it up, and puts it back together again. 
 # there's probably a much simpler way to do this
 
-#Now we have our function to split the training data into two sets and put 
-#it back together again. We'll split it apart again in the next function. This
-#allows us to run many trials (monte carlo simluation-ish) to find the best span
+# Now we have our function to split the training data into two sets and put 
+# it back together again. We'll split it apart again in the next function. This
+# allows us to run many trials (monte carlo simulation-ish)
 
 #Let's see which span is best for loess models using our test/train split data
 #from trainA. The code below is adapted from lab 8
@@ -238,7 +237,7 @@ rmse %>%
     geom_point() +
     geom_smooth()
 
-# lol there are some RMSEs above 75, not surprising given the data
+# wow there are some RMSEs above 75, not surprising given the data
 
 # figure out the best span to minimize RMSE
 
@@ -283,7 +282,7 @@ testA %>%
 # should it really look like this? 
 
 # Let's try overfitting the model with span = 0.1 
-# because garbage in, garbage out
+# because noise in, noise out
 
 M = loess(Y ~ X, trainA, control = 
               loess.control(surface = "direct"), span = 0.1)
@@ -304,18 +303,18 @@ testA %>%
     ggplot(aes(X,Y))+
     geom_point()
 
-# This looks like noise, just like trainA does. Is that what we want? We need
-# to decide which to go with
+# This looks like noise, just like trainA does. This is not what we want but
+# it was interesting to look at
 
-# Once you have your analysis, print out your predictions
+# I'll go with the results for span = 2
+
 format_answer( testA )
 
-# Now cut and paste the above into the google form!
 
 
 # ── Dataset B ─────────────────────────────────────────────────────────────────
 
-# THIS IS GOING TO BE SO MUCH BETTER BECAUSE WE DON'T HAVE GARBAGE DATA YAY
+# Part B will be so much better since the data is not just noise
 # Most code is just adapted from part A
 
 trainB
@@ -363,8 +362,8 @@ summary(splits_rmse_loess)
 # so I'll go with that. Is it an issue that 10/90 split shows a much wider
 # range of RMSEs, meaning it varies much more in terms of ability to predict?
 
-#Let's see which span is best for loess models using our test/train split data
-#from trainB and the span_rmse function we wrote above, this time for B data
+# Let's see which span is best for loess models using our test/train split data
+# from trainB and the span_rmse function we wrote above, this time for B data
 
 span_rmse <- function(span) {
     
@@ -435,7 +434,7 @@ trainB %>%
 M = loess(Y ~ X, trainB, span = 0.75, control = 
               loess.control(surface = "direct"))
 
-#caculate rmse for this model
+# calculate rmse for this model
 trainB$predictions <- predict(M)
 rmse_train <- sqrt(mean((trainB$predictions - trainB$Y)^2))
 round(rmse_train, digits = 2)
@@ -450,10 +449,7 @@ testB %>%
 
 # this looks pretty good
 
-# Once you have your analysis, print out your predictions
 format_answer( testB )
-
-# Now cut and paste the above into the google form!
 
 
 # ── Dataset C ─────────────────────────────────────────────────────────────────
@@ -533,7 +529,7 @@ trainC %>%
 
 M = lm(Y ~ X, trainC)
 
-#caculate rmse for this model
+#calculate rmse for this model
 trainC$predictions <- predict(M)
 rmse_train <- sqrt(mean((trainC$predictions - trainC$Y)^2))
 round(rmse_train, digits = 2)
@@ -548,131 +544,4 @@ testC %>%
 
 # this looks very linear. I think that's a good thing?
 
-# Once you have your analysis, print out your predictions
 format_answer( testC )
-
-# Now cut and paste the above into the google form!
-
-
-
-
-
-################################################################################
-#OLD CODE BELOW, TO BE DELETED
-################################################################################
-#OLD CODE BELOW, TO BE DELETED
-################################################################################
-#OLD CODE BELOW, TO BE DELETED
-################################################################################
-#OLD CODE BELOW, TO BE DELETED
-
-
-# on running this multiple times I get a wide range of results for the best span
-# and the lowest test_rmse. Which I think is just demonstrating that the data 
-# is very noisy and the 10/90 test/train split leads to a lot of variation
-
-
-# indicate whether spans result in under or overfit models
-rmse <- rmse %>%
-    mutate(span.fit = ifelse(span == best.span, "Best",
-                             ifelse(span > best.span, "Underfit", "Overfit")))
-
-# plot the rmses and spans
-p5 <- rmse %>% 
-    ggplot(aes(x = span, y = test_rmse)) +
-    geom_line( color = "grey" ) +
-    geom_point( aes(color = span.fit) ) +
-    labs(x = "Span", y = "RMSE", color = "Quality of span",
-         title = "Span performance on Testing data RMSE")
-
-p5
-
-#ok every time I run this I get vastly different results which I also think
-#is because our data is noise. Often, it keeps telling me the best span is 2, 
-# which is basically just a linear model. 
-
-# compare train and test rmse
-rmsesL <- pivot_longer(rmse, cols = c(train_rmse, test_rmse), 
-                       names_to = "dataset",
-                       values_to = "rmse")
-
-
-p6 <- rmsesL %>% 
-    ggplot(aes( span, rmse, col = dataset) ) +
-    geom_line() +
-    labs(x = "Span", y = "RMSE", color = "Dataset",
-         title = "Comparing span performance on training vs. test data RMSE") +
-    scale_color_manual(values = c("red", "blue"),
-                       labels = c("Test RMSE", "Train RMSE"))
-
-p6
-
-#ok this seems weird. But also, the data in trainA is kind of garbage. So
-#maybe this is not the best way to practice? 
-
-#anyway, let's try to predict for testA using the loess model with span = 2
-
-------#more old code
-    
-    
-    # Now let's see which span is best for the loess models
-    
-    # We can create the split using our code from above
-    
-    N = nrow(trainC)
-val_rows = sample( N, N*0.1 )
-
-val_C = trainC[ val_rows, ]
-real_trainC = trainC[ -val_rows, ]
-
-#Now we have our training data split into two sets: real_trainC (90%)
-#and 10% to test (val_C)
-
-
-#Let's see which span is best for loess models using our test/train split data
-#from trainC. The code below is from lab 8
-
-span_rmse <- function(span = 0.5) {
-    
-    train <- real_trainC
-    test <- val_C
-    
-    # fit the model with the given span on the TRAINING data
-    model <- loess( Y ~ X, data = train, span = span)
-    
-    # get the predictions with the model on the TESTING data
-    test$predictions <- predict(model, newdata = test)
-    train$predictions <- predict(model)
-    
-    # calculate the error for each observation in the test data
-    rmse_test <- sqrt(mean((test$predictions - test$Y)^2))
-    rmse_train <- sqrt(mean((train$predictions - train$Y)^2))
-    rmse_list = tibble(span = span,
-                       test_rmse = rmse_test, 
-                       train_rmse = rmse_train)
-    
-    return(rmse_list)
-}
-
-
-# test the function
-span_rmse(0.5) 
-
-# now we will create a vector of spans to try 
-spans <- seq(from = 0.1, to = 2, by = .05)
-
-# run the function on each value of the spans vector
-rmse <- map_dfr(spans, span_rmse) # run the function on each of the spans
-
-# got a lot of warnings hm..
-
-# get the best span to minimize RMSE
-best.span <- rmse %>% 
-    slice_min(test_rmse) %>% 
-    pull(span)
-
-best.span
-
-
-# ran this multiple times and got a bunch of warnings and a bunch of different 
-# "best" spans, which makes me think loess might not be the best method
