@@ -2,6 +2,7 @@
 
 library( tidyverse )
 library( readxl )
+library( skimr )
 
 tab_1.01 <- read_csv("data/1.01.csv")
 tab_2.01 <- read_csv("data/2.01.csv")
@@ -329,9 +330,24 @@ unemploy_brazil %>%
   scale_x_date(date_breaks = "1 year", date_labels = "%Y") 
 
 
-censo_2024S = read_csv("microdados_censo_da_educacao_superior_2024/dados/microdados_small.csv")
+censo_2024S = read_csv("microdados_1000.csv")
 
 head(censo_2024S)
 
+#which columns of censo_2024S contain only NAs?
+colnames(censo_2024S)[sapply(censo_2024S, function(x) all(is.na(x)))]
+
+censo_2024S = censo_2024S %>% 
+  select(!c("NO_REGIAO","CO_REGIAO","NO_UF","SG_UF","CO_UF", 
+            "NO_MUNICIPIO","CO_MUNICIPIO","IN_CAPITAL"))
+
+names(censo_2024S)
+
+skim(censo_2024S)
+
+censo_2024S %>% 
+  select(NO_CURSO) %>% 
+  arrange(n()) %>% 
+  table()
 
 
