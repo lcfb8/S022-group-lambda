@@ -716,3 +716,114 @@ final_df %>%
   select(year, GDP, UNRATE) %>%
   distinct() %>%
   arrange(year)
+
+
+
+#### Recession Section ####
+
+# Key US recessions within your data range
+recessions <- data.frame(
+  start = c(1980, 1981, 1990, 2001, 2007, 2020),
+  end   = c(1980, 1982, 1991, 2001, 2009, 2020),
+  label = c("1980\nRecession",
+            "1981-82\nRecession",
+            "1990-91\nRecession",
+            "2001\nDot-com",
+            "2007-09\nGreat Recession",
+            "2020\nCOVID")
+)
+
+# Enrollment Trends with Recession Shading
+final_df %>%
+  mutate(Major = factor(Major,
+                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
+                        labels = c("Education", "Engineering", "Biological Sciences",
+                                   "Mathematics", "Physical Sciences", "Business",
+                                   "Law", "Dentistry", "Medicine"))) %>%
+  ggplot(aes(x = year, y = Grand_total, color = Major, group = Major)) +
+  # Add recession shading FIRST so lines appear on top
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.15) +
+  # Add recession labels
+  geom_text(data = recessions,
+            aes(x = (start + end) / 2, y = Inf, label = label),
+            inherit.aes = FALSE,
+            vjust = 1.5, size = 2.5, color = "red") +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 1.5) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_color_manual(values = okabe_ito) +
+  labs(title = "Enrollment by Major with US Recession Periods",
+       x = "Year",
+       y = "Total Enrollment",
+       color = "Major",
+       caption = "Red shaded areas = recession periods") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# Faceted by Major with Recession Shading
+final_df %>%
+  mutate(Major = factor(Major,
+                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
+                        labels = c("Education", "Engineering", "Biological Sciences",
+                                   "Mathematics", "Physical Sciences", "Business",
+                                   "Law", "Dentistry", "Medicine"))) %>%
+  ggplot(aes(x = year, y = Grand_total)) +
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.15) +
+  geom_line(aes(color = Major, group = Major), linewidth = 1.2) +
+  geom_point(aes(color = Major), size = 1.5) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_color_manual(values = okabe_ito) +
+  facet_wrap(~ Major, scales = "free_y") +
+  labs(title = "Enrollment by Major During Recession Periods",
+       x = "Year",
+       y = "Total Enrollment",
+       caption = "Red shaded areas = recession periods") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(size = 8),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# Shows how the SHARE of enrollment shifts during recessions
+final_df %>%
+  group_by(year) %>%
+  mutate(
+    enrollment_share = Grand_total / sum(Grand_total) * 100
+  ) %>%
+  ungroup() %>%
+  mutate(Major = factor(Major,
+                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
+                        labels = c("Education", "Engineering", "Biological Sciences",
+                                   "Mathematics", "Physical Sciences", "Business",
+                                   "Law", "Dentistry", "Medicine"))) %>%
+  ggplot(aes(x = year, y = enrollment_share, fill = Major)) +
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.10) +
+  geom_area(position = "stack") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  scale_fill_manual(values = okabe_ito) +
+  labs(title = "Share of Total Enrollment by Major Over Time",
+       subtitle = "Red shaded areas = recession periods",
+       x = "Year",
+       y = "Enrollment Share (%)",
+       fill = "Major") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
