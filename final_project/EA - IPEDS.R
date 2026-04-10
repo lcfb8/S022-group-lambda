@@ -827,3 +827,79 @@ final_df %>%
     legend.position = "bottom",
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
+
+# Gender Analysis
+# Pivot to long format for gender
+gender_df <- final_df %>%
+  mutate(Major = factor(Major,
+                        levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
+                        labels = c("Education", "Engineering", "Biological Sciences",
+                                   "Mathematics", "Physical Sciences", "Business",
+                                   "Law", "Dentistry", "Medicine"))) %>%
+  select(year, Major, Total_men, Total_women, GDP, UNRATE) %>%
+  pivot_longer(cols = c(Total_men, Total_women),
+               names_to = "Gender",
+               values_to = "Enrollment") %>%
+  mutate(Gender = factor(Gender,
+                         levels = c("Total_men", "Total_women"),
+                         labels = c("Men", "Women")))
+
+# Enrollment by Gender with Recession Shading
+gender_df %>%
+  ggplot(aes(x = year, y = Enrollment, color = Gender, group = Gender)) +
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.15) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 1.5) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_color_manual(values = c("Men"   = "#0072B2",
+                                "Women" = "#D55E00")) +
+  facet_wrap(~ Major, scales = "free_y") +
+  labs(title = "Enrollment by Major and Gender During Recession Periods",
+       x = "Year",
+       y = "Total Enrollment",
+       color = "Gender",
+       caption = "Red shaded areas = recession periods") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 8),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# Calculate gender gap over time
+gender_gap_df <- final_df %>%
+  mutate(
+    Major = factor(Major,
+                   levels = c(101, 201, 301, 401, 501, 601, 716, 816, 916),
+                   labels = c("Education", "Engineering", "Biological Sciences",
+                              "Mathematics", "Physical Sciences", "Business",
+                              "Law", "Dentistry", "Medicine")),
+    gender_gap = Total_women - Total_men    # Positive = more women, Negative = more men
+  )
+
+gender_gap_df %>%
+  ggplot(aes(x = year, y = gender_gap)) +
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.15) +
+  geom_line(linewidth = 1.2, color = "#009E73") +
+  geom_point(size = 1.5, color = "#009E73") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_y_continuous(labels = scales::comma) +
+  facet_wrap(~ Major, scales = "free_y") +
+  labs(title = "Gender Gap in Enrollment During Recession Periods",
+       subtitle = "Positive values = more women enrolled | Negative values = more men enrolled",
+       x = "Year",
+       y = "Women - Men Enrollment",
+       caption = "Red shaded areas = recession periods") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 8),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
