@@ -3,6 +3,7 @@
 library( tidyverse )
 library( readxl )
 library( skimr )
+library( readr )
 
 tab_1.01 <- read_csv("data/1.01.csv")
 tab_2.01 <- read_csv("data/2.01.csv")
@@ -341,13 +342,66 @@ censo_2024S = censo_2024S %>%
   select(!c("NO_REGIAO","CO_REGIAO","NO_UF","SG_UF","CO_UF", 
             "NO_MUNICIPIO","CO_MUNICIPIO","IN_CAPITAL"))
 
-names(censo_2024S)
+table(censo_2024S$NO_CINE_AREA_GERAL)
+
+#make a bar plot of censo_2024S$NO_CINE_AREA_GERAL
+censo_2024S %>%  
+  ggplot(aes(x = NO_CINE_AREA_GERAL)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Frequency of NO_CINE_AREA_GERAL in censo_2024S")
+
+
+censo_2024S %>%  
+  ggplot(aes(x = QT_ING_FEM, y = QT_ING_MASC)) +
+  facet_wrap(~NO_CINE_AREA_GERAL)+
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 skim(censo_2024S)
+
+table(censo_2024S$QT_SIT_FALECIDO)
+
 
 censo_2024S %>% 
   select(NO_CURSO) %>% 
   arrange(n()) %>% 
   table()
+
+censo_2024 = read_delim("microdados_censo_da_educacao_superior_2024/dados/MICRODADOS_CADASTRO_CURSOS_2024.CSV", delim = ";")
+
+head(censo_2024)
+
+skim(censo_2024)
+
+table(censo_2024[31])
+
+#select only the variables that we want to look at
+censo_2024V = censo_2024 %>% 
+  select(c(1, 2, 5, 11, 12, 16, 17, 19, 22, 24, 26, 27, 28, 29, 40, 48, 49, 50, 
+           78, 79, 80, 97, 98, 99, 126, 136, 146, 211:218))
+
+head(censo_2024V)
+
+table(censo_2024V$NO_CINE_AREA_GERAL)
+
+censo_2024V <- censo_2024V %>% 
+  group_by(NO_CINE_AREA_GERAL) %>% 
+  mutate(QT_CONC_FEM_CURSO = sum(QT_CONC_FEM))
+
+censo_2024V %>% 
+  ggplot(aes(NO_CINE_AREA_GERAL, QT_CONC_FEM_CURSO)) +
+  geom_point()
+
+
+colnames(censo_20240)[sapply(censo_20240, function(x) all(is.na(x)))]
+
+#do any of the columns in censo_2024 only contain 0s?
+colnames(censo_20240)[sapply(censo_20240, function(x) all(x == 0))]
+
+
+
+
+
 
 
