@@ -1,0 +1,273 @@
+library(tidyverse)
+library(caret)
+library(skimr)
+library(dplyr)
+
+survey <- read_csv("data/student_survey_data.csv")
+test <- read_csv("data/student_test_data.csv")
+skimr::skim(survey)
+skimr::skim(test)
+
+# visualize bullying
+hist(survey$bully, main = "Distribution of Bully Scores", xlab = "Bully Score")
+
+# identifying how common it is to have a high bullying score (>=2.5)
+mean(survey$bully >= 2.5, na.rm = TRUE) # ~4.5%
+
+# checking to remove NAs
+nrow(survey)
+survey_na_drop = na.omit( survey )
+nrow(survey_na_drop) # 0 observations!
+
+# based on skimr, the text variables are not needed so I will drop them
+survey_clean <- survey %>%
+    select(-ends_with("_text"))
+
+names(survey_clean) # now only has 180 variables after dropping text variables
+
+# selecting relevant variables based on skimr
+# survey_clean <- survey_clean %>%
+  #  select(student_id,
+   #        bully,
+    #       grade,
+     #      age,
+      #     gender,
+       #    parent_1,
+        #   parent_2,
+         #  school_values,
+          # school_adults_value,
+           #starts_with("race_"),
+           #starts_with("feel_safer_"),
+           #starts_with("sm_"),
+           #starts_with("use_sm_")
+    ) # reduced to 96 variables
+#names(survey_clean)
+#survey_clean %>% select(starts_with("race_")) %>% names()
+#survey_clean %>% select(starts_with("use_sm_")) %>% names()
+
+colSums(is.na(survey_clean))
+
+
+
+# mice imputation
+# Checking missingness rates for key variables
+missing_rates <- survey_clean %>%
+    summarise(across(everything(), 
+                     ~mean(is.na(.)))) %>%
+    pivot_longer(everything(), 
+                 names_to  = "variable", 
+                 values_to = "missing_rate") %>%
+    arrange(desc(missing_rate))
+
+print(missing_rates)
+
+# View all variables with any missingness
+missing_rates %>%
+    filter(missing_rate > 0) %>%
+    print(n = Inf)
+
+# using mean imputation for low missingness numeric variables, excluding bully and student_id
+low_missing_vars <- missing_rates %>%
+    filter(missing_rate > 0 & missing_rate < 0.10) %>%
+    pull(variable)
+cat("Low missingness variables (mean/mode imputation):\n")
+print(low_missing_vars)
+
+# Mode function for categorical variables
+impute_mode <- function(x) {
+    mode_val <- names(sort(table(x), decreasing = TRUE))[1]
+    x[is.na(x)] <- mode_val
+    return(x)
+}
+
+# Apply to low-missingness variables
+survey_clean <- survey_clean %>%
+    mutate(
+        # Mean imputation for numeric variables
+        across(
+            all_of(low_missing_vars) & where(is.numeric),
+            ~ifelse(is.na(.), mean(., na.rm = TRUE), .)
+        ),
+        # Mode imputation for factor/character variables
+        across(
+            all_of(low_missing_vars) & where(is.factor),
+            ~impute_mode(.)
+        )
+    )
+
+# Verify low missingness variables are now clean
+survey_clean %>%
+    select(all_of(low_missing_vars)) %>%
+    summarise(across(everything(), ~sum(is.na(.)))) %>%
+    pivot_longer(everything(),
+                 names_to  = "variable",
+                 values_to = "n_missing")
+
+# mice imputation for variables with higher missingness rates, excluding bully and student_id
+high_missing_vars <- missing_rates %>%
+    filter(missing_rate >= 0.10) %>%
+    pull(variable)
+cat("\nHigh missingness variables (MICE):\n")
+print(high_missing_vars)
+
+library(mice)
+
+# Pull out only the columns that need MICE imputation
+# Include student_id so we can merge back later
+survey_mice_input <- survey_clean %>%
+    select(student_id, all_of(high_missing_vars))
+
+# Run MICE imputation
+# m = number of imputed datasets (5 is standard)
+# maxit = number of iterations
+# method = "pmm" (predictive mean matching) works well for numeric
+mice_output <- mice(
+    survey_mice_input %>% select(-student_id),
+    m     = 5,
+    maxit = 10,
+    method = "pmm",
+    seed  = 123,
+    printFlag = FALSE  # suppress verbose output
+)
+
+# Extract one completed dataset (the first imputed version)
+survey_imputed <- complete(mice_output, action = 1)
+
+# Add student_id back
+survey_imputed <- bind_cols(
+    survey_mice_input %>% select(student_id),
+    survey_imputed
+)
+
+# Merge imputed values back into main dataset
+# First drop the original high-missing columns
+survey_clean <- survey_clean %>%
+    select(-all_of(high_missing_vars)) %>%
+    left_join(survey_imputed, by = "student_id")
+
+
+# Check no NAs remain (except in bully outcome which we will handle separately)
+survey_clean %>%
+    select(-bully, -student_id) %>%
+    summarise(across(everything(), ~sum(is.na(.)))) %>%
+    pivot_longer(everything(),
+                 names_to  = "variable",
+                 values_to = "n_missing") %>%
+    filter(n_missing > 0)
+
+# Drop rows where outcome (bully) is missing
+survey_clean <- survey_clean %>%
+    filter(!is.na(bully))
+
+nrow(survey_clean)
+
+
+
+# Support from Claude on mean imputation
+# Note: This might be too much mean imputation! 
+survey_clean <- survey_clean %>%
+    mutate(across(where(is.numeric), 
+                  ~ifelse(is.na(.), mean(., na.rm = TRUE), .)))
+
+
+# creating bully_high variable
+survey_clean <- survey_clean %>%
+    mutate(bully_high = ifelse(bully >= 2.5, 1, 0))
+
+
+
+# selecting the same variables in the test data as the train data without bully
+test_clean <- test %>%
+    select(student_id,
+           grade,
+           age,
+           gender,
+           parent_1,
+           parent_2,
+           school_values,
+           school_adults_value,
+           starts_with("race_"),
+           starts_with("feel_safer_"),
+           starts_with("sm_"),
+           starts_with("use_sm_")
+    ) # reduced to 101 variables
+
+# Continued cleaning of the test data
+sapply(survey_clean, class)
+# converting character variables to numeric for the test data
+survey_clean <- survey_clean %>%
+    mutate(across(where(is.character), as.numeric))
+sapply(survey_clean, class)
+
+
+# making new variables by collapsing covariates
+safe_rank_score <- survey_clean %>%
+    pivot_longer(
+        cols = starts_with("feel_safer_") & ends_with("_rank"),
+        names_to = "variable", values_to = "value") %>%
+    group_by(student_id) %>%
+    summarise(mean_feel_safer = mean(value, na.rm = TRUE))
+# merge it back into the main dataset
+survey_clean <- survey_clean %>%
+    left_join(safe_rank_score, by = "student_id")
+
+# belong score is the average of the 11 belongingness questions (belong1 to belong11)
+belong_score <- survey_clean %>%
+    pivot_longer(
+        cols = belong1:belong11,
+        names_to  = "variable",
+        values_to = "value"
+    ) %>%
+    group_by(student_id) %>%
+    summarise(belong_score = mean(value, na.rm = TRUE))
+# merge it back into the main dataset
+survey_clean <- survey_clean %>%
+    left_join(belong_score, by = "student_id")
+
+
+
+
+# imputing missing values in the test data using mean imputation for numeric variables, excluding bully, bully_high, and student_id
+survey_clean <- survey_clean %>%
+    mutate(across(where(is.numeric) & !all_of(c("bully", "bully_high", "student_id")),
+                  ~ifelse(is.na(.), mean(., na.rm = TRUE), .)))
+survey_model <- survey_clean %>%
+    filter(!is.na(bully))
+
+
+# I HAVE NO IDEA WHAT IS HAPPENING HERE
+library(randomForest)
+# creating the test validation models
+set.seed(3242)
+train_index <- createDataPartition(survey_model$bully, p = 0.8, list = FALSE)
+#splitting the data into train and validate sets
+model_train <- survey_model[train_index, ]
+model_val <- survey_model[-train_index, ]
+
+# training the random forest model
+rf_model <- randomForest(bully ~ . - student_id - bully_high, data = model)
+
+
+na_counts <- colSums(is.na(model_train_X))
+na_counts[na_counts > 0] # check if there are any NAs in the training data
+# Remove student_id and binary outcome before fitting
+# (we don't want to predict using those)
+model_train_X <- model_train %>%
+    select(-student_id, -bully, -bully_high)
+
+# Fit regression random forest for continuous prediction
+rf_continuous <- randomForest(
+    x = model_train_X,
+    y = model_train$bully,
+    ntree = 500,       # number of trees
+    importance = TRUE  # lets us see which variables matter
+)
+
+# Check model summary
+print(rf_continuous)
+
+
+
+# come back to this later
+source( "check_predictions_function.R" )
+check_prediction_file_format( "baseline_student_predictions.csv" ) # this does not work for me right now
