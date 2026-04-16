@@ -1,28 +1,29 @@
 library( tidyverse )
-library( skimr )
 
 survey = read_csv("data/student_survey_data.csv")
 
+survey$school_values_red
+
 #remove all of the columns we won't be using
-survey = survey %>% 
-  select(-contains("text")) %>% 
+survey = survey %>%
+  select(-contains("text")) %>%
   select(-c(finished,parents_know))
 
 #make grade and age numeric
 survey <- survey %>%
-  mutate(grade = as.numeric(str_remove(grade, "th"))) %>% 
+  mutate(grade = as.numeric(str_remove(grade, "th"))) %>%
   mutate(age = as.numeric(age))
 
-#This forces “other” in age to become NA. But only 18 people chose “other” and 
+#This forces “other” in age to become NA. But only 18 people chose “other” and
 #most of them then gave a joke age in age_text so this seems ok
 
 
 #Q14 ranking ways kids would feel safer
 
-safe_ranks <- survey %>% 
-  select(student_id, feel_safer_clear_rank:feel_safer_other_rank) %>% 
-  filter(if_any(-student_id, ~ !is.na(.))) %>% 
-  filter(if_any(-student_id, ~ is.na(.))) %>% 
+safe_ranks <- survey %>%
+  select(student_id, feel_safer_clear_rank:feel_safer_other_rank) %>%
+  filter(if_any(-student_id, ~ !is.na(.))) %>%
+  filter(if_any(-student_id, ~ is.na(.))) %>%
   mutate(across(-student_id, ~ ifelse(is.na(.), 0, .)))
 
 safe_ranks
@@ -51,25 +52,25 @@ survey <- rows_update(survey, safe_ranks, by = "student_id")
 
 #Select the top rank only, combine into one column called “qual”
 
-ach = survey %>% 
+ach = survey %>%
   select(student_id, ach, care, happy)
 
-ach = ach %>% 
+ach = ach %>%
   pivot_longer(ach:happy, names_to = "qual", values_to = "rank")
 
-ach = ach %>% 
-  filter(rank == 1) %>% 
+ach = ach %>%
+  filter(rank == 1) %>%
   select(student_id,qual)
 
-survey = survey %>% 
-  left_join(ach, by = "student_id") %>% 
+survey = survey %>%
+  left_join(ach, by = "student_id") %>%
   select(-c(ach:happy))
 
 
 #Q20: Recode the data to match the answers in Q19
 
 survey <- survey %>%
-  mutate(parent_qual = 
+  mutate(parent_qual =
            recode(parent_qual,
                   "Achieving at a high level" = "ach",
                   "Happiness (feeling good most of the time)" = "happy",
