@@ -2,24 +2,37 @@ library( tidyverse )
 
 survey = read_csv("data/student_survey_data.csv")
 
-survey$school_values_red
+dim(survey)
 
-#remove all of the columns we won't be using
+#remove all of the columns we won't be using. remove school_values and sm_more_helpful
+#since we'll be using the _red versions of these
 survey = survey %>%
   select(-contains("text")) %>%
-  select(-c(finished,parents_know))
+  select(-starts_with("use_sm_")) %>%
+  select(-c(finished,parents_know,parents_know_red,school_values,
+            sm_more_helpful))
 
-#make grade and age numeric
+
+#make grade factor and age numeric
 survey <- survey %>%
-  mutate(grade = as.numeric(str_remove(grade, "th"))) %>%
+  mutate(grade = as.factor(str_remove(grade, "th"))) %>%
   mutate(age = as.numeric(age))
 
 #This forces “other” in age to become NA. But only 18 people chose “other” and
 #most of them then gave a joke age in age_text so this seems ok
 
+#Q9 school values
+#remove school_values which has yes/no/I'm not sure. Keep school_values_red which
+#is just Yes/No, but recode to 0,1
+
+survey <- survey %>%
+  mutate(school_values_red =
+           recode(school_values_red,
+                  "Yes" = "1",
+                  "No" = "0"))
+
 
 #Q14 ranking ways kids would feel safer
-
 safe_ranks <- survey %>%
   select(student_id, feel_safer_clear_rank:feel_safer_other_rank) %>%
   filter(if_any(-student_id, ~ !is.na(.))) %>%
@@ -41,12 +54,11 @@ rerank <- function(x) {
 safe_ranks <- safe_ranks %>%
   mutate(across(-student_id, rerank))
 
-safe_ranks
-
 survey <- survey %>%
   mutate(across(feel_safer_clear_rank:feel_safer_other_rank, as.numeric))
 
 survey <- rows_update(survey, safe_ranks, by = "student_id")
+
 
 #Q19 and Q20 about top values
 
@@ -88,7 +100,14 @@ survey <- survey %>%
                                "A lot" = "3"))
 
 
+#Q37 sm_more_helpful - remove but keep sm_more_helpful_red which is just yes/no
 
+
+survey <- survey %>%
+  mutate(sm_more_helpful_red =
+           recode(sm_more_helpful_red,
+                  "Yes" = "1",
+                  "No" = "0"))
 
 
 
