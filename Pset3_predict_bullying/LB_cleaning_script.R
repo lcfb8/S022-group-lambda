@@ -102,7 +102,6 @@ survey <- survey %>%
 
 #Q37 sm_more_helpful - remove but keep sm_more_helpful_red which is just yes/no
 
-
 survey <- survey %>%
   mutate(sm_more_helpful_red =
            recode(sm_more_helpful_red,
