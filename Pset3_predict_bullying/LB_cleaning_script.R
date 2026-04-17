@@ -374,6 +374,26 @@ survey_clean <- survey_clean %>%
                    "sm_concern_misunderstand", "sm_concern_stalk"))) %>%
   left_join(sm_concern_composite, by = "student_id")   
 
+# Q16: Discrimination Climate
+discrimination <- c("disc_race", "disc_lang", "disc_wealth", "disc_religion", 
+                   "disc_sex_or", "disc_gender", "disc_disab", "disc_phys_ap", 
+                   "disc_country")
+discrimination_comp <- make_composite(survey_clean, discrimination, "discrimination")
+survey_clean <- survey_clean %>%
+  select(-all_of(c("disc_race", "disc_lang", "disc_wealth", "disc_religion", 
+                   "disc_sex_or", "disc_gender", "disc_disab", "disc_phys_ap", 
+                   "disc_country"))) %>%
+  left_join(discrimination_comp, by = "student_id")
+
+# Q21: School Fairness & Rules
+rules <- c("rules1", "rules2", "rules3", "rules4", "rules5", "rules6",
+           "rules7", "rules8", "rules9")
+rules_comp <- make_composite(survey_clean, rules, "school_rules")
+survey_clean <- survey_clean %>%
+  select(-all_of(c("rules1", "rules2", "rules3", "rules4", "rules5", "rules6",
+                   "rules7", "rules8", "rules9"))) %>%
+  left_join(rules_comp, by = "student_id")
+
 skim(survey_clean)
 
 write_csv(survey_clean, "cleaned_data.csv")
