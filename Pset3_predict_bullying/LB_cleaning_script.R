@@ -368,6 +368,4 @@ survey_clean <- survey_clean %>%
 
 skim(survey_clean)
 
-
-
-
+write_csv(survey_clean, "cleaned_data.csv")
