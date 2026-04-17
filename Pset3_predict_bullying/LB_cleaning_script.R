@@ -291,11 +291,15 @@ survey_clean <- survey_clean %>%
   left_join(belong_composite, by = "student_id")
 
 # Q22: social media composite
-
-survey_clean <- survey_clean %>% 
-  mutate(sm_platforms = rowSums(across(sm_facebook:sm_other), na.rm = TRUE)) %>% 
-  select(-c(sm_facebook:sm_other))
-
+sm_vars <- c("sm_facebook", "sm_instagram", "sm_pinterest", "sm_snapchat", 
+             "sm_tumblr", "sm_twitter", "sm_vine", "sm_yikyak",
+             "sm_youtube", "sm_other")
+sm_composite <- make_composite(survey_clean, sm_vars, "sm_platforms")
+survey_clean <- survey_clean %>%
+  select(-all_of(c("sm_facebook", "sm_instagram", "sm_pinterest", "sm_snapchat", 
+                   "sm_tumblr", "sm_twitter", "sm_vine", "sm_yikyak",
+                   "sm_youtube", "sm_other"))) %>%
+  left_join(sm_composite, by = "student_id")
 
 # Q36: Social Media Relationship Composite
 sm_attitude_vars <- c("sm_less_real_r", "sm_relats_same",
