@@ -104,6 +104,8 @@ survey_clean <- survey_clean %>%
                   "No" = "0"))
 
 #Q14 ranking ways kids would feel safer
+# For the first ~100 rows, NA often actually means "not ranked". Let's 
+# update this before reversing the ranking and turning all not ranked to 0
 safe_ranks <- survey_clean %>%
   select(student_id, feel_safer_clear_rank:feel_safer_other_rank) %>%
   filter(if_any(-student_id, ~ !is.na(.))) %>%
@@ -287,6 +289,12 @@ survey_clean <- survey_clean %>%
                    "belong6", "belong7", "belong8", "belong9_r",
                    "belong10_r", "belong11_r"))) %>%
   left_join(belong_composite, by = "student_id")
+
+# Q22: social media composite
+
+survey_clean <- survey_clean %>% 
+  mutate(sm_platforms = rowSums(across(sm_facebook:sm_other), na.rm = TRUE)) %>% 
+  select(-c(sm_facebook:sm_other))
 
 
 # Q36: Social Media Relationship Composite
