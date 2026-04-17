@@ -4,15 +4,14 @@ library(tidyverse)
 library(caret)
 library(skimr)
 library(dplyr)
+library(mice)
 
-# Step 2
+# Step 2: Load in data
 survey <- read_csv("data/student_survey_data.csv")
-test <- read_csv("data/student_test_data.csv")
 
 #### Phase 2: DATA EXPLORATION ####
-# Step 3
+# Step 3: skim data
 skimr::skim(survey)
-skimr::skim(test)
 
 # visualize bullying
 hist(survey$bully, main = "Distribution of Bully Scores", xlab = "Bully Score")
@@ -403,7 +402,13 @@ write_csv(survey_clean, "cleaned_data.csv")
 
 
 #### Re-using the code above on the test data ####
+# Step 2: Load in data
 test <- read_csv("data/student_test_data.csv")
+
+#### Phase 2: DATA EXPLORATION ####
+# Step 3: skim data
+skimr::skim(test)
+
 
 # Step 4 
 # based on skimr, the text variables are not needed so I will drop them
