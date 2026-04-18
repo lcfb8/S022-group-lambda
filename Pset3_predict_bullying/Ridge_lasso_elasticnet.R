@@ -214,12 +214,6 @@ dat = dat %>%
 dat_test = test %>% 
   mutate(bully_high = ifelse(bully >=2.5,1,0)) 
 
-
-##### Loess with multiple variables   ####
-
-ggplot( dat, aes( discrimination, school_rules, col = e_safety_score ) ) +
-  geom_point( alpha=0.2 )
-
 # use loess with multiple variables to predict bully based on e_safety_score,
 # discrimination, and school_rules
 
@@ -261,9 +255,34 @@ dat_test %>%
 dat_test %>% 
   summarise( bully_pct = mean(bully >= 2.5), pcol_pct = mean(pcol >= 2.5) )
 
-dat %>% 
-  summarise( bully_pct = mean(bully >= 2.5), pcol_pct = mean(pcol >= 2.5) )
-
 summary(dat_test$pcol)
 
+
+#####
+
+llp_binary = loess( bully_high ~ e_safety_score + 
+               discrimination + school_rules, data=dat )
+
+dat$pcol = predict( llp_binary, newdata=dat )
+
+rmse(llp_binary, data = dat)
+
+# let's run it on the test data now
+
+dat_test$pcol = predict( llp_binary, newdata=dat_test )
+
+rmse(llp_binary, data = dat_test)
+
+# from Luciana's logistic regression code: probabilities for "1" class
+# hard classifications using 0.5 threshold
+dat_test$y_hat <- ifelse(dat_test$pcol >= 0.5, 1, 0)
+
+dat_test %>% 
+  summarize( mean(y_hat == bully_high))
+
+table(dat_test$y_hat)
+# predicted 8 out of 1533 students above the 2.5 threshold for bullying
+table(dat_test$bully_high)
+# in reality there are 70
+# :(
 
