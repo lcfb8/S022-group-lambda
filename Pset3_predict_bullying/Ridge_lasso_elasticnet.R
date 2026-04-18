@@ -15,7 +15,7 @@ cleaned_data <- cleaned_data[,-1]
 
 dim(cleaned_data)
 
-skim(cleaned_data)
+# skim(cleaned_data)
 
 # Create a data partition such that 80% of the data is used for training and 
 # 20% for testing
@@ -107,11 +107,18 @@ plot(cv.out)
 
 cv.out
 
+#what is the Rsquared for rle_model with best_alpha
+rle_model$results %>% 
+  filter(alpha == best_alpha) %>% 
+  arrange(RMSE) %>% 
+  head(1)
+
 # lambda min has ~69 nonzero coefs and lambda 1se has ~25 nonzero coefs
 # lambda min of 0.01 matches caret, but lambda 1se of 0.08 is different
 
 # let's store this best lambda (1se) as well
 best_lambda_glmnet <- cv.out$lambda.1se
+best_lambda_glmnet
 log(best_lambda_glmnet)
 
 # Extract coefficients at the best lambda for both methods
@@ -159,6 +166,7 @@ sqrt( mean((rle.pred-y_test)^2) )
 # Now let's repeat with the glmnet version using lambda 1se
 rle.pred.glmnet = predict(rle_model$finalModel, 
                           s = best_lambda_glmnet, newx=x_test)
+
 
 # How variable are our predictions?
 summary( rle.pred.glmnet )
@@ -251,7 +259,6 @@ ggplot( dat, aes( e_safety_score, binned ) ) +
 
 
 
-
 ####  Look at loess lines for different subsets of folks  #####
 # identify where most of the data is
 
@@ -298,7 +305,7 @@ qplot( school_rules, pcol, data = test ) +
 
 rmse(llp, data = test)
 
-
-
-
+test %>% 
+  ggplot(aes(pcol))+
+  geom_histogram()
 
