@@ -60,6 +60,7 @@ train_rfc <- train_all %>%
   ) %>%
   select(-bully)
 
+
 # set a seed for reproducibility
 set.seed(80107)
 
@@ -81,12 +82,16 @@ test <- full %>%
   filter(!(temp_id %in% trainIndex)) %>% 
   select(-temp_id)
 
+train$bully_bin <- factor(train$bully_bin, levels = c(0,1), labels = c("low","high"))
+test$bully_bin  <- factor(test$bully_bin,  levels = c(0,1), labels = c("low","high"))
+
 # compare these to `test` and `train`:
 table(train$bully_bin)
 prop.table(table(train$bully_bin))
 
 table(test$bully_bin)
 prop.table(table(test$bully_bin))
+
 # results are very similar! :)
 
 
@@ -99,22 +104,25 @@ set.seed(80107)
 
 ctrl <- trainControl(method = "cv", number = 10)
 
-# now we train the model using cross-validation:
+
+
 cv_mod <- train(
-  bully_bin ~ ., data = train, method = "rf", trControl = ctrl, ntree = 200, tuneLength = 10
+  bully_bin ~ ., data = train, method = "rf", trControl = ctrl, ntree = 500, tuneLength = 10
 )
 
+
+class(train$bully_bin)
+str(train$bully_bin)
 # 
 cv_mod
 
 cv_mod_results <- cv_mod$results
 
-ggplot(cv_mod_results, aes(x = mtry, y = RMSE)) +
+ggplot(cv_mod_results, aes(x = mtry, y = Kappa)) +
   geom_point(col = "blue") +
   geom_line(col = "blue") +
   theme_bw()
 
-# 38 seems to be the best mtry value: 0.4016325, R^2 0.3678621, MAE: 0.2828903
 
 # retrieve importance (by default, this is scaled from 0-100)
 cv_mod_imp <- varImp(cv_mod)
@@ -138,18 +146,3 @@ ggplot(cv_mod_imp, aes(x = Overall, y = reorder(var, Overall))) +
   geom_col(fill = "blue") +
   labs(title = "Top 20 predictors", y = NULL, x = "Importance (scaled)") +
   theme_bw()
-
-
-train <- train %>%
-  mutate(rf_pred = predict(cv_mod, train)) 
-
-# caret has a built-in RMSE function, but it's also easy to calculate by hand:
-RMSE(train$bully, train$rf_pred)
-sqrt(mean((train$bully - train$rf_pred)^2))
-
-# now for test data:
-test <- test %>%
-  mutate(rf_pred = predict(cv_mod, test))
-
-RMSE(test$bully, test$rf_pred)
-sqrt(mean((test$bully - test$rf_pred)^2))
