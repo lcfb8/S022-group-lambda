@@ -15,6 +15,8 @@ cleaned_data <- cleaned_data[,-1]
 
 dim(cleaned_data)
 
+skim(cleaned_data)
+
 # Create a data partition such that 80% of the data is used for training and 
 # 20% for testing
 
@@ -51,15 +53,10 @@ x_test_unscaled <- model.matrix(bully ~ ., test)[, -1]
 y_test <- test$bully
 
 # Standardize the predictors in the training set
-# After scaling, each predictor is centered around 0 and has a standard deviation of about 1
-# This matters because regularization penalizes coefficient size
-# If predictors are on very different scales, the penalty will affect them unevenly
 x_train <- scale(x_train_unscaled)
 
-# Standardize the test set using the SAME means and standard deviations from the training set
-# attr(x_train, "scaled:center") stores the column means from the training data
-# attr(x_train, "scaled:scale") stores the column standard deviations from the training data
-# We reuse those values so the test set is transformed in the same way as the training set
+# Standardize the test set using the SAME means and standard deviations from 
+# the training set
 x_test <- scale(
   x_test_unscaled,
   center = attr(x_train, "scaled:center"),
@@ -78,7 +75,7 @@ train_control <- trainControl(
 # lasso along with the other values for elastic net
 
 alpha_grid <- seq(0, 1, by = 0.1) 
-lambda_grid <- 10 ^ seq(10, -2, length = 100)
+lambda_grid <- 10 ^ seq(4, -4, length = 100)
 
 set.seed(80107)
 
@@ -110,25 +107,41 @@ plot(cv.out)
 
 cv.out
 
-# lambda min has 69 nonzero coefs and lambda 1se has 29 nonzero coefs
+# lambda min has ~69 nonzero coefs and lambda 1se has ~25 nonzero coefs
 # lambda min of 0.01 matches caret, but lambda 1se of 0.08 is different
 
 # let's store this best lambda (1se) as well
 best_lambda_glmnet <- cv.out$lambda.1se
 log(best_lambda_glmnet)
 
-# Extract coefficients at the best lambda
-coefs <- coef(rle_model$finalModel, alpha = best_alpha, s = best_lambda)
+# Extract coefficients at the best lambda for both methods
+coefs_caret <- coef(rle_model$finalModel, 
+                    alpha = best_alpha, s = best_lambda_caret)
 
-coefs <- coefs[which(coefs != 0),]
+coefs_glmnet <- coef(rle_model$finalModel, 
+                    alpha = best_alpha, s = best_lambda_glmnet)
 
-coefs_df <- data.frame(
-  Variable = rownames(as.matrix(coefs)),
-  Coefficient = as.numeric(coefs)
+coefs_caret <- coefs_caret[which(coefs_caret != 0),]
+
+coefs_glmnet <- coefs_glmnet[which(coefs_glmnet != 0),]
+
+coefs_cdf <- data.frame(
+  Variable = rownames(as.matrix(coefs_caret)),
+  Coefficient = as.numeric(coefs_caret)
 )
 
+coefs_gdf <- data.frame(
+  Variable = rownames(as.matrix(coefs_glmnet)),
+  Coefficient = as.numeric(coefs_glmnet)
+)
+
+
 # Inspect largest coefficients
-coefs_df %>%
+coefs_cdf %>%
+  arrange(desc(abs(Coefficient))) %>% 
+  head(10)
+
+coefs_gdf %>%
   arrange(desc(abs(Coefficient))) %>% 
   head(10)
 
