@@ -32,13 +32,13 @@ cleaned_data <- cleaned_data %>%
 # Use those indices to split the data into training and test sets
 train <- cleaned_data %>% 
   filter(temp_id %in% trainIndex) %>% 
-  select(-temp_id)
+  dplyr::select(-temp_id)
 
 
 # Assign everything else to the test dataset 
 test <- cleaned_data %>% 
   filter(!(temp_id %in% trainIndex)) %>% 
-  select(-temp_id)
+  dplyr::select(-temp_id)
 
 # Check how many rows are in each set
 nrow(train)
@@ -202,7 +202,7 @@ test_plot %>%
 
 #########################################################################
 
-#Forward/backward stepwise selection (based on ch 24 of the class textbook)
+#Forward/backward stepwise selection (based on ch 24 of the class website)
 
 # Baseline linear model (OLS)
 
@@ -210,8 +210,10 @@ model_linear <- lm(bully ~ ., data = train)
 
 test$y_hat = predict( model_linear, newdata = test)
 
+#calculate RMSE
 sqrt(mean((test$bully-test$y_hat)^2))
 
+#check out the coefficients
 coefs_lm = coef(model_linear)
 
 coefs_lm <- data.frame(
@@ -219,13 +221,11 @@ coefs_lm <- data.frame(
   Coefficient = as.numeric(coefs_lm)
 )
 
-head(coefs_lm)
-
 coefs_lm %>% 
   arrange(desc(abs(Coefficient))) %>% 
   head(10)
 
-# Stepwise selection
+# Stepwise selection: forward
 
 library(MASS)
 
@@ -252,6 +252,19 @@ length(coef(mod_forward)) - 1
 
 test$y_hat = predict( mod_forward, newdata = test)
 
+#let's check out the coefficients
+coefs_forward = coef(mod_forward)
+
+coefs_forward <- data.frame(
+  Variable = rownames(as.matrix(coefs_forward)),
+  Coefficient = as.numeric(coefs_forward)
+)
+
+coefs_forward %>% 
+  arrange(desc(abs(Coefficient))) %>% 
+  head(10)
+
+#calculate rmse
 sqrt(mean((test$bully-test$y_hat)^2))
 
 #let's try backward 
@@ -271,13 +284,35 @@ length(coef(mod_backward)) - 1
 
 test$y_hat = predict( mod_backward, newdata = test)
 
+
+#let's check out the coefficients
+coefs_backward= coef(mod_backward)
+
+coefs_backward <- data.frame(
+  Variable = rownames(as.matrix(coefs_backward)),
+  Coefficient = as.numeric(coefs_backward)
+)
+
+coefs_backward %>% 
+  arrange(desc(abs(Coefficient))) %>% 
+  head(10)
+
+#calculate rmse
 sqrt(mean((test$bully-test$y_hat)^2))
 
-#calculate AIC
+#compare AIC for all models
 AIC(model_linear)
 AIC(mod_forward)
 AIC(mod_backward)
 
+#forward model has slightly fewer nonzero coefficients and slightly lower AIC,
+#so let's go with that
+
+test$y_hat = predict( mod_forward, newdata = test)
+
+table(test$y_hat >= 2.5)
+
+table(test$bully >= 2.5)
 
 #########################################################################
 #now let's take our top 3 predictors and try loess, why not
