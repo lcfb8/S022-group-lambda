@@ -1,4 +1,4 @@
-# Pset 3: Predicting Bullying using cross validation - random forest
+# Pset 3: Predicting Bullying
 # Authors: Lambda team
 # packages
 library(tidyverse)
@@ -38,6 +38,13 @@ mean_high_low_bully <- train_all %>%
 nzv_to_drop <- nearZeroVar(train_all, saveMetrics = TRUE) %>%
   filter( nzv == TRUE )
 
+train_clean <- train_all %>%
+  select(-race_amerind, -feel_safer_other_rank, -student_id)
+
+# Convert all character predictors to factors
+train_clean <- train_clean %>%
+  mutate(across(where(is.character), as.factor))
+
 
 # check variable types
 map_chr(train_all, typeof)
@@ -58,7 +65,7 @@ set.seed(80107)
 
 # Create an index of rows for a training set with half of the data
 trainIndex <- createDataPartition(train_clean$bully,
-                                  p = .5, # proportion of data to use for training
+                                  p = .8, # proportion of data to use for training
                                   list = FALSE, #results will be in matrix form
                                   times = 1) # number of partitions to create)
 
@@ -99,14 +106,6 @@ cv_mod <- train(
 
 # 
 cv_mod
-# 
-saveRDS(cv_mod, file = "cv_mod_regression.rds")
-
-# I have saved the model to make this a bit quicker for us in lab:
-cv_mod = readRDS("cv_mod_regression.rds")
-
-# get a summary 
-cv_mod
 
 cv_mod_results <- cv_mod$results
 
@@ -115,9 +114,7 @@ ggplot(cv_mod_results, aes(x = mtry, y = RMSE)) +
   geom_line(col = "blue") +
   theme_bw()
 
-# 97 seems to be the best mtry value: 0.3927957
-# but we'll have to choose variables or create composite to decrease the number of
-# predictors.
+# 38 seems to be the best mtry value: 0.4016325, R^2 0.3678621, MAE: 0.2828903
 
 # retrieve importance (by default, this is scaled from 0-100)
 cv_mod_imp <- varImp(cv_mod)
@@ -150,11 +147,10 @@ train <- train %>%
 RMSE(train$bully, train$rf_pred)
 sqrt(mean((train$bully - train$rf_pred)^2))
 
-# [1] 0.1676409
-
 # now for test data:
 test <- test %>%
   mutate(rf_pred = predict(cv_mod, test))
 
 RMSE(test$bully, test$rf_pred)
 sqrt(mean((test$bully - test$rf_pred)^2))
+
