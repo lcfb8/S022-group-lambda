@@ -188,3 +188,117 @@ test_plot %>%
   ggplot(aes(model,y)) +
   geom_boxplot()
 
+
+#########################################################################
+
+#now let's take our top 3 predictors and try loess, why not
+#based on the college_and_ses_with_loess script from class
+
+dat = train
+head( dat )
+
+qplot( dat$e_safety_score )
+
+dat = dat %>% 
+  mutate(bully_high = ifelse(bully >= 2.5,1,0))
+
+test = test %>% 
+  mutate(bully_high = ifelse(bully >=2.5,1,0))
+
+
+##
+## Looking at probability of =>2.5 bully score given e_safety_score
+##
+
+table( dat$bully_high )
+
+
+ggplot( dat, aes( e_safety_score, bully_high ) ) +
+  geom_point()
+#wow this does not look promising
+
+summary( dat$e_safety_score )
+q = quantile( dat$e_safety_score, c( 0.10, 0.90 ) )
+q
+
+
+ll = loess( bully_high ~ e_safety_score, data=dat )
+ll
+
+
+# We can predict using our model, using it like a function.  
+# Here, for e_safety_score = 2, we have this:
+predict( ll, 2 )
+
+
+preds = tibble( e_safety_score = seq( 1, 4, length.out=100 ),
+                fitted = predict( ll, e_safety_score ) )
+preds
+
+
+ggplot( preds, aes( e_safety_score, fitted ) ) +
+  geom_line()
+
+
+# using binning
+dat <- dat %>% mutate( cut = cut( e_safety_score, 10 ) ) %>%
+  group_by( cut ) %>%
+  mutate( binned = mean( bully_high ) )
+
+ggplot( dat, aes( e_safety_score, binned ) ) +
+  geom_line() +
+  geom_line( data=preds, aes(e_safety_score,fitted), col="red" )
+
+
+
+
+####  Look at loess lines for different subsets of folks  #####
+# identify where most of the data is
+
+ggplot( data=dat, aes( e_safety_score, bully_high ) ) +
+  geom_point() +
+  geom_smooth( data=filter( dat, gender=="Female" ), col="purple", se=FALSE ) +
+  geom_smooth( data=filter( dat, gender=="Male" ), col="darkgreen", se=FALSE ) +
+  geom_smooth( data=filter( dat, gender=="Another way:" ), col="orange", se=FALSE )+
+  geom_vline( xintercept = q, lwd=1, lty=2 )
+
+
+##### Loess with multiple variables   ####
+
+ggplot( dat, aes( discrimination, school_rules ) ) +
+  geom_point( alpha=0.2 )
+
+# use loess with multiple variables to predict bully_high based on e_safety_score,
+# discrimination, and school_rules
+
+llp = loess( bully_high ~ e_safety_score + 
+               discrimination + school_rules, data=dat )
+
+dat$pcol = predict( llp, newdata=dat )
+
+qplot( e_safety_score, pcol, data = dat ) +
+  geom_smooth()
+qplot( discrimination, pcol, data = dat ) +
+  geom_smooth()
+qplot( school_rules, pcol, data = dat ) +
+  geom_smooth()
+
+rmse(llp, data = dat)
+
+# let's run it on the test data now
+
+test$pcol = predict( llp, newdata=test )
+
+qplot( e_safety_score, pcol, data = test ) +
+  geom_smooth()
+qplot( discrimination, pcol, data = test ) +
+  geom_smooth()
+qplot( school_rules, pcol, data = test ) +
+  geom_smooth()
+
+rmse(llp, data = test)
+
+
+
+
+
