@@ -81,8 +81,6 @@ summary(test$bully)
 # results are very similar! :)
 
 
-modelLookup(model = "knn")
-
 # what is the tuning parameter for rf?
 
 modelLookup(model = "rf")
@@ -93,14 +91,14 @@ set.seed(80107)
 ctrl <- trainControl(method = "cv", number = 10)
 
 # now we train the model using cross-validation:
-cv_mod <- train(
+cv_mod_reg <- train(
   bully ~ ., data = train, method = "rf", trControl = ctrl, ntree = 200, tuneLength = 10
 )
 
 # 
-cv_mod
+cv_mod_reg
 
-cv_mod_results <- cv_mod$results
+cv_mod_results <- cv_mod_reg$results
 
 ggplot(cv_mod_results, aes(x = mtry, y = RMSE)) +
   geom_point(col = "blue") +
@@ -110,7 +108,7 @@ ggplot(cv_mod_results, aes(x = mtry, y = RMSE)) +
 # 38 seems to be the best mtry value: 0.4016325, R^2 0.3678621, MAE: 0.2828903
 
 # retrieve importance (by default, this is scaled from 0-100)
-cv_mod_imp <- varImp(cv_mod)
+cv_mod_imp <- varImp(cv_mod_reg)
 
 cv_mod_imp <- cv_mod_imp$importance # get the df only
 
@@ -122,7 +120,7 @@ ggplot(cv_mod_imp, aes(x = Overall, y = reorder(var, Overall))) +
   theme_bw()
 
 # had to ask help from chatgpt to display only the top 20 predictors:
-cv_mod_imp <- varImp(cv_mod)$importance %>%
+cv_mod_imp <- varImp(cv_mod_reg)$importance %>%
   rownames_to_column("var") %>%
   arrange(desc(Overall)) %>%
   slice_head(n = 20)
@@ -134,7 +132,7 @@ ggplot(cv_mod_imp, aes(x = Overall, y = reorder(var, Overall))) +
 
 
 train <- train %>%
-  mutate(rf_pred = predict(cv_mod, train)) 
+  mutate(rf_pred = predict(cv_mod_reg, train)) 
 
 # caret has a built-in RMSE function, but it's also easy to calculate by hand:
 RMSE(train$bully, train$rf_pred)
@@ -142,7 +140,33 @@ sqrt(mean((train$bully - train$rf_pred)^2))
 
 # now for test data:
 test <- test %>%
-  mutate(rf_pred = predict(cv_mod, test))
+  mutate(rf_pred = predict(cv_mod_reg, test))
 
 RMSE(test$bully, test$rf_pred)
 sqrt(mean((test$bully - test$rf_pred)^2))
+
+
+
+new_raw <- read.csv("cleaned_test_data.csv") %>%
+  mutate(across(where(is.character), as.factor))
+rf_reg <- cv_mod_reg
+
+# Align factor levels to what the regression model saw during training
+for (v in names(rf_reg$xlevels)) {
+  if (v %in% names(new_raw)) {
+    new_raw[[v]] <- as.character(new_raw[[v]])
+    new_raw[[v]][!new_raw[[v]] %in% rf_reg$xlevels[[v]]] <- NA
+    new_raw[[v]] <- factor(new_raw[[v]], levels = rf_reg$xlevels[[v]])
+  }
+}
+
+predicted_bully_level <- predict(rf_reg, newdata = new_raw)
+
+pred_out <- data.frame(
+  student_id = new_raw$student_id,
+  predicted_bully_level = as.numeric(predicted_bully_level)
+)
+
+preds <- write.csv(pred_out, "rf_reg_predictions.csv", row.names = FALSE)
+
+preds <- read.csv("rf_reg_predictions.csv")
