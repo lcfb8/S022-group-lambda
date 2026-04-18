@@ -13,7 +13,7 @@ cleaned_data = read.csv("cleaned_data.csv")
 #remove student_id
 cleaned_data <- cleaned_data[,-1]
 
-dim(cleaned_data)
+# dim(cleaned_data)
 
 # skim(cleaned_data)
 
@@ -64,10 +64,11 @@ x_test <- scale(
 )
 
 ###### now we'll test ridge, lasso, and elastic net all in one
+# using 5 folds for cv since our dataset only has 5% bully >= 2.5
 
 train_control <- trainControl(
   method = "cv",
-  number = 10,
+  number = 5,
   verboseIter = FALSE 
 )
 
@@ -210,75 +211,19 @@ qplot( dat$e_safety_score )
 dat = dat %>% 
   mutate(bully_high = ifelse(bully >= 2.5,1,0))
 
-test = test %>% 
-  mutate(bully_high = ifelse(bully >=2.5,1,0))
-
-
-##
-## Looking at probability of =>2.5 bully score given e_safety_score
-##
-
-table( dat$bully_high )
-
-
-ggplot( dat, aes( e_safety_score, bully_high ) ) +
-  geom_point()
-#wow this does not look promising
-
-summary( dat$e_safety_score )
-q = quantile( dat$e_safety_score, c( 0.10, 0.90 ) )
-q
-
-
-ll = loess( bully_high ~ e_safety_score, data=dat )
-ll
-
-
-# We can predict using our model, using it like a function.  
-# Here, for e_safety_score = 2, we have this:
-predict( ll, 2 )
-
-
-preds = tibble( e_safety_score = seq( 1, 4, length.out=100 ),
-                fitted = predict( ll, e_safety_score ) )
-preds
-
-
-ggplot( preds, aes( e_safety_score, fitted ) ) +
-  geom_line()
-
-
-# using binning
-dat <- dat %>% mutate( cut = cut( e_safety_score, 10 ) ) %>%
-  group_by( cut ) %>%
-  mutate( binned = mean( bully_high ) )
-
-ggplot( dat, aes( e_safety_score, binned ) ) +
-  geom_line() +
-  geom_line( data=preds, aes(e_safety_score,fitted), col="red" )
-
-
-
-####  Look at loess lines for different subsets of folks  #####
-# identify where most of the data is
-
-ggplot( data=dat, aes( e_safety_score, bully_high ) ) +
-  geom_point() +
-  geom_smooth( data=filter( dat, gender=="Female" ), col="purple", se=FALSE ) +
-  geom_smooth( data=filter( dat, gender=="Male" ), col="darkgreen", se=FALSE ) +
-  geom_smooth( data=filter( dat, gender=="Another way:" ), col="orange", se=FALSE )+
-  geom_vline( xintercept = q, lwd=1, lty=2 )
+dat_test = test %>% 
+  mutate(bully_high = ifelse(bully >=2.5,1,0)) 
 
 
 ##### Loess with multiple variables   ####
 
-ggplot( dat, aes( discrimination, school_rules ) ) +
+ggplot( dat, aes( discrimination, school_rules, col = e_safety_score ) ) +
   geom_point( alpha=0.2 )
 
-# use loess with multiple variables to predict bully_high based on e_safety_score,
+# use loess with multiple variables to predict bully based on e_safety_score,
 # discrimination, and school_rules
 
-llp = loess( bully_high ~ e_safety_score + 
+llp = loess( bully ~ e_safety_score + 
                discrimination + school_rules, data=dat )
 
 dat$pcol = predict( llp, newdata=dat )
@@ -294,18 +239,28 @@ rmse(llp, data = dat)
 
 # let's run it on the test data now
 
-test$pcol = predict( llp, newdata=test )
+dat_test$pcol = predict( llp, newdata=dat_test )
 
-qplot( e_safety_score, pcol, data = test ) +
+qplot( e_safety_score, pcol, data = dat_test ) +
   geom_smooth()
-qplot( discrimination, pcol, data = test ) +
+qplot( discrimination, pcol, data = dat_test ) +
   geom_smooth()
-qplot( school_rules, pcol, data = test ) +
+qplot( school_rules, pcol, data = dat_test ) +
   geom_smooth()
 
-rmse(llp, data = test)
+rmse(llp, data = dat_test)
 
-test %>% 
+dat_test %>% 
   ggplot(aes(pcol))+
   geom_histogram()
+
+dat_test %>% 
+  ggplot(aes(bully,pcol))+
+  geom_point()
+
+dat_test %>% 
+  summarise( bully_pct = mean(bully >= 2.5), pcol_pct = mean(pcol >= 2.5) )
+
+summary(dat_test$pcol)
+
 
