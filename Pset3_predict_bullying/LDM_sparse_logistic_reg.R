@@ -45,11 +45,3 @@ p_hat <- predict(cvfit, newx = X, s = "lambda.1se", type = "response")
 # hard classifications using 0.5 threshold
 y_hat <- ifelse(p_hat >= 0.5, 1, 0)
 mean(y_hat == y)  # training accuracy (use proper train/test or CV for performance)
-
-
-levels(train_slg$race)
-contrasts(train_slg$race)
-
-map_chr(train_all, typeof)
-
-
