@@ -102,8 +102,12 @@ modelLookup(model = "rf")
 # Reset the seed
 set.seed(80107)
 
-ctrl <- trainControl(method = "cv", number = 10)
-
+ctrl <- trainControl(
+  method = "cv",
+  number = 10,
+  classProbs = TRUE,
+  summaryFunction = twoClassSummary
+)
 
 
 cv_mod <- train(
