@@ -122,7 +122,7 @@ cv_mod
 
 cv_mod_results <- cv_mod$results
 
-ggplot(cv_mod_results, aes(x = mtry, y = Kappa)) +
+ggplot(cv_mod_results, aes(x = mtry, y = ROC)) +
   geom_point(col = "blue") +
   geom_line(col = "blue") +
   theme_bw()
@@ -150,3 +150,38 @@ ggplot(cv_mod_imp, aes(x = Overall, y = reorder(var, Overall))) +
   geom_col(fill = "blue") +
   labs(title = "Top 20 predictors", y = NULL, x = "Importance (scaled)") +
   theme_bw()
+
+
+new_raw <- read.csv("cleaned_test_data.csv") %>%
+  mutate(across(where(is.character), as.factor))
+
+# Make sure bully_bin is not present (it usually won't be in test file)
+new_raw <- new_raw %>% select(-any_of("bully_bin"))
+
+rf_cls <- cv_mod
+# Align factor levels to training model
+for (v in names(rf_cls$xlevels)) {
+  if (v %in% names(new_raw)) {
+    new_raw[[v]] <- as.character(new_raw[[v]])
+    new_raw[[v]][!new_raw[[v]] %in% rf_cls$xlevels[[v]]] <- NA
+    new_raw[[v]] <- factor(new_raw[[v]], levels = rf_cls$xlevels[[v]])
+  }
+}
+ls()
+# Predicted probability of being "high"
+p_mat <- predict(rf_cls, newdata = new_raw, type = "prob")
+predicted_bully_risk <- p_mat[, "high"]
+
+# 0/1 classification using 0.5 cutoff (change if you chose a different threshold)
+predicted_bully_high <- ifelse(predicted_bully_risk >= 2.5, 1L, 0L)
+
+# Output with required column names
+pred_out <- data.frame(
+  student_id = new_raw$student_id,
+  predicted_bully_level = NA_real_,  # you said you are not predicting continuous level
+  predicted_bully_risk = as.numeric(predicted_bully_risk),
+  predicted_bully_high = as.integer(predicted_bully_high)
+)
+
+write.csv(pred_out, "rf_class_predictions.csv", row.names = FALSE)
+results <- read.csv("rf_class_predictions.csv")
