@@ -261,6 +261,9 @@ dat_test %>%
 dat_test %>% 
   summarise( bully_pct = mean(bully >= 2.5), pcol_pct = mean(pcol >= 2.5) )
 
+dat %>% 
+  summarise( bully_pct = mean(bully >= 2.5), pcol_pct = mean(pcol >= 2.5) )
+
 summary(dat_test$pcol)
 
 
