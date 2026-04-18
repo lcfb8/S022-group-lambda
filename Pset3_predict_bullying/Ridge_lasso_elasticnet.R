@@ -3,6 +3,7 @@ library(skimr)
 library(caret)     
 library(glmnet) 
 library(gridExtra)
+library(ModelMetrics)
 
 ## Based on Lab 11
 
@@ -32,6 +33,7 @@ cleaned_data <- cleaned_data %>%
 train <- cleaned_data %>% 
   filter(temp_id %in% trainIndex) %>% 
   select(-temp_id)
+
 
 # Assign everything else to the test dataset 
 test <- cleaned_data %>% 
@@ -200,6 +202,84 @@ test_plot %>%
 
 #########################################################################
 
+#Forward/backward stepwise selection (based on ch 24 of the class textbook)
+
+# Baseline linear model (OLS)
+
+model_linear <- lm(bully ~ ., data = train)
+
+test$y_hat = predict( model_linear, newdata = test)
+
+sqrt(mean((test$bully-test$y_hat)^2))
+
+coefs_lm = coef(model_linear)
+
+coefs_lm <- data.frame(
+  Variable = rownames(as.matrix(coefs_lm)),
+  Coefficient = as.numeric(coefs_lm)
+)
+
+head(coefs_lm)
+
+coefs_lm %>% 
+  arrange(desc(abs(Coefficient))) %>% 
+  head(10)
+
+# Stepwise selection
+
+library(MASS)
+
+# set up simplest and most complex to consider:
+# `~ 1` is the "intercept only" model.  Our max model 
+# has everything (but no interactions).
+mod_simple <- lm(bully ~ 1, data = train)
+mod_max <- lm(bully ~ ., data = train)
+
+# use forward stepwise selection to pick an optimal model (in terms of AIC)
+mod_forward <- stepAIC(mod_simple,
+                       scope = list(lower = formula(mod_simple),
+                                    upper = formula(mod_max)),
+                       direction = "forward",
+                       trace = 0 )
+
+summary(mod_forward)
+
+#We can examine how many coefficients we zeroed out with this approach:
+# Total number of coefficients (minus intercept)
+length( coef( model_linear ) ) - 1
+
+length(coef(mod_forward)) - 1
+
+test$y_hat = predict( mod_forward, newdata = test)
+
+sqrt(mean((test$bully-test$y_hat)^2))
+
+#let's try backward 
+#chatGPT helped me understand how to code this since it isn't on the website
+
+mod_backward <- stepAIC(mod_max,
+                       direction = "backward",
+                       trace = 0 )
+
+summary(mod_backward)
+
+#We can examine how many coefficients we zeroed out with this approach:
+# Total number of coefficients (minus intercept)
+length( coef( model_linear ) ) - 1
+
+length(coef(mod_backward)) - 1
+
+test$y_hat = predict( mod_backward, newdata = test)
+
+sqrt(mean((test$bully-test$y_hat)^2))
+
+#calculate AIC
+AIC(model_linear)
+AIC(mod_forward)
+AIC(mod_backward)
+
+
+#########################################################################
 #now let's take our top 3 predictors and try loess, why not
 #based on the college_and_ses_with_loess script from class
 
