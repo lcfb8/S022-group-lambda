@@ -51,12 +51,10 @@ survey_clean <- survey_clean %>%
 # to be consistent with the other belong variables
 survey_clean <- survey_clean %>%
   mutate(
-    belong9_r  = (min(belong9,  na.rm = TRUE) +
-                    max(belong9,  na.rm = TRUE)) - belong9,
-    belong10_r = (min(belong10, na.rm = TRUE) +
-                    max(belong10, na.rm = TRUE)) - belong10,
-    belong11_r = (min(belong11, na.rm = TRUE) +
-                    max(belong11, na.rm = TRUE)) - belong11
+    belong9_r  = (1 + 5) - belong9,
+    belong10_r = (1 + 5) - belong10,
+    belong11_r = (1 + 5) - belong11,
+    support6_r = (1 + 5) - support6
   )
 
 # Reverse coding support6
@@ -142,7 +140,10 @@ top_val = top_val %>%
 
 top_val = top_val %>%
   filter(rank == 1)%>% 
-  select(-rank)
+  select(-rank)%>%
+  group_by(student_id) %>%
+  slice(1) %>%
+  ungroup()
 
 
 survey_clean = survey_clean %>%
@@ -183,9 +184,6 @@ survey_clean <- survey_clean %>%
 
 # Step 6: Now it's time for imputation!!!!!!! Using the helper script and lab7
 
-library( mice )
-
-
 # make sure any values that are just empty are actually NAs
 survey_clean <- survey_clean %>% 
   mutate(across(where(is.character) | where(is.numeric), 
@@ -207,7 +205,7 @@ table( imp$method )
 meths <- imp$method
 
 # Create imputed data set
-imp <- mice(survey_clean, m = 1, maxit = 1, method=meths)     
+imp <- mice(survey_clean, m = 1, maxit = 5, method=meths)     
 
 # This will default to 5 chained equation passes.  maxit specifies the
 # number of iterations.  For the regression methods, first pass gets
@@ -222,7 +220,7 @@ full = mice::complete(imp)  # get the imputed data set
 full = as_tibble(full)
 full
 
-saveRDS( full, "imputed_data.rds" )
+saveRDS( full, "imputed_survey_data.rds" )
 
 
 # Explore and check
@@ -241,6 +239,13 @@ table(is.na(full))
 #YAY the new dataset doesn't have any NAs
 
 survey_clean <- full
+
+survey_clean <- survey_clean %>%
+  mutate(
+    adults_worry        = as.numeric(as.character(adults_worry)),
+    school_values_red   = as.numeric(as.character(school_values_red)),
+    sm_more_helpful_red = as.numeric(as.character(sm_more_helpful_red))
+  )
 
 table(is.na(survey_clean))
 
@@ -306,7 +311,7 @@ sm_attitude_composite <- make_composite(survey_clean, sm_attitude_vars,
                                         "sm_attitude_score")
 
 survey_clean <- survey_clean %>%
-  select(-all_of(c( "sm_relats_same", "sm_easier",
+  select(-all_of(c("sm_less_real_r", "sm_relats_same", "sm_easier",
                    "sm_harder_r", "sm_more_open"))) %>%
   left_join(sm_attitude_composite, by = "student_id")
 
@@ -434,12 +439,10 @@ test_clean <- test_clean %>%
 # to be consistent with the other belong variables
 test_clean <- test_clean %>%
   mutate(
-    belong9_r  = (min(belong9,  na.rm = TRUE) +
-                    max(belong9,  na.rm = TRUE)) - belong9,
-    belong10_r = (min(belong10, na.rm = TRUE) +
-                    max(belong10, na.rm = TRUE)) - belong10,
-    belong11_r = (min(belong11, na.rm = TRUE) +
-                    max(belong11, na.rm = TRUE)) - belong11
+    belong9_r  = (1 + 5) - belong9,
+    belong10_r = (1 + 5) - belong10,
+    belong11_r = (1 + 5) - belong11,
+    support6_r = (1 + 5) - support6
   )
 
 # Reverse coding support6
@@ -590,7 +593,7 @@ table( imp$method )
 meths <- imp$method
 
 # Create imputed data set
-imp <- mice(test_clean, m = 1, maxit = 1, method=meths)     
+imp <- mice(test_clean, m = 1, maxit = 5, method=meths)     
 
 # This will default to 5 chained equation passes.  maxit specifies the
 # number of iterations.  For the regression methods, first pass gets
@@ -605,7 +608,7 @@ full = mice::complete(imp)  # get the imputed data set
 full = as_tibble(full)
 full
 
-saveRDS( full, "imputed_data.rds" )
+saveRDS( full, "imputed_test_data.rds" )
 
 
 # Explore and check
@@ -625,21 +628,17 @@ table(is.na(full))
 
 test_clean <- full
 
+test_clean <- test_clean %>%
+  mutate(
+    adults_worry        = as.numeric(as.character(adults_worry)),
+    school_values_red   = as.numeric(as.character(school_values_red)),
+    sm_more_helpful_red = as.numeric(as.character(sm_more_helpful_red))
+  )
+
 table(is.na(test_clean))
 
 #######################
 # Creating composite scores
-
-make_composite <- function(data, cols, score_name) {
-  data %>%
-    pivot_longer(
-      cols = all_of(cols),
-      names_to = "variable",
-      values_to = "value"
-    ) %>%
-    group_by(student_id) %>%
-    summarise("{score_name}" :=mean(value, na.rm = TRUE))
-}
 
 range(test_clean$belong9_r,  na.rm = TRUE)
 range(test_clean$support6_r, na.rm = TRUE)
@@ -689,7 +688,7 @@ sm_attitude_composite <- make_composite(test_clean, sm_attitude_vars,
                                         "sm_attitude_score")
 
 test_clean <- test_clean %>%
-  select(-all_of(c( "sm_relats_same", "sm_easier",
+  select(-all_of(c( "sm_less_real_r","sm_relats_same", "sm_easier",
                     "sm_harder_r", "sm_more_open"))) %>%
   left_join(sm_attitude_composite, by = "student_id")
 
