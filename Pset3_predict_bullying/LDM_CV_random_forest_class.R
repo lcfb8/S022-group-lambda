@@ -53,18 +53,24 @@ type <- map_chr(train_clean, typeof) %>%
   enframe(name = "var", value = "type")
 
 
+# convert bully to a binary variable:
+train_rfc <- train_all %>%
+  mutate(
+    bully_bin = if_else(bully >= 2.5, 1L, 0L)  # 1 = high, 0 = low
+  )
+
 # set a seed for reproducibility
 set.seed(80107)
 
 # Create an index of rows for a training set with half of the data
-trainIndex <- createDataPartition(train_clean$bully,
+trainIndex <- createDataPartition(train_rfc$bully,
                                   p = .8, # proportion of data to use for training
                                   list = FALSE, #results will be in matrix form
                                   times = 1) # number of partitions to create)
 
 # Create a temporary id to subset the data according to the trainIndex
-full <- train_clean %>% 
-  mutate(temp_id = 1:nrow(train_clean))
+full <- train_rfc %>% 
+  mutate(temp_id = 1:nrow(train_rfc))
 
 train <- full %>% 
   filter(temp_id %in% trainIndex) %>% 
@@ -80,8 +86,6 @@ summary(test$bully)
 
 # results are very similar! :)
 
-
-modelLookup(model = "knn")
 
 # what is the tuning parameter for rf?
 
