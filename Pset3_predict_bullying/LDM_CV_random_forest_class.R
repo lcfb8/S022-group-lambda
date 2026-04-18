@@ -57,13 +57,14 @@ type <- map_chr(train_clean, typeof) %>%
 train_rfc <- train_all %>%
   mutate(
     bully_bin = if_else(bully >= 2.5, 1L, 0L)  # 1 = high, 0 = low
-  )
+  ) %>%
+  select(-bully)
 
 # set a seed for reproducibility
 set.seed(80107)
 
 # Create an index of rows for a training set with half of the data
-trainIndex <- createDataPartition(train_rfc$bully,
+trainIndex <- createDataPartition(train_rfc$bully_bin,
                                   p = .8, # proportion of data to use for training
                                   list = FALSE, #results will be in matrix form
                                   times = 1) # number of partitions to create)
@@ -81,9 +82,11 @@ test <- full %>%
   select(-temp_id)
 
 # compare these to `test` and `train`:
-summary(train$bully)
-summary(test$bully)
+table(train$bully_bin)
+prop.table(table(train$bully_bin))
 
+table(test$bully_bin)
+prop.table(table(test$bully_bin))
 # results are very similar! :)
 
 
@@ -98,7 +101,7 @@ ctrl <- trainControl(method = "cv", number = 10)
 
 # now we train the model using cross-validation:
 cv_mod <- train(
-  bully ~ ., data = train, method = "rf", trControl = ctrl, ntree = 200, tuneLength = 10
+  bully_bin ~ ., data = train, method = "rf", trControl = ctrl, ntree = 200, tuneLength = 10
 )
 
 # 
