@@ -258,7 +258,6 @@ make_composite <- function(data, cols, score_name) {
     summarise("{score_name}" :=mean(value, na.rm = TRUE))
 }
 
-#DYLAN I UPDATED THESE TO THE _r VERSIONS IS THAT OK
 range(survey_clean$belong9_r,  na.rm = TRUE)
 range(survey_clean$support6_r, na.rm = TRUE)
 
