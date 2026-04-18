@@ -13,7 +13,7 @@ train <- train %>%
 
 # one-hot encoding numeric values for the categorical variables for KNN model
 # parent_1 and 2 have natural orders for encoding
-# Gender, school_adults_value, parent_qual, and qual are nominal variables, 
+# gender, school_adults_value, parent_qual, and qual are nominal variables, 
 # so we will use arbitrary numeric encoding for them (this is a limitation in this model)
 encode_categoricals <- function(df) {
   df %>%
@@ -82,7 +82,7 @@ model_val_X   <- model_val   %>% select(-student_id, -bully, -bully_high)
 test_X        <- test  %>% select(-student_id)
 
 
-# adding one-hot encoded values back into the data frames for KNN model
+# adding numerically encoded values to the data frames for KNN model
 knn_train_X <- model_train_X %>% encode_categoricals()
 knn_val_X   <- model_val_X   %>% encode_categoricals()
 knn_test_X  <- test_X        %>% encode_categoricals()
@@ -95,7 +95,7 @@ knn_val_scaled <- predict(preProcValues, knn_val_X)
 knn_test_scaled <- predict(preProcValues, knn_test_X)
 
 # Step 11: Train KNN model
-# creating 5-fold cross validation
+# creating 10-fold cross validation
 cv_control_reg <- trainControl(
   method          = "cv",
   number          = 10,
@@ -125,3 +125,135 @@ knn_reg_model <- train(
   metric = "RMSE"
 )  
 
+# finding the best k and RMSE for the KNN regression model
+print(knn_reg_model)
+plot(knn_reg_model)
+
+knn_reg_preds <- predict(knn_reg_model, newdata = knn_val_scaled)
+
+postResample(pred = knn_reg_preds, obs = model_val$bully)
+
+knn_class_train <- knn_train_scaled %>%
+  mutate(bully_high = as.factor(ifelse(model_train$bully_high == 1, "yes", "no")))
+
+knn_class_model <- train(
+  bully_high ~ .,
+  data = knn_class_train,
+  method = "knn",
+  trControl = train_control,
+  tuneGrid = k_grid,
+  metric = "ROC"
+)
+
+#predict on validation
+knn_class_preds <- predict(knn_class_model, newdata = knn_val_scaled)
+
+#confusion matrix
+confusionMatrix(knn_class_preds, as.factor(ifelse(model_val$bully_high == 1, "yes", "no")))
+
+# finding the best k and ROC for the KNN classification model
+print(knn_class_model)
+plot(knn_class_model)
+
+# the curve did not become flat or dip, so we will try more k values to see if we can find a better model
+k_grid_extended <- expand.grid(k = c(50, 75, 100, 125, 150))
+
+knn_class_model_extended <- train(
+  bully_high ~ .,
+  data = knn_class_train,
+  method = "knn",
+  trControl = train_control,
+  tuneGrid = k_grid_extended,
+  metric = "ROC"
+)
+plot(knn_class_model_extended)
+
+# creating a full grid with the extended k values to find the best model
+k_grid_full <- expand.grid(k = c(3, 5, 7, 10, 15, 20, 25, 30, 50, 75, 100, 125, 150))
+
+knn_class_model <- train(
+  bully_high ~ .,
+  data      = knn_class_train,
+  method    = "knn",
+  trControl = train_control,
+  tuneGrid  = k_grid_full,
+  metric    = "ROC"
+)
+
+plot(knn_class_model)
+
+knn_class_preds <- predict(knn_class_model, newdata = knn_val_scaled)
+
+confusionMatrix(knn_class_preds, 
+                as.factor(ifelse(model_val$bully_high == 1, "yes", "no")))
+
+# KNN Regression test predictions
+test_reg_preds <- predict(knn_reg_model, newdata = knn_test_scaled)
+
+# KNN Classification test predictions
+test_class_preds <- predict(knn_class_model, newdata = knn_test_scaled)
+
+rf_importance_model <- randomForest(
+  bully ~ .,
+  data       = model_train %>% select(-student_id, -bully_high),
+  ntree      = 500,
+  importance = TRUE,
+  na.action  = na.omit
+)
+
+varImpPlot(rf_importance_model, 
+           n.var = 10,
+           main  = "Top 10 Most Important Variables")
+
+# Get baseline RMSE on validation set
+baseline_preds <- predict(knn_reg_model, newdata = knn_val_scaled)
+baseline_rmse  <- sqrt(mean((model_val$bully - baseline_preds)^2))
+
+# For each variable, shuffle it and measure RMSE increase
+vars <- names(knn_val_scaled)
+
+importance_scores <- sapply(vars, function(var) {
+  permuted        <- knn_val_scaled
+  permuted[[var]] <- sample(permuted[[var]])  # shuffle one variable
+  perm_preds      <- predict(knn_reg_model, newdata = permuted)
+  perm_rmse       <- sqrt(mean((model_val$bully - perm_preds)^2))
+  return(perm_rmse - baseline_rmse)           # higher = more important
+})
+
+# Scale to 0-100 and plot top 20
+data.frame(Variable   = names(importance_scores),
+           Importance = importance_scores) %>%
+  arrange(desc(Importance)) %>%
+  head(20) %>%
+  mutate(Importance = (Importance / max(Importance)) * 100) %>%
+  ggplot(aes(x = reorder(Variable, Importance), y = Importance)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Top 20 Predictors (KNN)",
+       x     = "",
+       y     = "Importance (scaled)") +
+  theme_minimal()
+
+# Get probability scores instead of hard classifications
+knn_class_probs <- predict(knn_class_model, newdata = knn_test_scaled, type = "prob")
+
+# "yes" column is the risk score
+test_risk_preds <- knn_class_probs[, "yes"]
+# View risk predictions
+head(test_risk_preds)
+
+#create submission csv
+submission <- data.frame(
+  student_id            = test$student_id,
+  predicted_bully_level = test_reg_preds,
+  predicted_bully_risk  = test_risk_preds,
+  predicted_bully_high  = ifelse(test_class_preds == "yes", 1, 0)
+)
+
+write_csv(submission, "LAMBDA_KNN_student_predictions.csv")
+
+#checking prediction file
+source("check_predictions_function.R")
+check_prediction_file_format("LAMBDA_KNN_student_predictions.csv")
+
+table(submission$predicted_bully_high)
