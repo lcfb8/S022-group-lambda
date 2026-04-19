@@ -47,7 +47,7 @@ train_clean <- train_clean %>%
 
 
 # check variable types
-map_chr(train_all, typeof)
+map_chr(train_clean, typeof)
 
 type <- map_chr(train_clean, typeof) %>%
   enframe(name = "var", value = "type")
@@ -88,14 +88,24 @@ modelLookup(model = "rf")
 # Reset the seed
 set.seed(80107)
 
+# expand grid was a suggestion from chatgpt
+grid <- expand.grid(
+mtry = c(2, 5, 10, 15, 20, 25, 28, 30, 32, 35, 40, 45, 50))
+
+# CV setup (keep 10-fold, or use repeatedcv)
 ctrl <- trainControl(method = "cv", number = 10)
+# ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 3)
 
-# now we train the model using cross-validation:
 cv_mod_reg <- train(
-  bully ~ ., data = train, method = "rf", trControl = ctrl, ntree = 200, tuneLength = 10
-)
-
-# 
+   bully ~ ., 
+   data = train,
+   method = "rf",
+   trControl = ctrl,
+   ntree = 500,
+   tuneGrid = grid,
+   metric = "RMSE"
+ )
+ 
 cv_mod_reg
 
 cv_mod_results <- cv_mod_reg$results
@@ -104,8 +114,6 @@ ggplot(cv_mod_results, aes(x = mtry, y = RMSE)) +
   geom_point(col = "blue") +
   geom_line(col = "blue") +
   theme_bw()
-
-# 38 seems to be the best mtry value: 0.4016325, R^2 0.3678621, MAE: 0.2828903
 
 # retrieve importance (by default, this is scaled from 0-100)
 cv_mod_imp <- varImp(cv_mod_reg)
@@ -167,6 +175,6 @@ pred_out <- data.frame(
   predicted_bully_level = as.numeric(predicted_bully_level)
 )
 
-preds <- write.csv(pred_out, "rf_reg_predictions.csv", row.names = FALSE)
+preds <- write.csv(pred_out, "rf_reg_predictions_high_parameters.csv", row.names = FALSE)
 
-preds <- read.csv("rf_reg_predictions.csv")
+preds <- read.csv("rf_reg_predictions_high_parameters.csv")
