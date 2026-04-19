@@ -70,7 +70,7 @@ encode_categoricals <- function(df) {
     )
 }
 
-# Step 10: Train/validation split
+# Train/validation split
 set.seed(80107)
 train_index <- sample(1:nrow(train), size = 0.8 * nrow(train))
 model_train <- train[ train_index, ]
@@ -94,7 +94,7 @@ knn_train_scaled <- predict(preProcValues, knn_train_X)
 knn_val_scaled <- predict(preProcValues, knn_val_X)
 knn_test_scaled <- predict(preProcValues, knn_test_X)
 
-# Step 11: Train KNN model
+# Train KNN model
 # creating 10-fold cross validation
 cv_control_reg <- trainControl(
   method          = "cv",
@@ -145,6 +145,7 @@ knn_class_model <- train(
   metric = "ROC"
 )
 
+# Evaluate on Validation Set
 #predict on validation
 knn_class_preds <- predict(knn_class_model, newdata = knn_val_scaled)
 
