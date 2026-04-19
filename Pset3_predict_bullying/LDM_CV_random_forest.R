@@ -87,7 +87,6 @@ modelLookup(model = "rf")
 # Reset the seed
 set.seed(80107)
 
-<<<<<<< HEAD
 # parallel run this heavy model training
 cl <- makePSOCKcluster(parallel::detectCores() - 1)  
 registerDoParallel(cl)
@@ -142,7 +141,6 @@ cv_mod_reg <- train(
    metric = "RMSE"
  )
  
->>>>>>> 9db4dce8f69d7a0fbe08bc09a19af404e362aa24
 cv_mod_reg
 cv_mod_reg$bestTune
 plot(cv_mod_reg)
@@ -220,13 +218,8 @@ pred_out <- data.frame(
   predicted_bully_level = as.numeric(predicted_bully_level)
 )
 
-<<<<<<< HEAD
 preds <- write.csv(pred_out, "rf_reg_predictions_ranger.csv", 
                    row.names = FALSE)
 
 preds <- read.csv("rf_reg_predictions_ranger.csv")
-=======
-preds <- write.csv(pred_out, "rf_reg_predictions_high_parameters.csv", row.names = FALSE)
 
-preds <- read.csv("rf_reg_predictions_high_parameters.csv")
->>>>>>> 9db4dce8f69d7a0fbe08bc09a19af404e362aa24
