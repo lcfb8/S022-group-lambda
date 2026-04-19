@@ -26,7 +26,7 @@ mean_high_low_bully <- train_all %>%
     .groups = "drop"
   )
 
-
+mean_high_low_bully
 
 ##############
 # Overall clean-up
@@ -39,7 +39,7 @@ nzv_to_drop <- nearZeroVar(train_all, saveMetrics = TRUE) %>%
   filter( nzv == TRUE )
 
 train_clean <- train_all %>%
-  select(-race_amerind, -feel_safer_other_rank, -student_id)
+  dplyr::select(-race_amerind, -feel_safer_other_rank, -student_id)
 
 # Convert all character predictors to factors
 train_clean <- train_clean %>%
@@ -47,18 +47,18 @@ train_clean <- train_clean %>%
 
 
 # check variable types
-map_chr(train_all, typeof)
+map_chr(train_clean, typeof)
 
 type <- map_chr(train_clean, typeof) %>%
   enframe(name = "var", value = "type")
 
 
 # convert bully to a binary variable:
-train_rfc <- train_all %>%
+train_rfc <- train_clean %>%
   mutate(
     bully_bin = if_else(bully >= 2.5, 1L, 0L)  # 1 = high, 0 = low
   ) %>%
-  select(-bully)
+  dplyr::select(-bully)
 
 
 # set a seed for reproducibility
@@ -76,11 +76,11 @@ full <- train_rfc %>%
 
 train <- full %>% 
   filter(temp_id %in% trainIndex) %>% 
-  select(-temp_id)
+  dplyr::select(-temp_id)
 
 test <- full %>% 
   filter(!(temp_id %in% trainIndex)) %>% 
-  select(-temp_id)
+  dplyr::select(-temp_id)
 
 train$bully_bin <- factor(train$bully_bin, levels = c(0,1), labels = c("low","high"))
 test$bully_bin  <- factor(test$bully_bin,  levels = c(0,1), labels = c("low","high"))
@@ -104,7 +104,7 @@ set.seed(80107)
 
 ctrl <- trainControl(
   method = "cv",
-  number = 10,
+  number = 5,
   classProbs = TRUE,
   summaryFunction = twoClassSummary
 )
