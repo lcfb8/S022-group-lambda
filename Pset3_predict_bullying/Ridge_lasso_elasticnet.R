@@ -314,14 +314,16 @@ table(test$y_hat >= 2.5)
 
 table(test$bully >= 2.5)
 
+test %>% 
+  ggplot(aes(bully,y_hat))+
+  geom_point()
+
 #########################################################################
 #now let's take our top 3 predictors and try loess, why not
 #based on the college_and_ses_with_loess script from class
 
 dat = train
 head( dat )
-
-qplot( dat$e_safety_score )
 
 dat = dat %>% 
   mutate(bully_high = ifelse(bully >= 2.5,1,0))
@@ -334,6 +336,8 @@ dat_test = test %>%
 
 llp = loess( bully ~ e_safety_score + 
                discrimination + school_rules, data=dat )
+
+summary(llp)
 
 dat$pcol = predict( llp, newdata=dat )
 
