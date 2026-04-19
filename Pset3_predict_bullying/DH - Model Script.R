@@ -70,7 +70,7 @@ encode_categoricals <- function(df) {
     )
 }
 
-# Step 10: Train/validation split
+# Train/validation split
 set.seed(80107)
 train_index <- sample(1:nrow(train), size = 0.8 * nrow(train))
 model_train <- train[ train_index, ]
@@ -94,7 +94,7 @@ knn_train_scaled <- predict(preProcValues, knn_train_X)
 knn_val_scaled <- predict(preProcValues, knn_val_X)
 knn_test_scaled <- predict(preProcValues, knn_test_X)
 
-# Step 11: Train KNN model
+# Train KNN model
 # creating 10-fold cross validation
 cv_control_reg <- trainControl(
   method          = "cv",
@@ -145,6 +145,7 @@ knn_class_model <- train(
   metric = "ROC"
 )
 
+# Evaluate on Validation Set
 #predict on validation
 knn_class_preds <- predict(knn_class_model, newdata = knn_val_scaled)
 
@@ -187,12 +188,6 @@ knn_class_preds <- predict(knn_class_model, newdata = knn_val_scaled)
 confusionMatrix(knn_class_preds, 
                 as.factor(ifelse(model_val$bully_high == 1, "yes", "no")))
 
-# KNN Regression test predictions
-test_reg_preds <- predict(knn_reg_model, newdata = knn_test_scaled)
-
-# KNN Classification test predictions
-test_class_preds <- predict(knn_class_model, newdata = knn_test_scaled)
-
 rf_importance_model <- randomForest(
   bully ~ .,
   data       = model_train %>% select(-student_id, -bully_high),
@@ -234,26 +229,57 @@ data.frame(Variable   = names(importance_scores),
        y     = "Importance (scaled)") +
   theme_minimal()
 
-# Get probability scores instead of hard classifications
+# KNN Regression test predictions
+test_reg_preds <- predict(knn_reg_model, newdata = knn_test_scaled)
+
+# Get probability scores for test set
 knn_class_probs <- predict(knn_class_model, newdata = knn_test_scaled, type = "prob")
-
-# "yes" column is the risk score
 test_risk_preds <- knn_class_probs[, "yes"]
-# View risk predictions
-head(test_risk_preds)
 
-#create submission csv
+# Get probability scores on VALIDATION set
+knn_val_probs <- predict(knn_class_model, newdata = knn_val_scaled, type = "prob")
+
+# Training set rate
+cat("Training set bully_high rate:", mean(train$bully_high), "\n")
+
+# Validation set rate
+cat("Validation set bully_high rate:", mean(model_val$bully_high), "\n")
+
+# placing thresholds to flag risk
+thresholds <- seq(0.01, 0.20, by = 0.01)
+
+threshold_results <- sapply(thresholds, function(t) {
+  preds  <- ifelse(knn_val_probs[, "yes"] >= t, 1, 0)
+  actual <- model_val$bully_high
+  fn_rate <- sum(preds == 0 & actual == 1) / sum(actual == 1)
+  fp_rate <- sum(preds == 1 & actual == 0) / sum(actual == 0)
+  c(threshold = t, FNR = fn_rate, FPR = fp_rate)
+})
+
+as.data.frame(t(threshold_results))
+
+for (t in c(0.06, 0.07, 0.08, 0.09, 0.10)) {
+  rate <- mean(test_risk_preds >= t)
+  cat("Threshold:", t, "→ Predicted high rate:", round(rate, 4), "\n")
+}
+
+# creating submission dataframe using the 0.09 threshold to 
+# match the bully_high rates of the train and validate sets
 submission <- data.frame(
   student_id            = test$student_id,
   predicted_bully_level = test_reg_preds,
   predicted_bully_risk  = test_risk_preds,
-  predicted_bully_high  = ifelse(test_class_preds == "yes", 1, 0)
+  predicted_bully_high  = ifelse(test_risk_preds >=0.09, 1, 0)
 )
+
+# What is the prediction percentage for bully_high
+cat("Predicted bully_high rate:", mean(submission$predicted_bully_high), "\n")
+
+# VERIFY! 
+table(submission$predicted_bully_high)
 
 write_csv(submission, "LAMBDA_KNN_student_predictions.csv")
 
 #checking prediction file
 source("check_predictions_function.R")
 check_prediction_file_format("LAMBDA_KNN_student_predictions.csv")
-
-table(submission$predicted_bully_high)

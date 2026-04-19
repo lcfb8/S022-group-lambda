@@ -1,3 +1,8 @@
+# Pset 3: Predicting Bullying
+# Authors: Lambda team
+# Cleaning Script
+
+# Training Data Script ====
 #### Phase 1: SETUP ####
 # Step 1
 library(tidyverse)
@@ -249,8 +254,7 @@ survey_clean <- survey_clean %>%
 
 table(is.na(survey_clean))
 
-#######################
-# Creating composite scores
+#### Creating composite scores ####
 
 make_composite <- function(data, cols, score_name) {
   data %>%
@@ -405,7 +409,10 @@ skim(survey_clean)
 write_csv(survey_clean, "cleaned_data.csv")
 
 
-#### Re-using the code above on the test data ####
+# Test Data Script ====
+# Re-using the code above on the test data
+
+#### Phase 1: SETUP ####
 # Step 2: Load in data
 test <- read_csv("data/student_test_data.csv")
 
@@ -413,8 +420,9 @@ test <- read_csv("data/student_test_data.csv")
 # Step 3: skim data
 skimr::skim(test)
 
+#### Phase 3: DATA CLEANING ####
 
-# Step 4 
+# Step 4 #
 # based on skimr, the text variables are not needed so I will drop them
 test_clean <- test %>%
   select(-ends_with("_text"))
@@ -637,8 +645,7 @@ test_clean <- test_clean %>%
 
 table(is.na(test_clean))
 
-#######################
-# Creating composite scores
+#### Creating composite scores ####
 
 range(test_clean$belong9_r,  na.rm = TRUE)
 range(test_clean$support6_r, na.rm = TRUE)

@@ -26,7 +26,7 @@ mean_high_low_bully <- train_all %>%
     .groups = "drop"
   )
 
-
+mean_high_low_bully
 
 ##############
 # Overall clean-up
@@ -39,7 +39,7 @@ nzv_to_drop <- nearZeroVar(train_all, saveMetrics = TRUE) %>%
   filter( nzv == TRUE )
 
 train_clean <- train_all %>%
-  select(-race_amerind, -feel_safer_other_rank, -student_id)
+  dplyr::select(-race_amerind, -feel_safer_other_rank, -student_id)
 
 # Convert all character predictors to factors
 train_clean <- train_clean %>%
@@ -47,18 +47,18 @@ train_clean <- train_clean %>%
 
 
 # check variable types
-map_chr(train_all, typeof)
+map_chr(train_clean, typeof)
 
 type <- map_chr(train_clean, typeof) %>%
   enframe(name = "var", value = "type")
 
 
 # convert bully to a binary variable:
-train_rfc <- train_all %>%
+train_rfc <- train_clean %>%
   mutate(
     bully_bin = if_else(bully >= 2.5, 1L, 0L)  # 1 = high, 0 = low
   ) %>%
-  select(-bully)
+  dplyr::select(-bully)
 
 
 # set a seed for reproducibility
@@ -76,11 +76,11 @@ full <- train_rfc %>%
 
 train <- full %>% 
   filter(temp_id %in% trainIndex) %>% 
-  select(-temp_id)
+  dplyr::select(-temp_id)
 
 test <- full %>% 
   filter(!(temp_id %in% trainIndex)) %>% 
-  select(-temp_id)
+  dplyr::select(-temp_id)
 
 train$bully_bin <- factor(train$bully_bin, levels = c(0,1), labels = c("low","high"))
 test$bully_bin  <- factor(test$bully_bin,  levels = c(0,1), labels = c("low","high"))
@@ -104,7 +104,7 @@ set.seed(80107)
 
 ctrl <- trainControl(
   method = "cv",
-  number = 10,
+  number = 5,
   classProbs = TRUE,
   summaryFunction = twoClassSummary
 )
@@ -167,18 +167,50 @@ for (v in names(rf_cls$xlevels)) {
     new_raw[[v]] <- factor(new_raw[[v]], levels = rf_cls$xlevels[[v]])
   }
 }
-ls()
+
 # Predicted probability of being "high"
 p_mat <- predict(rf_cls, newdata = new_raw, type = "prob")
 predicted_bully_risk <- p_mat[, "high"]
 
+#### Delete this in the end ####
 # 0/1 classification using 0.5 cutoff (change if you chose a different threshold)
-predicted_bully_high <- ifelse(predicted_bully_risk >= 2.5, 1L, 0L)
+# predicted_bully_high <- ifelse(predicted_bully_risk >= 0.5, 1L, 0L)
+
+# Get probability scores on validation set
+rf_val_probs <- predict(rf_cls, newdata = test, type = "prob")
+
+# Threshold analysis
+thresholds <- seq(0.01, 0.20, by = 0.01)
+
+threshold_results <- sapply(thresholds, function(t) {
+  preds   <- ifelse(rf_val_probs[, "high"] >= t, 1, 0)
+  actual  <- ifelse(test$bully_bin == "high", 1, 0)
+  fn_rate <- sum(preds == 0 & actual == 1) / sum(actual == 1)
+  fp_rate <- sum(preds == 1 & actual == 0) / sum(actual == 0)
+  c(threshold = t, FNR = fn_rate, FPR = fp_rate)
+})
+
+as.data.frame(t(threshold_results))
+
+# Check predicted rate at different thresholds
+for (t in c(0.05, 0.06, 0.07, 0.08, 0.09, 0.10)) {
+  rate <- mean(predicted_bully_risk >= t)
+  cat("Threshold:", t, "→ Predicted high rate:", round(rate, 4), "\n")
+}
+
+# Use chosen threshold (run analysis first to pick the right one)
+predicted_bully_high <- ifelse(predicted_bully_risk >= 0.09, 1L, 0L)
+
+# Verify
+table(predicted_bully_high)
+cat("Predicted high rate:", mean(predicted_bully_high), "\n")
+cat("Training high rate:", mean(train$bully_bin == "high"), "\n")
+
 
 # Output with required column names
 pred_out <- data.frame(
   student_id = new_raw$student_id,
-  predicted_bully_level = NA_real_,  # you said you are not predicting continuous level
+  predicted_bully_level = NA_real_,
   predicted_bully_risk = as.numeric(predicted_bully_risk),
   predicted_bully_high = as.integer(predicted_bully_high)
 )

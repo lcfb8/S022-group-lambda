@@ -87,6 +87,7 @@ modelLookup(model = "rf")
 # Reset the seed
 set.seed(80107)
 
+<<<<<<< HEAD
 # parallel run this heavy model training
 cl <- makePSOCKcluster(parallel::detectCores() - 1)  
 registerDoParallel(cl)
@@ -122,6 +123,26 @@ stopCluster(cl)
 
 #####
 # Check results
+=======
+# expand grid was a suggestion from chatgpt
+grid <- expand.grid(
+mtry = c(2, 5, 10, 15, 20, 25, 28, 30, 32, 35, 40, 45, 50))
+
+# CV setup (keep 10-fold, or use repeatedcv)
+ctrl <- trainControl(method = "cv", number = 10)
+# ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 3)
+
+cv_mod_reg <- train(
+   bully ~ ., 
+   data = train,
+   method = "rf",
+   trControl = ctrl,
+   ntree = 500,
+   tuneGrid = grid,
+   metric = "RMSE"
+ )
+ 
+>>>>>>> 9db4dce8f69d7a0fbe08bc09a19af404e362aa24
 cv_mod_reg
 cv_mod_reg$bestTune
 plot(cv_mod_reg)
@@ -199,7 +220,13 @@ pred_out <- data.frame(
   predicted_bully_level = as.numeric(predicted_bully_level)
 )
 
+<<<<<<< HEAD
 preds <- write.csv(pred_out, "rf_reg_predictions_ranger.csv", 
                    row.names = FALSE)
 
 preds <- read.csv("rf_reg_predictions_ranger.csv")
+=======
+preds <- write.csv(pred_out, "rf_reg_predictions_high_parameters.csv", row.names = FALSE)
+
+preds <- read.csv("rf_reg_predictions_high_parameters.csv")
+>>>>>>> 9db4dce8f69d7a0fbe08bc09a19af404e362aa24
