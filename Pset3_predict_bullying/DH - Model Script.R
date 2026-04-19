@@ -282,5 +282,3 @@ write_csv(submission, "LAMBDA_KNN_student_predictions.csv")
 #checking prediction file
 source("check_predictions_function.R")
 check_prediction_file_format("LAMBDA_KNN_student_predictions.csv")
-
-
