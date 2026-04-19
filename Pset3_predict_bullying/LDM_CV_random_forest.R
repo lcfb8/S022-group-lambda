@@ -122,7 +122,7 @@ stopCluster(cl)
 
 #####
 # Check results
-=======
+
 # expand grid was a suggestion from chatgpt
 grid <- expand.grid(
 mtry = c(2, 5, 10, 15, 20, 25, 28, 30, 32, 35, 40, 45, 50))
