@@ -249,8 +249,7 @@ survey_clean <- survey_clean %>%
 
 table(is.na(survey_clean))
 
-#######################
-# Creating composite scores
+#### Creating composite scores ####
 
 make_composite <- function(data, cols, score_name) {
   data %>%
@@ -637,8 +636,7 @@ test_clean <- test_clean %>%
 
 table(is.na(test_clean))
 
-#######################
-# Creating composite scores
+#### Creating composite scores ####
 
 range(test_clean$belong9_r,  na.rm = TRUE)
 range(test_clean$support6_r, na.rm = TRUE)
