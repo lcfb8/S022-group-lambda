@@ -164,7 +164,7 @@ summary( rle.pred.caret )
 sd( rle.pred.caret )
 
 # The RMSE
-sqrt( mean((rle.pred-y_test)^2) )
+sqrt( mean((rle.pred.caret-y_test)^2) )
 
 # Now let's repeat with the glmnet version using lambda 1se
 rle.pred.glmnet = predict(rle_model$finalModel, 
@@ -178,7 +178,7 @@ sd( rle.pred.glmnet )
 # The RMSE
 sqrt( mean((rle.pred.glmnet-y_test)^2) )
 
-# both of these RMSEs are quite low
+# both of these RMSEs are around 0.41
 
 # Let's look at a plot
 
@@ -202,7 +202,7 @@ test_plot %>%
 
 #########################################################################
 
-#Forward/backward stepwise selection (based on ch 24 of the class website)
+# Forward/backward stepwise selection (based on ch 24 of the class website)
 
 # Baseline linear model (OLS)
 
@@ -319,8 +319,8 @@ test %>%
   geom_point()
 
 #########################################################################
-#now let's take our top 3 predictors and try loess, why not
-#based on the college_and_ses_with_loess script from class
+# now let's take our top 3 predictors and try loess, why not
+ #based on the college_and_ses_with_loess script from class
 
 dat = train
 head( dat )
