@@ -1,12 +1,11 @@
 library( tidyverse )
 library( glmnet )
 library( caret )
+library( skimr )
 library( ModelMetrics )
 
 # Forward/backward stepwise selection (based in part on ch 24 of the class 
 # website)  and linear and logistic regression
-
-# First let's update our character/factor variables to numeric 
 
 set.seed(80107)
 
@@ -14,6 +13,8 @@ cleaned_data = read.csv("cleaned_data.csv")
 
 #remove student_id
 cleaned_data <- cleaned_data[,-1]
+
+# let's update our character/factor variables to numeric 
 
 encode_categoricals <- function(df) {
   df %>%
@@ -70,10 +71,12 @@ encode_categoricals <- function(df) {
     )
 }
 
+# run recode function and create a binary outcome for bully
 reg_data = cleaned_data %>% 
   encode_categoricals() %>% 
   mutate(bully_high = ifelse(bully >=2.5, 1,0))
 
+# now we'll create our train and validate datasets
 trainIndex <- createDataPartition(reg_data$bully,
                                   p = .8, # the share of data in the training set
                                   list = FALSE # puts our output in matrix form
@@ -109,8 +112,7 @@ reg_test <- reg_test %>%
                   train_sds[[cur_column()]])) 
 
 
-# Baseline linear model (OLS) - continuous outcome
-
+# Baseline linear model (OLS) - continuous outcome (based on ch 24 webpage)
 model_linear <- lm(bully ~ .-bully_high, data = reg_train)
 
 reg_test$y_lm = predict( model_linear, newdata = reg_test)
@@ -129,8 +131,8 @@ coefs_lm %>%
   arrange(desc(abs(Coefficient))) %>% 
   head(10)
 
-# Logistic regression with a binary outcome
-
+############
+# now let's run logistic regression with a binary outcome
 model_log <- glm(bully_high ~ .-bully, data = reg_train, family = binomial)
 
 summary(model_log)
@@ -139,13 +141,17 @@ AIC(model_log)
 #predict. chatGPT helped me figure out the type="response" part of this
 reg_test$y_log = predict( model_log, newdata = reg_test, type = "response")
 
+# let's see what these predictions look like
 reg_test %>% 
   ggplot(aes(age,y_log))+
-  #color points by by bully_high - blue if 0, red if 1
+  #color points by by bully_high
   geom_point(aes(color = factor(bully_high)))
 
 #calculate RMSE
 sqrt(mean((reg_test$bully_high-reg_test$y_log)^2))
+
+#calculate AUC
+auc(reg_test$bully_high,reg_test$y_log)
 
 #check out the coefficients
 coefs_log = coef(model_log)
@@ -167,11 +173,14 @@ model_step = step(model_log, direction = "both", trace = 0)
 summary(model_step)
 AIC(model_step)
 
+# let's predict
 reg_test$y_step = predict( model_step, 
                            newdata = reg_test, type = "response")
 
+# calculate AUC
 auc(reg_test$bully_high, reg_test$y_step)
 
+# check out the coefficients
 coefs_step = coef(model_step)
 
 coefs_step <- data.frame(
@@ -181,4 +190,39 @@ coefs_step <- data.frame(
 coefs_step %>% 
   arrange(desc(abs(Coefficient))) %>% 
   head(10)
+
+################################################
+# now let's run the model on our test data
+holdout_data <- read_csv("cleaned_test_data.csv")
+
+# we have to do some of the same cleaning we did for our training data
+#remove student_id
+holdout_test <- holdout_data[,-1]
+
+# run recode function 
+holdout_test = holdout_test %>% 
+  encode_categoricals() 
+
+# scale our data
+holdout_test <- holdout_test %>% 
+  mutate(across(everything(), ~ as.numeric(scale(.))))
+
+holdout_test$predicted_bully_risk = predict( model_step, 
+                           newdata = holdout_test, type = "response")
+
+hist(holdout_test$predicted_bully_risk)
+
+holdout_test %>% 
+  filter(predicted_bully_risk >0.5) %>% 
+  nrow()
+
+
+#create a new dataframe called preds
+preds <- data.frame(student_id = holdout_data$student_id,
+                    predicted_bully_risk = holdout_test$predicted_bully_risk)
+
+write.csv(preds, "log_step_risk_predictions.csv", 
+                   row.names = FALSE)
+
+
 
