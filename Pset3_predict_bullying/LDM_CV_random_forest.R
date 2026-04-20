@@ -81,6 +81,7 @@ summary(test$bully)
 
 # what is the tuning parameter for rf?
 modelLookup(model = "rf")
+modelLookup(model = "ranger")
 
 #####
 # Train model with cross-validation
@@ -123,24 +124,6 @@ stopCluster(cl)
 #####
 # Check results
 
-# expand grid was a suggestion from chatgpt
-grid <- expand.grid(
-mtry = c(2, 5, 10, 15, 20, 25, 28, 30, 32, 35, 40, 45, 50))
-
-# CV setup (keep 10-fold, or use repeatedcv)
-ctrl <- trainControl(method = "cv", number = 10)
-# ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 3)
-
-cv_mod_reg <- train(
-   bully ~ ., 
-   data = train,
-   method = "rf",
-   trControl = ctrl,
-   ntree = 500,
-   tuneGrid = grid,
-   metric = "RMSE"
- )
- 
 cv_mod_reg
 cv_mod_reg$bestTune
 plot(cv_mod_reg)
@@ -218,8 +201,8 @@ pred_out <- data.frame(
   predicted_bully_level = as.numeric(predicted_bully_level)
 )
 
-preds <- write.csv(pred_out, "rf_reg_predictions_ranger.csv", 
+preds <- write.csv(pred_out, "cleaned_test_data.csv", 
                    row.names = FALSE)
 
-preds <- read.csv("rf_reg_predictions_ranger.csv")
+preds <- read.csv("cleaned_test_data.csv")
 
