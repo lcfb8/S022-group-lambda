@@ -166,7 +166,12 @@ model_step = step(model_log, direction = "both", trace = 0)
 
 summary(model_step)
 AIC(model_step)
-auc(model_step)
+
+reg_test$y_step = predict( model_step, 
+                           newdata = reg_test, type = "response")
+
+auc(reg_test$bully_high, reg_test$y_step)
+
 coefs_step = coef(model_step)
 
 coefs_step <- data.frame(
@@ -177,5 +182,3 @@ coefs_step %>%
   arrange(desc(abs(Coefficient))) %>% 
   head(10)
 
-reg_test$y_step = predict( model_step, 
-                          newdata = reg_test, type = "response")
