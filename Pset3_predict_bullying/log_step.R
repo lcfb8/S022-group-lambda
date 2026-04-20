@@ -13,15 +13,16 @@ library( ModelMetrics )
 
 set.seed(80107)
 
-cleaned_data = read.csv("cleaned_data.csv")
+cleaned_data <- read_csv("cleaned_data.csv")
 
 #remove student_id
 cleaned_data <- cleaned_data[,-1]
 
 # create a binary outcome for bully
 reg_data = cleaned_data %>% 
-  mutate(bully_high = ifelse(bully >=2.5, 1,0)) %>% 
-  mutate(across(where(is.character), as.factor))
+  mutate(across(where(is.character), as.factor)) %>% 
+  mutate(bully_high = ifelse(bully >=2.5, 1,0)) 
+  
 
 # now we'll create our train and validate datasets
 trainIndex <- createDataPartition(reg_data$bully_high,
@@ -100,9 +101,6 @@ reg_test %>%
   #color points by by bully_high
   geom_point(aes(color = factor(bully_high)))
 
-#calculate RMSE (not great for classification/risk)
-sqrt(mean((reg_test$bully_high-reg_test$y_log)^2))
-
 #calculate AUC
 auc(reg_test$bully_high,reg_test$y_log)
 
@@ -154,11 +152,9 @@ coefs_step %>%
 holdout_data <- read_csv("cleaned_test_data.csv")
 
 # we have to do some of the same cleaning we did for our training data
-#remove student_id
-holdout_test <- holdout_data[,-1]
-
 # make the character variables factors
 holdout_test <- holdout_data %>%
+  select(-student_id) %>% 
   mutate(across(where(is.character), as.factor))
 
 # align factor levels with training data (chatGPT suggestion)
@@ -179,10 +175,6 @@ holdout_test$predicted_bully_risk = predict( model_step,
 
 hist(holdout_test$predicted_bully_risk)
 
-holdout_test %>% 
-  filter(predicted_bully_risk >0.5) %>% 
-  nrow()
-
 
 #create a new dataframe called preds
 preds <- data.frame(student_id = holdout_data$student_id,
@@ -190,6 +182,4 @@ preds <- data.frame(student_id = holdout_data$student_id,
 
 write.csv(preds, "log_step_risk_predictions.csv", 
                    row.names = FALSE)
-
-
 
