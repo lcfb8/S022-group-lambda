@@ -169,4 +169,5 @@ roc_curve <- roc(
 
 # Print AUC
 auc(roc_curve)
+# AUC 0.8844905
 
