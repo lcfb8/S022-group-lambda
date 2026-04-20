@@ -31,7 +31,7 @@ mean_high_low_bully
 ##############
 # Overall clean-up
 
-# Most of the code below is from Lab10, but we will modify it to fit our needs.
+# Most of the code below is from Lab10, and has been modified to fit our needs.
 
 # see if any variables in our dataset have close to zero variability 
 # (and thus should be dropped from the analysis)
@@ -198,10 +198,16 @@ for (t in c(0.05, 0.06, 0.07, 0.08, 0.09, 0.10)) {
   cat("Threshold:", t, "→ Predicted high rate:", round(rate, 4), "\n")
 }
 
-# Use chosen threshold (run analysis first to pick the right one)
-predicted_bully_high <- ifelse(predicted_bully_risk >= 0.09, 1L, 0L)
+# extending threeshold to better match training and validation rates (run analysis first to pick the right one)
+for (t in c(0.15, 0.20, 0.25, 0.30, 0.35, 0.40)) {
+  rate <- mean(predicted_bully_risk >= t)
+  cat("Threshold:", t, "→ Predicted high rate:", round(rate, 4), "\n")
+}
 
-# Verify
+# Use chosen threshold (run analysis first to pick the right one)
+predicted_bully_high <- ifelse(predicted_bully_risk >= 0.15, 1L, 0L)
+
+# verify!
 table(predicted_bully_high)
 cat("Predicted high rate:", mean(predicted_bully_high), "\n")
 cat("Training high rate:", mean(train$bully_bin == "high"), "\n")
@@ -217,3 +223,7 @@ pred_out <- data.frame(
 
 write.csv(pred_out, "rf_class_predictions.csv", row.names = FALSE)
 results <- read.csv("rf_class_predictions.csv")
+
+#checking prediction file
+source("check_predictions_function.R")
+check_prediction_file_format("LAMBDA_KNN_student_predictions.csv")
