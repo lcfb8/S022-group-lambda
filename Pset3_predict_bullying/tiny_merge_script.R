@@ -2,7 +2,7 @@ library( tidyverse )
 
 rf_class <- read_csv("rf_class_predictions.csv")
 
-rf_ranger <- read_csv("final_rangder_random_forest_prediction.csv")
+rf_ranger <- read_csv("final_ranger_random_forest_prediction.csv")
 
 log_step_risk <- read_csv("log_step_risk_predictions.csv")
 
