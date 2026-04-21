@@ -39,12 +39,12 @@ c)
 A bully score of 2.5 or above is considered a high level of bullying. In our dataset, about 4.6% (351/7674) of students have a bully score of 2.5 or above (mean = 3.03). 0.6% of students (47/7674 have a bullying score of 4, the highest level). 
 
 
-## 1) Continuous vs. Binary Classification
+## 2) Continuous vs. Binary Classification
 
 Having a binary classification for the level of bullying means that the school (or district) is able to decide when an intervention needs to happen - the 2.5 threshold for bullying. However, a continuous classification could allow for a multi-tiered bullying intervention plan based on the score given, and also provides a more nuanced picture of the severity of bullying across the school. In the binary classification, any student who has a bullying score below a 2.5 will not receive an intervention. However, a continuous classification could have students who scored a 2 receive a targeted intervention such as a one-on-one talk, with additional interventions provided based on higher score thresholds.
 
 
-## 2) Erring on the Side of Caution  
+## 3) Erring on the Side of Caution  
 A false negative means we miss a student who is actually being bullied. If that happens, they won’t get the help they need, which is a serious risk. On the other hand, a false positive means we identify a student as being bullied when they aren’t. While this might lead to an unnecessary intervention, it’s much less harmful than missing someone who is suffering. Because the cost of missing a student is so high, our model should prioritize catching every possible case, even if it means we get a few false alarms (false positives).
 
 \newpage
