@@ -127,6 +127,10 @@ ggplot(cv_mod_results, aes(x = mtry, y = ROC)) +
   geom_line(col = "blue") +
   theme_bw()
 
+max(cv_mod$results)
+
+# AUC at the best tuned mtry
+cv_mod$results[cv_mod$results$mtry == cv_mod$bestTune$mtry, "ROC"]
 
 # retrieve importance (by default, this is scaled from 0-100)
 cv_mod_imp <- varImp(cv_mod)
@@ -223,7 +227,3 @@ pred_out <- data.frame(
 
 write.csv(pred_out, "rf_class_predictions.csv", row.names = FALSE)
 results <- read.csv("rf_class_predictions.csv")
-
-#checking prediction file
-source("check_predictions_function.R")
-check_prediction_file_format("LAMBDA_KNN_student_predictions.csv")
