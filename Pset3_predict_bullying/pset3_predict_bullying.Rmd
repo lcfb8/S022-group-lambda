@@ -36,14 +36,14 @@ survey %>%
 
 c)  A bully score of 2.5 or above is considered a high level of bullying. In our dataset, about 4.6% (351/7674) of students have a bully score of 2.5 or above (mean = 3.03). 0.6% of students (47/7674 have a bullying score of 4, the highest level).
 
-## 2) Continuous vs. Binary Classification
+### 2) Continuous vs. Binary Classification
 
 Having a binary classification for the level of bullying means that the school (or district) is able to decide when an intervention needs to happen - the 2.5 threshold for bullying.
 However, a continuous classification could allow for a multi-tiered bullying intervention plan based on the score given, and also provides a more nuanced picture of the severity of bullying across the school.
 In the binary classification, any student who has a bullying score below a 2.5 will not receive an intervention.
 However, a continuous classification could have students who scored a 2 receive a targeted intervention such as a one-on-one talk, with additional interventions provided based on higher score thresholds.
 
-## 3) Erring on the Side of Caution
+### 3) Erring on the Side of Caution
 
 A false negative means we miss a student who is actually being bullied.
 If that happens, they won’t get the help they need, which is a serious risk.
@@ -55,7 +55,7 @@ Because the cost of missing a student is so high, our model should prioritize ca
 
 ## Writeup and Discussion Questions (Part II)
 
-1)  What machine learning tool did you use, and why/how you ended up selecting that model?
+### 1) What machine learning tool did you use, and why/how you ended up selecting that model?
 
 We tried multiple models and ultimately selected Ranger random forest for regression, random forest for classification, and forward/backward stepwise logistic regression for likelihood/risk score.
 
@@ -196,19 +196,30 @@ knitr::kable(conf_df,
              align   = c("l", "c", "c"))
 ```
 
-## 2) How well do you *think* you are going to do on the set-aside data we have.
+### 2) How well do you *think* you are going to do on the set-aside data we have.
 
 These are based on the scores we got for our validation data.
-- what RMSE you will have on the continuous predictions.
-0.399
 
--   what false positive rate and false negative rate you will have on your categorical predictions.
-    Sensitivity : 0.9884\
-    Specificity : 0.2676 False positive rate: 1 - 0.9884 $\approx$ 1.2% False negative rate: 1 - 0.2676 $\approx$ 73%
+-   What RMSE you will have on the continuous predictions?
 
--   what AUC you will have on your risk score AUC: around 0.88 AIC: around 1500
+    -   RMSE: 0.399
 
-## 3) The most helpful variables for our prediction:
+<!-- -->
+
+-   What false positive rate and false negative rate you will have on your categorical predictions?
+
+    -   Sensitivity : 0.9884\
+        Specificity : 0.2676
+
+    -   False positive rate: 1 - 0.9884 $\approx$ 1.2% False negative rate: 1 - 0.2676 $\approx$ 73%
+
+-   What AUC you will have on your risk score
+
+    -   AUC: around 0.88
+
+    -   AIC: around 1500
+
+### 3) The most helpful variables for our prediction:
 
 Our top three predictors were `e_safety_score`, `discrimination`, and `school_rules` across most or our models (if they were not the top three, they were consistently in the top 10).
 All of these are composite variables we created by taking the mean across a set of variables.
@@ -230,7 +241,7 @@ Cronbach's alpha for the school_rules (`rules1` - `rules9`) composite is 0.90, a
 
 Two other variables appeared consistently in our rank of important predictors: `belong_score` and `p_safety_score`, but their contribution seemed to be modest and secondary to the dominant role of `e_safety_score`, `discrimination`, and `school_rules`.
 
-## 4) Do you think your estimate of RMSE is too high or too low? Why?
+### 4) Do you think your estimate of RMSE is too high or too low? Why?
 
 For the regression models we fit, our RMSE for the test set ranged from 0.446 (KNN) to 0.399 (Ranger Random Forest).
 So, there was an improvement of around 11% from KNN to Ranger Random Forest.
@@ -243,7 +254,7 @@ However, substantively, knowing that we have that RMSE, we might decrease the th
 We anticipate our estimate of RMSE for our validation set (0.399) will be similar to the estimated RMSE when our model is run on the holdout test data.
 Our predicted RMSE may be slightly lower than the RMSE for the test/holdout data, as the model has never seen the holdout data before.
 
-## 5) Do you think your model is predictive enough to be useful? Why or why not?
+### 5) Do you think your model is predictive enough to be useful? Why or why not?
 
 Our data is very imbalanced: under 5% of students had a “high” bullying level.
 All of the models we tried tended to predict closer to the mean — fewer students at the extreme of bullying score.
@@ -251,7 +262,7 @@ It was difficult to find and tune a model that predicted the 4.6% rate of bullyi
 Ultimately, we chose to alter the classification threshold for high levels of bullying in order to increase the sensitivity of some of our models.
 As we wrote in part 1, we would want our model to err on the side of having more false positives rather than false negatives.
 
-## 6) Do some of the variables seem "unfair" to you as variables that one would reasonably have for this kind of risk prediction?
+### 6) Do some of the variables seem "unfair" to you as variables that one would reasonably have for this kind of risk prediction?
 
 The survey design and the way the questions are asked may lead to bias toward certain types of answers.
 For example, there were multiple questions about agreeing or disagreeing to a statement, but they varied in terms of possible responses - 2 (agree/disagree), 3 (agree/I’m not sure/disagree), 4(Disagree A LOT, Disagree a little, Agree a little, Agree A LOT), or 5 (Strongly Disagree, Disagree, Neither Agree, nor Disagree, Agree, Strongly Agree).
@@ -259,7 +270,7 @@ For example, there were multiple questions about agreeing or disagreeing to a st
 Additionally, in our exploration of the data, we noticed a large number of joke answers in the write-in spots (for example, 7 respondents reported their gender as “toaster”).
 If this followed a specific pattern, it may have skewed the data for the category of gender as a whole.
 
-## 7) Are there any ethical concerns you have for this sort of activity? What might those be?
+### 7) Are there any ethical concerns you have for this sort of activity? What might those be?
 
 This survey was distributed to students from age 10 to 20, a very wide range with diverse stages of development.
 Students’ ages and grade levels may impact how they interpret and choose to respond to the questions.
