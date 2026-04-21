@@ -1,9 +1,10 @@
 ---
 title: "Problem Set 3: Predicting bullying"
-author: "S022 S2026"
+author: "Lambda"
 date: "`r Sys.Date()`"
 output:
     pdf_document:
+      latex_engine: xelatex
 fontsize: 12pt
 editor_options: 
   markdown: 
@@ -22,16 +23,17 @@ See histogram:
 
 ```{r, histogram, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4, fig.height=3}
 library(tidyverse)
-survey <- read.csv("data/student_survey_data.csv")
-survey %>%
-  ggplot(aes(x = bully)) +
-  geom_histogram(binwidth = 0.1,
-                 fill     = "steelblue",
-                 colour   = "white") +
-  labs(title = "Distribution of Bully Scores",
-       x     = "Bully Score",
-       y     = "Count") +
-  theme_bw()
+survey <- read.csv("cleaned_data.csv")
+hist(survey$bully)
+
+mean_high_low_bully <- survey %>%
+  mutate(bully_group = if_else(bully >= 2.5, ">= 2.5", "< 2.5")) %>%
+  group_by(bully_group) %>%
+  summarise(
+    mean_bully = mean(bully, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
 ```
 
 c)  A bully score of 2.5 or above is considered a high level of bullying. In our dataset, about 4.6% (351/7674) of students have a bully score of 2.5 or above (mean = 3.03). 0.6% of students (47/7674 have a bullying score of 4, the highest level).
@@ -55,9 +57,9 @@ Because the cost of missing a student is so high, our model should prioritize ca
 
 ## Writeup and Discussion Questions (Part II)
 
-### 1) What machine learning tool did you use, and why/how you ended up selecting that model?
+## 1) Model Selection and Rationale
 
-We tried multiple models and ultimately selected Ranger random forest for regression, random forest for classification, and forward/backward stepwise logistic regression for likelihood/risk score.
+We tried multiple models^[Please refer to our [GitHub repository](https://github.com/lcfb8/S022-group-lambda/tree/main/Pset3_predict_bullying)] and ultimately selected Ranger Random Forest for regression to predict `predicted_bully_level`, Random Forest for classification for the prediction of `predicted_bully_high`, and Forward/Backward Stepwise Logistic regression for likelihood/risk score `predicted_bully_risk`.
 
 ## Regression Models
 
@@ -85,8 +87,6 @@ regression_table <- data.frame(
 knitr::kable(regression_table,
              col.names = c("Model", "Val. RMSE", "Final"),
              caption   = "Regression Models: Performance Comparison")
-# ✅ removed booktabs = TRUE and format = "latex"
-# ✅ plain kable works without any extra LaTeX packages
 ```
 
 ### KNN regression
@@ -134,22 +134,22 @@ classification_table <- data.frame(
   AUC = c(
     "N/A",
     "0.879",
-    "0.892 (lambda.1se) / 0.899 (lambda.min)",
+    "0.892 ($lambda$.1se) / 0.899 ($lambda$.min)",
     "0.911",
     "0.913"
   ),
   Predictors = c(
     "All",
     "Auto (tuneLength = 10)",
-    "24 (lambda.1se) / 36 (lambda.min)",
+    "24 ($lambda$.1se) / 36 ($lambda$.min)",
     "67",
     "31"
   ),
-  Selected = c("No", "No", "No", "No", "Yes")
+  Selected = c("No", "Yes", "No", "No", "Yes")
 )
 
 knitr::kable(classification_table,
-             col.names = c("Model", "AUC", "Predictors", 
+             col.names = c("Model", "CV AUC", "Predictors", 
                          "Final"),
              caption   = "Classification Models: Performance Comparison")
 ```

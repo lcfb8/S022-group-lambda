@@ -132,6 +132,16 @@ max(cv_mod$results)
 # AUC at the best tuned mtry
 cv_mod$results[cv_mod$results$mtry == cv_mod$bestTune$mtry, "ROC"]
 
+# confusion matrix on the validation set
+cv_val_preds <- predict(cv_mod, newdata = test)
+confusionMatrix(cv_val_preds, test$bully_bin, positive = "high")
+
+#AUC on validation data
+cv_val_probs <- predict(cv_mod, newdata = test, type = "prob")
+cv_val_roc <- roc(response = test$bully_bin, predictor = cv_val_probs[, "high"], levels = c("low", "high"))
+
+cv_val_roc
+
 # retrieve importance (by default, this is scaled from 0-100)
 cv_mod_imp <- varImp(cv_mod)
 
@@ -176,9 +186,6 @@ for (v in names(rf_cls$xlevels)) {
 p_mat <- predict(rf_cls, newdata = new_raw, type = "prob")
 predicted_bully_risk <- p_mat[, "high"]
 
-#### Delete this in the end ####
-# 0/1 classification using 0.5 cutoff (change if you chose a different threshold)
-# predicted_bully_high <- ifelse(predicted_bully_risk >= 0.5, 1L, 0L)
 
 # Get probability scores on validation set
 rf_val_probs <- predict(rf_cls, newdata = test, type = "prob")
