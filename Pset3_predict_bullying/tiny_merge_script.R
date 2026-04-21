@@ -21,6 +21,12 @@ lambda_student_predictions <- rf_class %>%
 
 dim(lambda_student_predictions)
 
+lambda_student_predictions %>% 
+  mutate(predicted_bully_high = as.factor(predicted_bully_high)) %>% 
+  ggplot(aes(predicted_bully_level, predicted_bully_risk,
+             col=predicted_bully_high)) +
+  geom_point()
+
 write.csv(lambda_student_predictions, "lambda_student_predictions.csv", 
           row.names = FALSE)
 
