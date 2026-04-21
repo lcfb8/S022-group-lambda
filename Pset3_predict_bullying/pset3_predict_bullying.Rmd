@@ -1,0 +1,241 @@
+---
+title: "Problem Set 3: Predicting bullying"
+author: "S022 S2026"
+date: "`r Sys.Date()`"
+output:
+    pdf_document:
+fontsize: 12pt
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+## Writeup and Discussion Questions (Part I)
+### 1) Overview of the data:
+a)
+We have 7674 observations (rows), 195 variables (columns), of which 192 are predictors; bully is the outcome/response variable and student_id and finished are not predictors
+       
+b) 
+The distribution of bullying scores is highly right-skewed, with the majority of students reporting very low levels of bullying (around 1) and a small minority experiencing much higher levels of bullying (up to 4).
+
+  See histogram:
+  
+  
+```{r, histogram, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4, fig.height=3}
+library(tidyverse)
+survey <- read.csv("data/student_survey_data.csv")
+survey %>%
+  ggplot(aes(x = bully)) +
+  geom_histogram(binwidth = 0.1,
+                 fill     = "steelblue",
+                 colour   = "white") +
+  labs(title = "Distribution of Bully Scores",
+       x     = "Bully Score",
+       y     = "Count") +
+  theme_bw()
+```
+ 
+c)
+A bully score of 2.5 or above is considered a high level of bullying. In our dataset, about 4.6% (351/7674) of students have a bully score of 2.5 or above (mean = 3.03). 0.6% of students (47/7674 have a bullying score of 4, the highest level). 
+
+
+## 1) Continuous vs. Binary Classification
+
+Having a binary classification for the level of bullying means that the school (or district) is able to decide when an intervention needs to happen - the 2.5 threshold for bullying. However, a continuous classification could allow for a multi-tiered bullying intervention plan based on the score given, and also provides a more nuanced picture of the severity of bullying across the school. In the binary classification, any student who has a bullying score below a 2.5 will not receive an intervention. However, a continuous classification could have students who scored a 2 receive a targeted intervention such as a one-on-one talk, with additional interventions provided based on higher score thresholds.
+
+
+## 2) Erring on the Side of Caution  
+A false negative means we miss a student who is actually being bullied. If that happens, they won’t get the help they need, which is a serious risk. On the other hand, a false positive means we identify a student as being bullied when they aren’t. While this might lead to an unnecessary intervention, it’s much less harmful than missing someone who is suffering. Because the cost of missing a student is so high, our model should prioritize catching every possible case, even if it means we get a few false alarms (false positives).
+
+\newpage
+## Writeup and Discussion Questions (Part II)
+
+1)  What machine learning tool did you use, and why/how you ended up selecting that model?
+
+We tried multiple models and ultimately selected Ranger random forest for regression, random forest for classification, and forward/backward stepwise logistic regression for likelihood/risk score.
+
+## Regression Models
+
+```{r, echo=FALSE}
+library(knitr)
+
+regression_table <- data.frame(
+  Model = c(
+    "KNN Regression",
+    "Ranger Random Forest",
+    "Ridge/Lasso/Elastic Net",
+    "LOESS",
+    "Linear Regression"
+  ),
+  RMSE = c(
+    "0.446",
+    "0.399",
+    "0.412 / 0.416",
+    "0.416",
+    "0.401"
+  ),
+  Selected = c("No", "Yes", "No", "No", "No")
+)
+
+knitr::kable(regression_table,
+             col.names = c("Model", "Val. RMSE", "Final"),
+             caption   = "Regression Models: Performance Comparison")
+# ✅ removed booktabs = TRUE and format = "latex"
+# ✅ plain kable works without any extra LaTeX packages
+```
+
+
+### KNN regression 
+Our KNN regression model achieved a validation RMSE of 0.446 for predicting the continuous bully level, which is good, but other models ultimately outperformed it and is why we did not use KNN as our final model. Additionally, KNN required a lot of manual work – encoding categorical variables as numeric and scaling all features – that could introduce assumptions that could have ultimately impacted the performance.
+
+### Regression random forests
+The Ranger Random Forest regression model achieved a test RMSE of 0.399, meaning predictions deviated from true bully scores by approximately 0.40 points on average. The model used 1,000 trees with 10-fold cross-validation, tuning across mtry (5–30), split rule (variance vs. extratrees), and minimum node size (3–20) - Some of these parameters were suggested by Claude and we ran multiple combinations to achieve the lowest RMSE possible. We decided to use the ranger method as it seemed to be computationally faster than the random forest. We also learned about it from Luke's website. 
+The other adjustments we tested were: selecting the most important predictors, to reduce noise, according to importance based on our other models and adjusting and testing different mtry and num.trees. From 82 predictors (categorical variables are turned into different predictors), we tested with 37 predictors. However, the RMSE remained above 0.403.
+
+### Ridge/lasso/elastic net - lambda min and lambda 1se
+We ran ridge, lasso, and elastic net all at the same time, finding the optimal model based on a range of alpha values (from 0 to 1) and lambda values. Ultimately, the model suggested alpha of 1, meaning lasso. All RMSEs for these models were around 0.41 (0.412 for lambda min and 0.416 for lambda 1se), so pretty good, but not as good as Ranger Random Forest.
+
+### Loess 
+We ran loess based on top 3 predictors from lasso: e_safety_score, discrimination, school_rules. Just for fun. RMSE 0.416 so it was about as good as Lasso.
+
+### Linear regression
+Predictors used: 67 (all)
+RMSE: 0.401 (surprisingly good, but not good enough)
+
+## Classification models
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+
+classification_table <- data.frame(
+  Model = c(
+    "KNN Classification",
+    "Random Forest",
+    "Sparse Logistic Regression",
+    "Logistic Regression",
+    "Stepwise Logistic Regression"
+  ),
+  AUC = c(
+    "N/A",
+    "0.879",
+    "0.892 (lambda.1se) / 0.899 (lambda.min)",
+    "0.911",
+    "0.913"
+  ),
+  Predictors = c(
+    "All",
+    "Auto (tuneLength = 10)",
+    "24 (lambda.1se) / 36 (lambda.min)",
+    "67",
+    "31"
+  ),
+  Selected = c("No", "No", "No", "No", "Yes")
+)
+
+knitr::kable(classification_table,
+             col.names = c("Model", "AUC", "Predictors", 
+                         "Final"),
+             caption   = "Classification Models: Performance Comparison")
+```
+
+
+### KNN classification
+We attempted to use KNN classification and regression but found that, due to the class imbalance (~4.6% of students having a bully level greater than or equal to 2.5), the KNN classification model defaulted to predicting everyone as low bullying. This resulted in us lowering the threshold from 0.5 to 0.09 to better match the training and validation data. 
+
+### Random forest classification
+The Random Forest classification model was trained using 5-fold cross-validation with 500 trees, allowing caret to automatically search across 10 different values of mtry (tuneLength = 10) to find the optimal configuration. The model achieved a cross-validated AUC of 0.879, indicating strong discriminative ability — meaning the model correctly distinguishes between high-risk and low-risk students approximately 88% of the time. 
+
+
+### Sparse logistic regression
+The sparse logistic regression achieved a cross-validated AUC of 0.892 lambda.1se, estimated via 10-fold cross-validation, with 24 predictors preserved (lambda.1se).
+Predictors kept (lambda.min): 36 
+Predictors kept (lambda.1se): 24 
+CV AUC (lambda.min — less sparse): 0.899 
+CV AUC (lambda.1se — more sparse): 0.892  
+
+
+### Logistic regression (calculating likelihood/risk score)
+Predictors used: 67 (all)
+AIC: 1577
+AUC: 0.911
+
+
+### Forward/backward stepwise regression (calculating likelihood/risk score)
+We ran forward/backward stepwise regression based on our logistic regression model. Stepwise resulted in a model with a lower AIC and higher AUC compared to the plain logistic model. 
+Predictors used: 31
+AIC: 1499
+AUC: 0.913
+
+#### Confusion Matrix
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+
+conf_df <- data.frame(
+  " "        = c("Predicted 0", "Predicted 1"),
+  "Actual 0" = c(1446, 17),
+  "Actual 1" = c(52, 19),
+  check.names = FALSE
+)
+
+knitr::kable(conf_df,
+             caption = "Confusion Matrix",
+             align   = c("l", "c", "c"))
+```
+
+
+## 2)  How well do you *think* you are going to do on the set-aside data we have.
+
+These are based on the scores we got for our validation data.
+ - what RMSE you will have on the continuous predictions.
+0.399
+
+ - what false positive rate and false negative rate you will have on your categorical predictions.
+Sensitivity : 0.9884          
+Specificity : 0.2676
+False positive rate: 1 - 0.9884  $\approx$ 1.2% 
+False negative rate: 1 - 0.2676 $\approx$ 73%
+
+	
+ - what AUC you will have on your risk score
+AUC: around 0.88
+AIC: around 1500
+
+
+## 3) The most helpful variables for our prediction:
+
+Our top three predictors were `e_safety_score`, `discrimination`, and `school_rules` across most or our models (if they were not the top three, they were consistently in the top 10). All of these are composite variables we created by taking the mean across a set of variables. One of our group members is taking S052 and knows some helpful tricks. We decided to run Principal Component Analysis for the most important predictors to ensure the composites reliably measured the same underlying construct, so we could justify their combination into a single composite score. A Cronbach's alpha of above 0.7 is considered acceptable. We also checked whether each item was strongly correlated (r.cor), a r.cor above 0.70 means that the item fits well, between 0.5 and 0.6 the value is still acceptable.
+
+`E_safety_score` refers to students’ responses regarding where they feel emotionally safe at school: “How safe do you feel from teasing, harassment, and exclusion in the places listed below?” After running PCA, we had a Cronbach's alpha of 0.92 for the e-safety subscale (`esafe1`–`esafe7`), indicating excellent internal consistency. Corrected item-total correlations (r.cor) ranged from .66 to above .75, confirming that all seven items adequately to strongly measure the same underlying construct. Together, these results justify combining the items into a single composite score (`e_safety_score`)
+
+`Discrimination` is a series of questions about discrimination against various groups: “At this school, groups of students are teased, excluded, or discriminated against because of…” The Cronbach's alpha for the discrimination composite was 0.93, also indicating an excellent internal consistency. The r.cor values were all above 0.7 for all items (`disc_lang`, `disc_wealth`, `disc_religion`, `disc_sex_or`, `disc_gender`, `disc_disab`, `disc_phys_ap`, `disc_country`), so the discrimination composite strongly measures the underlying construct.
+
+`School_rules` refers to a series of questions regarding fairness, expectations, and equity in treatment of students at the school. Cronbach's alpha for the school_rules (`rules1` - `rules9`)  composite is 0.90, and the corrected item_total correlations (r.cor) were beyond 0.66.
+
+Two other variables appeared consistently in our rank of important predictors: `belong_score` and `p_safety_score`, but their contribution seemed to be modest and secondary to the dominant role of `e_safety_score`, `discrimination`, and `school_rules`.
+
+
+## 4)  Do you think your estimate of RMSE is too high or too low? Why?
+
+For the regression models we fit, our RMSE for the test set ranged from 0.446 (KNN) to 0.399 (Ranger Random Forest). So, there was an improvement of around 11% from KNN to Ranger Random Forest. With an RMSE of 0.399, we consider that on average, our Ranger Random Forest prediction is off by 0.399 points on the bully score scale (1 - 4). In other words, a student with a true score of 2.5 would be predicted somewhere between 2.1 and 2.9 on average. For this type of analysis, we believe that the RMSE of 0.399 is still high. Taking into account the threshold of 2.5 (when students are flagged to be at risk of bullying), we would want our RMSE to be lower. However, substantively, knowing that we have that RMSE, we might decrease the threshold of bully risk to 2, so we wouldn't miss any real risk of bullying, i.e. we'd rather have false positives than false negatives in this case.
+
+We anticipate our estimate of RMSE for our validation set (0.399) will be similar to the estimated RMSE when our model is run on the holdout test data. Our predicted RMSE may be slightly lower than the RMSE for the test/holdout data, as the model has never seen the holdout data before. 
+
+
+## 5)  Do you think your model is predictive enough to be useful? Why or why not?
+
+Our data is very imbalanced: under 5% of students had a “high” bullying level. All of the models we tried tended to predict closer to the mean — fewer students at the extreme of bullying score. It was difficult to find and tune a model that predicted the 4.6% rate of bullying greater than or equal to a score of 2.5 that we saw in the training data. Ultimately, we chose to alter the classification threshold for high levels of bullying in order to increase the sensitivity of some of our models. As we wrote in part 1, we would want our model to err on the side of having more false positives rather than false negatives.
+
+
+## 6)  Do some of the variables seem "unfair" to you as variables that one would reasonably have for this kind of risk prediction?
+
+The survey design and the way the questions are asked may lead to bias toward certain types of answers. For example, there were multiple questions about agreeing or disagreeing to a statement, but they varied in terms of possible responses - 2 (agree/disagree), 3 (agree/I’m not sure/disagree), 4(Disagree A LOT, Disagree a little, Agree a little, Agree A LOT), or 5 (Strongly
+Disagree, Disagree, Neither Agree, nor Disagree, Agree, Strongly Agree).
+
+Additionally, in our exploration of the data, we noticed a large number of joke answers in the write-in spots (for example, 7 respondents reported their gender as “toaster”). If this followed a specific pattern, it may have skewed the data for the category of gender as a whole. 
+
+
+## 7)  Are there any ethical concerns you have for this sort of activity? What might those be?
+  This survey was distributed to students from age 10 to 20, a very wide range with diverse stages of development. Students’ ages and grade levels may impact how they interpret and choose to respond to the questions. It may have been more appropriate to (for example) create two versions of the survey, one that would be more appropriate for 5-8th graders, and one for high schoolers. 
+
+One main ethical concern is that relying wholly on these survey results to determine bullying intervention strategies could mean missing kids who are being bullied (i.e. false negatives). All of the models we tried tended to collapse outliers in the data predictions, meaning very few students were predicted to be at a bullying level above 2.5. Therefore, compared to the actual data, our models tended to miss out on identifying many of the students who were being bullied.
