@@ -1,6 +1,5 @@
 library( tidyverse )
 
-
 rf_class <- read_csv("rf_class_predictions.csv")
 
 rf_ranger <- read_csv("final_rangder_random_forest_prediction.csv")
