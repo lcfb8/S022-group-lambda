@@ -201,7 +201,7 @@ pred_out <- data.frame(
   predicted_bully_level = as.numeric(predicted_bully_level)
 )
 
-preds <- write.csv(pred_out, "final_ranger_random_forest_prediction.csv", 
+write.csv(pred_out, "final_ranger_random_forest_prediction.csv", 
                    row.names = FALSE)
 
 preds <- read.csv("final_rangder_random_forest_prediction.csv")
