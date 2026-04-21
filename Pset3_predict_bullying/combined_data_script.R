@@ -609,8 +609,6 @@ imp <- mice(test_clean, m = 1, maxit = 5, method=meths)
 # imputed values, then we are using those to better impute everything,
 # and so on.  5 seems to make people happy.
 
-#LB NOTE: SO DOES THIS MEAN WE SHOULD DO MAXIT = 5, OR 1?? 
-
 imp$loggedEvents
 
 full = mice::complete(imp)  # get the imputed data set
@@ -1420,7 +1418,7 @@ library( tidyverse )
 
 rf_class <- read_csv("rf_class_predictions.csv")
 
-rf_ranger <- read_csv("final_rangder_random_forest_prediction.csv")
+rf_ranger <- read_csv("final_ranger_random_forest_prediction.csv")
 
 log_step_risk <- read_csv("log_step_risk_predictions.csv")
 
