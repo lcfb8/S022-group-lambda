@@ -383,7 +383,18 @@ censo_2024V = censo_2024 %>%
 
 head(censo_2024V)
 
+names(censo_2024V)
+
 table(censo_2024V$NO_CINE_AREA_GERAL)
+
+censo_2024V %>% 
+  filter(NO_CINE_AREA_GERAL == "Programas b\xe1sicos") %>% 
+  select(-c(NO_REGIAO,SG_UF,TP_ORGANIZACAO_ACADEMICA,TP_REDE)) %>% 
+  sample(NO_CURSO)
+
+censo_2024V %>% 
+  select(NO_CURSO,TP_GRAU_ACADEMICO,NO_CINE_AREA_GERAL) %>% 
+  sample()
 
 censo_2024V <- censo_2024V %>% 
   group_by(NO_CINE_AREA_GERAL) %>% 
@@ -394,10 +405,10 @@ censo_2024V %>%
   geom_point()
 
 
-colnames(censo_20240)[sapply(censo_20240, function(x) all(is.na(x)))]
+colnames(censo_2024V)[sapply(censo_2024V, function(x) all(is.na(x)))]
 
 #do any of the columns in censo_2024 only contain 0s?
-colnames(censo_20240)[sapply(censo_20240, function(x) all(x == 0))]
+colnames(censo_2024V)[sapply(censo_2024V, function(x) all(x == 0))]
 
 
 
