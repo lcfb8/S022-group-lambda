@@ -321,3 +321,32 @@ censo_2009_13 = censo_2009_13 %>%
 censo_2009_13
 
 write_csv(censo_2009_13, "../S022-group-lambda/final_project/Brazil File/censo_2009_13.csv")
+
+#######################
+#ok let's try with earlier years
+
+years = c(2004:2008)
+
+censo_2009_13all = 
+  map(years, read_censo)
+
+censo_2009_13 = bind_rows(censo_2009_13all)
+
+#skim(censo_2009_13)
+
+censo_2009_13 = clean_census(censo_2009_13)
+
+censo_2009_13 = na.omit(censo_2009_13)
+
+censo_2009_13 = censo_2009_13 %>% 
+  summarise(.by = c(NU_ANO_CENSO, NO_CINE_AREA_GERAL), 
+            total_conc = sum(QT_CONC), 
+            total_fem = sum(QT_CONC_FEM), 
+            total_masc = sum(QT_CONC_MASC),
+            ano = unique(NU_ANO_CENSO)) %>% 
+  rename("area" = NO_CINE_AREA_GERAL) %>% 
+  select(-NU_ANO_CENSO)
+
+censo_2009_13
+
+write_csv(censo_2009_13, "../S022-group-lambda/final_project/Brazil File/censo_2009_13.csv")
