@@ -4,6 +4,7 @@ library( skimr )
 library( readr )
 library( doParallel )
 library( mice )
+library( glue )
 
 #cleaning script for Brazil higher education census
 #variables we want: NU_ANO_CENSO, NO_CURSO, NO_CINE_AREA_GERAL, QT_CONC,
@@ -62,7 +63,7 @@ concise_census = function(data){
     summarize(total_conc = sum(QT_CONC), 
               total_fem = sum(QT_CONC_FEM), 
               total_masc = sum(QT_CONC_MASC),
-              ano = mean(NU_ANO_CENSO) ) %>% 
+              ano = unique(NU_ANO_CENSO)) %>% 
     rename("area" = NO_CINE_AREA_GERAL)
 }
 
@@ -282,3 +283,41 @@ censo_2014_24
 write_csv(censo_2014_24, "../S022-group-lambda/final_project/Brazil File/censo_2014_24.csv")
 
 #yay
+
+#######################
+#can we get even fancier with our functions
+
+read_censo = function(year){
+  read_delim(
+    glue("microdados_censo_da_educacao_superior_{year}/Microdados do Censo da Educa‡ֶo Superior {year}/dados/MICRODADOS_CADASTRO_CURSOS_{year}.CSV"),
+    delim = ";", locale = locale(encoding = "ISO-8859-1")
+  )
+}
+
+#omg can we nest and map all our functions
+
+years = c(2009:2013)
+
+censo_2009_13all = 
+  map(years, read_censo)
+
+censo_2009_13 = bind_rows(censo_2009_13all)
+
+#skim(censo_2009_13)
+
+censo_2009_13 = clean_census(censo_2009_13)
+
+censo_2009_13 = na.omit(censo_2009_13)
+
+censo_2009_13 = censo_2009_13 %>% 
+  summarise(.by = c(NU_ANO_CENSO, NO_CINE_AREA_GERAL), 
+            total_conc = sum(QT_CONC), 
+            total_fem = sum(QT_CONC_FEM), 
+            total_masc = sum(QT_CONC_MASC),
+            ano = unique(NU_ANO_CENSO)) %>% 
+  rename("area" = NO_CINE_AREA_GERAL) %>% 
+  select(-NU_ANO_CENSO)
+
+censo_2009_13
+
+write_csv(censo_2009_13, "../S022-group-lambda/final_project/Brazil File/censo_2009_13.csv")
