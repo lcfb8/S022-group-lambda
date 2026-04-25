@@ -32,6 +32,11 @@ clean_1995 <- dat_1995[!is.na(dat_1995$NO_CINE_AREA), ]
 cat("NAs restantes em clean_1995:", sum(is.na(clean_1995$NO_CINE_AREA)), "\n")
 unique(clean_1995$NO_CINE_AREA)
 
+clean_1995$QT_DIPLO_1SEM_FEMI[is.na(clean_1995$QT_DIPLO_1SEM_FEMI)]   <- 0
+clean_1995$QT_DIPLO_2SEM_FEMI[is.na(clean_1995$QT_DIPLO_2SEM_FEMI)] <- 0
+clean_1995$QT_DIPLO_1SEM_MASC[is.na(clean_1995$QT_DIPLO_1SEM_MASC)]   <- 0
+clean_1995$QT_DIPLO_2SEM_MASC[is.na(clean_1995$QT_DIPLO_2SEM_MASC)] <- 0
+
 # Step 2: Keep only the desired columns, merge semesters, and add year
 dat_1995_clean <- data.frame(
   NU_ANO_CENSO  = 1995,
@@ -39,10 +44,6 @@ dat_1995_clean <- data.frame(
   QT_CONC_FEM = clean_1995$QT_DIPLO_1SEM_FEMI + clean_1995$QT_DIPLO_2SEM_FEMI,
   QT_CONC_MASC = clean_1995$QT_DIPLO_1SEM_MASC + clean_1995$QT_DIPLO_2SEM_MASC
 )
-
-# Step 3: Replace NAs with 0 before summing
-dat_1995_clean$QT_CONC_FEM[is.na(dat_1995_clean$QT_CONC_FEM)]   <- 0
-dat_1995_clean$QT_CONC_MASC[is.na(dat_1995_clean$QT_CONC_MASC)] <- 0
 
 dat_1995_clean$QT_CONC <- dat_1995_clean$QT_CONC_FEM + dat_1995_clean$QT_CONC_MASC
 
@@ -71,10 +72,6 @@ clean_1995 <- read.csv(
 
 
 clean_graduates <- function(dat_clean, year, output_dir) {
-  
-  # Step 2: Replace NAs with 0 before summing
-  dat_clean$QT_CONC_FEM[is.na(dat_clean$QT_CONC_FEM)]   <- 0
-  dat_clean$QT_CONC_MASC[is.na(dat_clean$QT_CONC_MASC)] <- 0
   
   # Step 3: Sum all graduates
   dat_clean$QT_CONC <- dat_clean$QT_CONC_FEM + dat_clean$QT_CONC_MASC
@@ -135,6 +132,11 @@ clean_1996 <- dat_1996[!is.na(dat_1996$NO_CINE_AREA), ]
 cat("NAs restantes em clean_1995:", sum(is.na(clean_1996$NO_CINE_AREA)), "\n")
 unique(clean_1996$NO_CINE_AREA)
 
+clean_1996$QT_DIPLO_1SEM_FEMI[is.na(clean_1996$QT_DIPLO_1SEM_FEMI)]   <- 0
+clean_1996$QT_DIPLO_2SEM_FEMI[is.na(clean_1996$QT_DIPLO_2SEM_FEMI)] <- 0
+clean_1996$QT_DIPLO_1SEM_MASC[is.na(clean_1996$QT_DIPLO_1SEM_MASC)]   <- 0
+clean_1996$QT_DIPLO_2SEM_MASC[is.na(clean_1996$QT_DIPLO_2SEM_MASC)] <- 0
+
 # Step 2: Keep only the desired columns, merge semesters, and add year
 dat_1996_clean <- data.frame(
   NU_ANO_CENSO  = 1996,
@@ -159,10 +161,6 @@ clean_1996 <- clean_graduates(
 
 
 clean_graduates_1997 <- function(dat_clean, year, output_dir) {
-
-  # Step 2: Replace NAs with 0 before summing
-  dat_clean$QT_CONC_FEM[is.na(dat_clean$QT_CONC_FEM)]   <- 0
-  dat_clean$QT_CONC_MASC[is.na(dat_clean$QT_CONC_MASC)] <- 0
   
   # Step 3: Sum all graduates
   dat_clean$QT_CONC <- dat_clean$QT_CONC_FEM + dat_clean$QT_CONC_MASC
@@ -198,10 +196,15 @@ dat_1997 <- read.csv(
 )
 
 # Aplicar mapeamento de áreas
-dat_1997$NO_CINE_AREA_GERAL <- area_map_1997[dat_1997$NO_AREA_CONHECIMENTO]
+dat_1997$NO_CINE_AREA_GERAL <- area_map_1996[dat_1997$NO_AREA_CONHECIMENTO]
 
 # Dropar CICLO BASICO COMUM (ficou NA)
 clean_1997 <- dat_1997[!is.na(dat_1997$NO_CINE_AREA_GERAL), ]
+
+clean_1997$QT_FEM_DIP[is.na(clean_1997$QT_FEM_DIP)]   <- 0
+clean_1997$QT_MASC_DIP[is.na(clean_1997$QT_MASC_DIP)] <- 0
+
+
 
 # Criar colunas QT_CONC_FEM e QT_CONC_MASC
 clean_1997$QT_CONC_FEM  <- clean_1997$QT_FEM_DIP
@@ -216,7 +219,13 @@ clean_1997 <- clean_graduates_1997(
 
 
 ###### function for 1998 and 1999 #####
+
 clean_graduates_199X <- function(dat_raw, year, output_dir) {
+  
+  dat_raw$C0811[is.na(dat_raw$C0811)]   <- 0
+  dat_raw$C0813[is.na(dat_raw$C0813)] <- 0
+  dat_raw$C0812[is.na(dat_raw$C0812)]   <- 0
+  dat_raw$C0814[is.na(dat_raw$C0814)] <- 0
   
   # Step 1: Keep only the desired columns, merge semesters, and add year
   dat_clean <- data.frame(
@@ -225,10 +234,7 @@ clean_graduates_199X <- function(dat_raw, year, output_dir) {
     QT_CONC_FEM        = dat_raw$C0811 + dat_raw$C0813 ,
     QT_CONC_MASC       = dat_raw$C0812 + dat_raw$C0814
   )
-  
-  # Step 2: Replace NAs with 0 before summing
-  dat_clean$QT_CONC_FEM[is.na(dat_clean$QT_CONC_FEM)]   <- 0
-  dat_clean$QT_CONC_MASC[is.na(dat_clean$QT_CONC_MASC)] <- 0
+
   
   # Step 3: Sum all graduates
   dat_clean$QT_CONC <- dat_clean$QT_CONC_FEM + dat_clean$QT_CONC_MASC
@@ -507,4 +513,27 @@ clean_1998 <- aggregate(
   FUN  = sum
 )
 
+names(clean_1998)[names(clean_1998) == "AREA_GERAL"] <- "NO_CINE_AREA_GERAL"
+names(clean_1999)[names(clean_1999) == "AREA_GERAL"] <- "NO_CINE_AREA_GERAL"
+##########
+# merge data all data sets from 1995-1999
 
+# Verificar colunas de cada dataset
+colnames(clean_1995)
+colnames(clean_1996)
+colnames(clean_1997)
+colnames(clean_1998)
+colnames(clean_1999)
+
+# Adicione apenas nos datasets que estão faltando, com o ano correto
+clean_1995$NU_ANO_CENSO <- 1995
+clean_1998$NU_ANO_CENSO <- 1998
+clean_1999$NU_ANO_CENSO <- 1999
+
+dat_all <- rbind(clean_1995, clean_1996, clean_1997, clean_1998, clean_1999)
+
+write.csv(
+  dat_all,
+  "/Users/lucianadiasdemacedo/Downloads/S022/Final_project/1995_1999_clean.csv",
+  row.names = FALSE
+)
