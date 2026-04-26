@@ -38,6 +38,7 @@ brazil_ed %>%
             aes(x = (start + end) / 2, y = Inf, label = label),
             inherit.aes = FALSE,
             vjust = 1.5, size = 2.5, color = "red") +
+  geom_point()+
   geom_line(linewidth = 1) +
   
   labs(
@@ -84,6 +85,8 @@ brazil_ed %>%
     strip.text       = element_text(face = "bold"),
     legend.position  = "bottom"
   )
+
+
 
 # % Women Over Time by Major
 brazil_ed %>%
@@ -282,7 +285,7 @@ brazil %>%
     strip.text      = element_text(face = "bold")
   )
 
-#what is going on with those arts & humanities outliers
+#what is going on with those arts & humanities outliers?
 
 brazil %>% 
   filter(area == "Arts & humanities") %>% 

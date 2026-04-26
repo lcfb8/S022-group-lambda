@@ -23,6 +23,11 @@ br2000_08 = br2000_08 %>%
 
 brazil_ed = bind_rows(br1995_99,br2000_08,br2009_13,br2014_24)
 
+brazil_ed2 %>% 
+  filter(area == "Ciências sociais, negócios e direito") %>% 
+  ggplot(aes(ano,total_conc, col = area))+
+  geom_point()
+
 brazil_ed = brazil_ed %>% 
   filter(area != "Programas ou Cursos Gerais")
 
@@ -83,29 +88,20 @@ brazil_ed = brazil_ed %>%
   ))
 
 
-#the mash up of science, math, comp sci, social sciences, and business is messy
-#here's a temporary solution 
+# the mash up of science, math, comp sci, social sciences, and business is messy
+# we need to align with the US categories
 
-#Keep as is, these are good:
-#Agricultura, silvicultura, pesca e veterinária 
-#Artes e humanidades 
-#Educação 
-#Engenharia, produção e construção 
-#Saúde e bem-estar 
-#Serviços 
+# Other/Unknown = Agricultura, silvicultura, pesca e veterinária 
+# Arts & Humanities = Artes e humanidades 
+# Business & Management = Negócios, administração e direito + Servicios + Ciências sociais, negócios e direito
+# Behavioral & Social Sciences = Ciências sociais, comunicação e informação 
+# Health & Medical = Saúde e bem-estar 
+# Education = Educação 
+# Engineering = Engenharia, produção e construção + Computação e Tecnologias da Informação e Comunicação
+# Natural Sciences = Ciências naturais, matemática e estatística + Ciências, matemática e computação
 
-#combine:
-# NEW: Science, math, IT, and social science = 
-# Ciências naturais, matemática e estatística + 
-# Ciências, matemática e computação +
-# Computação e Tecnologias da Informação e Comunicação (TIC) +
-# Ciências sociais, comunicação e informação 
 
-#NEW: Business, administration and law = 
-# Ciências sociais, negócios e direito +
-# Negócios, administração e direito 
-
-#copilot write code for the combined variables above in brazil_ed. When we combine
+#copilot help write code for the combined variables above in brazil_ed. When we combine
 #columns, if they both have data in them, this data should be summed For example,
 #in the new column "Science, math, IT, and social science," the total_fem for 2012
 #should be 45748. 
@@ -113,11 +109,13 @@ brazil_ed = brazil_ed %>%
 brazil_ed = brazil_ed %>% 
   mutate(area = case_when(
     area %in% c("Ciências naturais, matemática e estatística",
-                "Ciências, matemática e computação",
-                "Computação e Tecnologias da Informação e Comunicação (TIC)",
-                "Ciências sociais, comunicação e informação") ~ "Science, math, IT, & social science",
+                "Ciências, matemática e computação")
+                 ~ "Natural Sciences",
     area %in% c("Ciências sociais, negócios e direito",
-                "Negócios, administração e direito") ~ "Business, administration & law",
+                "Negócios, administração e direito", "Serviços") ~ 
+      "Business & Management",
+    area %in% c("Engenharia, produção e construção", 
+    "Computação e Tecnologias da Informação e Comunicação (TIC)") ~ "Engineering",
     TRUE ~ area
   )) %>%
   group_by(year, area) %>%
@@ -128,14 +126,15 @@ brazil_ed = brazil_ed %>%
     .groups = "drop"
   )
 
+table(brazil_ed$area)
+
 brazil_ed = brazil_ed %>% 
   mutate(area = recode(area,
-                       "Agricultura, silvicultura, pesca e veterinária" = "Agriculture & veterinary",
-                       "Artes e humanidades" = "Arts & humanities",
+                       "Agricultura, silvicultura, pesca e veterinária" = "Other/Unknown",
+                       "Artes e humanidades" = "Arts & Humanities",
                        "Educação"= "Education",
-                       "Engenharia, produção e construção"= "Engineering & construction",
-                       "Saúde e bem-estar"= "Health & medicine",
-                       "Serviços" = "Hospitality"))
+                       "Ciências sociais, comunicação e informação"= "Social & Behavioral Sciences",
+                       "Saúde e bem-estar"= "Health & Medical"))
 
 
 brazil_ed %>% 
