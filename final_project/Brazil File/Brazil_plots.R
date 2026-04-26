@@ -75,8 +75,8 @@ brazil_ed = brazil_ed %>%
 brazil_ed = brazil_ed %>% 
   rename( "year" = ano)
 
-
-
+######
+#combine education and economic data (if we need?)
 brazil = full_join(brazil_ed, desemprego, by = "year")
 brazil = full_join(brazil, gdp_brazil, by = "year")
 
@@ -107,7 +107,7 @@ brazilL %>%
 
 ##############
 
-
+#let's just plot the education data
 # color blind friendly options
 okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
                "#0072B2", "#D55E00", "#CC79A7", "#000000", "#999999")
@@ -119,9 +119,9 @@ library(RColorBrewer)
 recessions <- data.frame(
   start = c(1999, 2007, 2014, 2020),
   end   = c(1999, 2009, 2016, 2020),
-  label = c("2001\nDot-com",
+  label = c("1999\n'Samba effect'",
             "2007-09\nGreat Recession",
-            "2014\nBrazil Econ Crisis",
+            "2014-16\nBrazil Econ Crisis",
             "2020\nCOVID")
 )
 
@@ -149,24 +149,15 @@ brazil_ed %>%
   theme_minimal()
 
 # Faceted by Gender
-majors_cleaned %>%
+brazil_ed %>%
   pivot_longer(
-    cols      = c(Total_Men, Total_Women),
+    cols      = c(total_masc, total_fem),
     names_to  = "Gender",
     values_to = "Count"
   ) %>%
-  mutate(Gender = if_else(Gender == "Total_Men", "Men", "Women")) %>%
-  mutate(BACHELORS = factor(BACHELORS, 
-                            levels = c("Arts & Humanities",
-                                       "Business & Management",
-                                       "Education",
-                                       "Engineering",
-                                       "Health & Medical",
-                                       "Natural Sciences",
-                                       "Social & Behavioral Sciences",
-                                       "Other/Unknown",
-                                       "Grand total"))) %>%
-  ggplot(aes(x = YEAR, y = Count, color = Gender)) +
+  mutate(Gender = if_else(Gender == "total_masc", "Men", "Women")) %>%
+  mutate(area = as_factor(area)) %>% 
+  ggplot(aes(x = year, y = Count, color = Gender)) +
   
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5,
@@ -179,11 +170,11 @@ majors_cleaned %>%
   scale_color_manual(values = c("Men" = "#2166ac", "Women" = "#d6604d")) +
   scale_y_continuous(labels = scales::comma) +
   
-  facet_wrap(~ BACHELORS, scales = "free_y") +
+  facet_wrap(~ area, scales = "free_y") +
   
   labs(
     title    = "Bachelor's Degrees by Major and Gender",
-    subtitle = "Red shaded areas indicate US recessions",
+    subtitle = "Red shaded areas indicate Brazil recessions",
     x        = "Year",
     y        = "Degrees Awarded",
     color    = "Gender"
@@ -195,17 +186,10 @@ majors_cleaned %>%
   )
 
 # % Women Over Time by Major
-majors_cleaned %>%
-  mutate(pct_women = Total_Women / (Total_Men + Total_Women) * 100) %>%
-  mutate(BACHELORS = factor(BACHELORS, levels = c("Arts & Humanities",
-                                                  "Business & Management",
-                                                  "Education",
-                                                  "Engineering",
-                                                  "Health & Medical",
-                                                  "Natural Sciences",
-                                                  "Social & Behavioral Sciences",
-                                                  "Other/Unknown"))) %>%
-  ggplot(aes(x = YEAR, y = pct_women, color = BACHELORS)) +
+brazil_ed %>%
+  mutate(pct_women = total_fem / (total_masc + total_fem) * 100) %>%
+  mutate(area = as_factor(area)) %>%
+  ggplot(aes(x = year, y = pct_women, color = area)) +
   
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5,
@@ -234,10 +218,10 @@ majors_cleaned %>%
   )
 
 # Gender Ratio Heatmap (Year × Major)
-majors_cleaned %>%
-  mutate(pct_women = Total_Women / (Total_Men + Total_Women) * 100) %>%
+brazil_ed %>%
+  mutate(pct_women = total_fem / (total_masc + total_fem) * 100) %>%
   
-  ggplot(aes(x = YEAR, y = BACHELORS, fill = pct_women)) +
+  ggplot(aes(x = year, y = area, fill = pct_women)) +
   
   geom_tile() +
   
@@ -264,14 +248,12 @@ majors_cleaned %>%
   )
 
 # Indexed Growth Chart (Base Year = 1995)
-majors_cleaned %>%
-  mutate(Total = Total_Men + Total_Women) %>%
-  filter(BACHELORS != "Grand total") %>%
-  group_by(BACHELORS) %>%
-  mutate(index = Total / Total[YEAR == min(YEAR)] * 100) %>%
+brazil_ed %>%
+  group_by(area) %>%
+  mutate(index = total_conc / total_conc[year == min(year)] * 100) %>%
   ungroup() %>%
   
-  ggplot(aes(x = YEAR, y = index, color = BACHELORS)) +
+  ggplot(aes(x = year, y = index, color = area)) +
   
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5,
@@ -287,7 +269,7 @@ majors_cleaned %>%
   
   labs(
     title    = "Indexed Growth of Bachelor's Degrees by Major",
-    subtitle = "Base year = 1995 (100) | Red shaded areas indicate US recessions",
+    subtitle = "Base year = 1995 (100) | Red shaded areas indicate Brazil recessions",
     x        = "Year",
     y        = "Index (1995 = 100)",
     color    = "Major Category"
@@ -296,14 +278,13 @@ majors_cleaned %>%
   theme(legend.position = "bottom")
 
 # Unemployment Rate vs. Total Degrees
-majors_cleaned %>%
-  mutate(Total = Total_Men + Total_Women) %>%
-  group_by(YEAR, UNRATE) %>%
-  summarise(Total = sum(Total), .groups = "drop") %>%
+brazil %>%
+  group_by(year, unemploy) %>%
+  summarise(Total = sum(total_conc), .groups = "drop") %>%
   
-  ggplot(aes(x = UNRATE, y = Total)) +
+  ggplot(aes(x = unemploy, y = Total)) +
   
-  geom_point(aes(color = YEAR), size = 3) +
+  geom_point(aes(color = year), size = 3) +
   geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed") +
   
   scale_color_viridis_c() +
@@ -320,10 +301,8 @@ majors_cleaned %>%
   theme(legend.position = "right")
 
 #GDP vs. Degree Counts by Major
-majors_cleaned %>%
-  mutate(Total = Total_Men + Total_Women) %>%
-  
-  ggplot(aes(x = GDP, y = Total, color = BACHELORS)) +
+brazil %>%
+  ggplot(aes(x = gdp, y = total_conc, color = area)) +
   
   geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
@@ -332,7 +311,7 @@ majors_cleaned %>%
   scale_y_continuous(labels = scales::comma) +
   scale_x_continuous(labels = scales::comma) +
   
-  facet_wrap(~ BACHELORS, scales = "free_y") +
+  facet_wrap(~ area, scales = "free_y") +
   
   labs(
     title    = "GDP vs. Bachelor's Degrees Awarded by Major",
