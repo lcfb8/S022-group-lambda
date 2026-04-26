@@ -2,6 +2,39 @@ library( tidyverse )
 library( skimr )
 library(lubridate)
 
+#claude help for World Bank data
+
+# install.packages( "WDI" )
+library(WDI)
+
+# World Bank indicator for unemployment
+desemprego = data.frame(WDI(country = "BR", 
+    indicator = "SL.UEM.TOTL.ZS",  # unemployment % of labor force
+    start = 1995, 
+    end = 2024))
+
+desemprego = desemprego %>% 
+  select(country,year,SL.UEM.TOTL.ZS) %>% 
+  rename("rate" = SL.UEM.TOTL.ZS)
+
+desemprego
+
+#get brazil's gdp for 2024 from WDI
+gdp_brazil = data.frame(WDI(country = "BR", 
+    indicator = "NY.GDP.MKTP.CD",  # GDP in current US dollars
+    start = 1995, 
+    end = 2024))
+
+#get US GDP data
+gdp_us = data.frame(WDI(country = "US", 
+    indicator = "NY.GDP.MKTP.CD",  # GDP in current US dollars
+    start = 1995, 
+    end = 2024))
+
+
+
+
+############## OLD CODE ######################
 unemploy_brazil_raw <- read_csv("brazil_unemployment_2012_2025.csv")
 
 unemploy_brazil = unemploy_brazil_raw %>% 
@@ -103,13 +136,4 @@ brun_1991_02
 brun_2002_16
 unemploy_brazil
 
-#claude help for unemployment rates
 
-install.packages( "WDI" )
-library(WDI)
-
-# World Bank indicator for unemployment
-WDI(country = "BR", 
-    indicator = "SL.UEM.TOTL.ZS",  # unemployment % of labor force
-    start = 2002, 
-    end = 2002)
