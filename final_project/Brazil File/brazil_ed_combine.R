@@ -23,10 +23,6 @@ br2000_08 = br2000_08 %>%
 
 brazil_ed = bind_rows(br1995_99,br2000_08,br2009_13,br2014_24)
 
-brazil_ed2 %>% 
-  filter(area == "Ciências sociais, negócios e direito") %>% 
-  ggplot(aes(ano,total_conc, col = area))+
-  geom_point()
 
 brazil_ed = brazil_ed %>% 
   filter(area != "Programas ou Cursos Gerais")
@@ -137,8 +133,8 @@ brazil_ed = brazil_ed %>%
                        "Saúde e bem-estar"= "Health & Medical"))
 
 
-brazil_ed %>% 
-  ggplot(aes(year,total_conc, col = area))+
-  geom_point()
+brazil_ed = brazil_ed %>% 
+  group_by(year) %>% 
+  mutate("Grand total" = sum(total_conc))
 
 write_csv(brazil_ed, "brazil_ed_recoded.csv")

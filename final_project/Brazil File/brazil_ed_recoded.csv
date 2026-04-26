@@ -5,18 +5,21 @@ year,area,total_conc,total_fem,total_masc
 1995,Health & Medical,38309,25830,12479
 1995,Natural Sciences,27416,15332,12084
 1995,Other/Unknown,7368,2219,5149
+1995,Total,290993,176823,114170
 1996,Arts & Humanities,466,373,93
 1996,Business & Management,444,254,190
 1996,Engineering,123,34,89
 1996,Health & Medical,219,178,41
 1996,Natural Sciences,199,118,81
 1996,Other/Unknown,92,28,64
+1996,Total,1543,985,558
 1997,Arts & Humanities,122654,101544,21110
 1997,Business & Management,181459,95706,85753
 1997,Engineering,27431,5901,21530
 1997,Health & Medical,62883,42783,20100
 1997,Natural Sciences,45856,25689,20167
 1997,Other/Unknown,9075,3440,5635
+1997,Total,449358,275063,174295
 1998,Arts & Humanities,30690,23976,6714
 1998,Business & Management,87438,43586,43852
 1998,Education,35294,29910,5384
@@ -25,6 +28,7 @@ year,area,total_conc,total_fem,total_masc
 1998,Natural Sciences,15861,9772,6089
 1998,Other/Unknown,5217,1954,3263
 1998,Social & Behavioral Sciences,15024,10153,4871
+1998,Total,265074,162069,103005
 1999,Arts & Humanities,31396,24238,7158
 1999,Business & Management,99505,50665,48840
 1999,Education,39641,33460,6181
@@ -33,6 +37,7 @@ year,area,total_conc,total_fem,total_masc
 1999,Natural Sciences,16315,9824,6491
 1999,Other/Unknown,5643,2077,3566
 1999,Social & Behavioral Sciences,16107,10583,5524
+1999,Total,291160,177583,113577
 2001,Arts & Humanities,1602,974,628
 2001,Business & Management,28539,14804,13735
 2001,Education,8001,5286,2715
@@ -40,6 +45,7 @@ year,area,total_conc,total_fem,total_masc
 2001,Health & Medical,6662,4926,1736
 2001,Natural Sciences,5510,2518,2992
 2001,Other/Unknown,1358,528,830
+2001,Total,54379,29935,24444
 2002,Arts & Humanities,4348,2664,1684
 2002,Business & Management,65696,34462,31234
 2002,Education,32013,23073,8940
@@ -47,6 +53,7 @@ year,area,total_conc,total_fem,total_masc
 2002,Health & Medical,17368,12732,4636
 2002,Natural Sciences,13724,6220,7504
 2002,Other/Unknown,3446,1438,2008
+2002,Total,143241,82845,60396
 2003,Arts & Humanities,2417,1528,889
 2003,Business & Management,37004,19216,17788
 2003,Education,19750,14137,5613
@@ -54,6 +61,7 @@ year,area,total_conc,total_fem,total_masc
 2003,Health & Medical,10665,8015,2650
 2003,Natural Sciences,7498,3322,4176
 2003,Other/Unknown,1486,575,911
+2003,Total,81837,47842,33995
 2004,Arts & Humanities,2493,1557,936
 2004,Business & Management,43934,23252,20682
 2004,Education,21075,14310,6765
@@ -61,6 +69,7 @@ year,area,total_conc,total_fem,total_masc
 2004,Health & Medical,13091,9652,3439
 2004,Natural Sciences,10153,4384,5769
 2004,Other/Unknown,2194,852,1342
+2004,Total,96625,55273,41352
 2005,Arts & Humanities,3292,1952,1340
 2005,Business & Management,50540,26933,23607
 2005,Education,27183,20331,6852
@@ -68,6 +77,7 @@ year,area,total_conc,total_fem,total_masc
 2005,Health & Medical,16132,12060,4072
 2005,Natural Sciences,12099,5165,6934
 2005,Other/Unknown,2457,952,1505
+2005,Total,115922,68888,47034
 2006,Arts & Humanities,3886,2361,1525
 2006,Business & Management,58485,30518,27967
 2006,Education,35356,26557,8799
@@ -75,6 +85,7 @@ year,area,total_conc,total_fem,total_masc
 2006,Health & Medical,22432,16738,5694
 2006,Natural Sciences,13913,5888,8025
 2006,Other/Unknown,3107,1322,1785
+2006,Total,142027,85054,56973
 2007,Arts & Humanities,28087,17056,11031
 2007,Business & Management,336155,185191,150964
 2007,Education,175585,135810,39775
@@ -82,6 +93,7 @@ year,area,total_conc,total_fem,total_masc
 2007,Health & Medical,114056,83499,30557
 2007,Natural Sciences,59048,21759,37289
 2007,Other/Unknown,15293,6126,9167
+2007,Total,775240,462501,312739
 2008,Arts & Humanities,29222,17040,12182
 2008,Business & Management,375608,207939,167669
 2008,Education,196590,151021,45569
@@ -89,6 +101,7 @@ year,area,total_conc,total_fem,total_masc
 2008,Health & Medical,128506,95649,32857
 2008,Natural Sciences,62238,23086,39152
 2008,Other/Unknown,16359,6356,10003
+2008,Total,856113,514794,341319
 2009,Arts & Humanities,20330,11035,9295
 2009,Business & Management,368879,201973,166906
 2009,Education,272161,208432,63729
@@ -97,6 +110,7 @@ year,area,total_conc,total_fem,total_masc
 2009,Natural Sciences,8506,4695,3811
 2009,Other/Unknown,18891,7458,11433
 2009,Social & Behavioral Sciences,42517,28770,13747
+2009,Total,967418,591879,375539
 2010,Arts & Humanities,23155,12572,10583
 2010,Business & Management,394731,219106,175625
 2010,Education,234517,180047,54470
@@ -105,6 +119,7 @@ year,area,total_conc,total_fem,total_masc
 2010,Natural Sciences,11520,6627,4893
 2010,Other/Unknown,18031,7302,10729
 2010,Social & Behavioral Sciences,44566,30330,14236
+2010,Total,980629,596749,383880
 2011,Arts & Humanities,25988,14156,11832
 2011,Business & Management,407828,229235,178593
 2011,Education,239562,184986,54576
@@ -113,6 +128,7 @@ year,area,total_conc,total_fem,total_masc
 2011,Natural Sciences,13017,7385,5632
 2011,Other/Unknown,19827,8104,11723
 2011,Social & Behavioral Sciences,47407,32171,15236
+2011,Total,1022669,625163,397506
 2012,Arts & Humanities,27057,15146,11911
 2012,Business & Management,436390,249820,186570
 2012,Education,224223,173014,51209
@@ -121,6 +137,7 @@ year,area,total_conc,total_fem,total_masc
 2012,Natural Sciences,14261,8041,6220
 2012,Other/Unknown,18722,7952,10770
 2012,Social & Behavioral Sciences,44835,30473,14362
+2012,Total,1056069,646997,409072
 2013,Arts & Humanities,27476,15736,11740
 2013,Business & Management,417785,241661,176124
 2013,Education,201487,153777,47710
@@ -129,6 +146,7 @@ year,area,total_conc,total_fem,total_masc
 2013,Natural Sciences,13473,7734,5739
 2013,Other/Unknown,19054,8382,10672
 2013,Social & Behavioral Sciences,43217,29741,13476
+2013,Total,994812,603387,391425
 2014,Arts & Humanities,27765,15842,11923
 2014,Business & Management,336351,199488,136863
 2014,Education,142527,103108,39419
@@ -137,6 +155,7 @@ year,area,total_conc,total_fem,total_masc
 2014,Natural Sciences,13756,7890,5866
 2014,Other/Unknown,19681,8628,11053
 2014,Social & Behavioral Sciences,44181,30350,13831
+2014,Total,837283,498030,339253
 2015,Arts & Humanities,28903,16457,12446
 2015,Business & Management,477538,281893,195645
 2015,Education,238377,184773,53604
@@ -145,6 +164,7 @@ year,area,total_conc,total_fem,total_masc
 2015,Natural Sciences,14668,8394,6274
 2015,Other/Unknown,22649,9973,12676
 2015,Social & Behavioral Sciences,47715,33234,14481
+2015,Total,1152458,708200,444258
 2016,Arts & Humanities,29808,16947,12861
 2016,Business & Management,464899,276445,188454
 2016,Education,239607,185071,54536
@@ -153,6 +173,7 @@ year,area,total_conc,total_fem,total_masc
 2016,Natural Sciences,15136,8454,6682
 2016,Other/Unknown,24914,11689,13225
 2016,Social & Behavioral Sciences,51881,36811,15070
+2016,Total,1170960,719429,451531
 2017,Arts & Humanities,31853,17558,14295
 2017,Business & Management,446019,263368,182651
 2017,Education,253673,191186,62487
@@ -161,6 +182,7 @@ year,area,total_conc,total_fem,total_masc
 2017,Natural Sciences,16314,8861,7453
 2017,Other/Unknown,25805,12354,13451
 2017,Social & Behavioral Sciences,55272,39767,15505
+2017,Total,1201145,733634,467511
 2018,Arts & Humanities,29670,16937,12733
 2018,Business & Management,339107,202721,136386
 2018,Education,133243,94556,38687
@@ -169,6 +191,7 @@ year,area,total_conc,total_fem,total_masc
 2018,Natural Sciences,15900,8602,7298
 2018,Other/Unknown,30150,15275,14875
 2018,Social & Behavioral Sciences,61007,44203,16804
+2018,Total,990415,589383,401032
 2019,Arts & Humanities,30862,17666,13196
 2019,Business & Management,447597,257163,190434
 2019,Education,254091,192048,62043
@@ -177,6 +200,7 @@ year,area,total_conc,total_fem,total_masc
 2019,Natural Sciences,15150,8193,6957
 2019,Other/Unknown,31910,16366,15544
 2019,Social & Behavioral Sciences,61394,44416,16978
+2019,Total,1250239,752508,497731
 2020,Arts & Humanities,29322,16535,12787
 2020,Business & Management,490603,280168,210435
 2020,Education,243542,188994,54548
@@ -185,6 +209,7 @@ year,area,total_conc,total_fem,total_masc
 2020,Natural Sciences,12749,6945,5804
 2020,Other/Unknown,30371,15620,14751
 2020,Social & Behavioral Sciences,57051,40959,16092
+2020,Total,1278755,766736,512019
 2021,Arts & Humanities,30146,17102,13044
 2021,Business & Management,477134,270432,206702
 2021,Education,283924,221196,62728
@@ -193,6 +218,7 @@ year,area,total_conc,total_fem,total_masc
 2021,Natural Sciences,13228,7110,6118
 2021,Other/Unknown,31843,16510,15333
 2021,Social & Behavioral Sciences,60788,43772,17016
+2021,Total,1327325,809196,518129
 2022,Arts & Humanities,30932,17598,13334
 2022,Business & Management,449672,254615,195057
 2022,Education,258517,202404,56113
@@ -201,6 +227,7 @@ year,area,total_conc,total_fem,total_masc
 2022,Natural Sciences,14146,7517,6629
 2022,Other/Unknown,36113,18924,17189
 2022,Social & Behavioral Sciences,65454,47304,18150
+2022,Total,1287635,782561,505074
 2023,Arts & Humanities,39934,23133,16801
 2023,Business & Management,511840,291671,220169
 2023,Education,233942,178537,55405
@@ -209,6 +236,7 @@ year,area,total_conc,total_fem,total_masc
 2023,Natural Sciences,14781,7595,7186
 2023,Other/Unknown,37507,20250,17257
 2023,Social & Behavioral Sciences,70070,49568,20502
+2023,Total,1374789,819892,554897
 2024,Arts & Humanities,39981,23038,16943
 2024,Business & Management,469389,272775,196614
 2024,Education,207450,157098,50352
@@ -217,3 +245,4 @@ year,area,total_conc,total_fem,total_masc
 2024,Natural Sciences,15108,7776,7332
 2024,Other/Unknown,39703,21405,18298
 2024,Social & Behavioral Sciences,77189,54734,22455
+2024,Total,1333988,793161,540827
