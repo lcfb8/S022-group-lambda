@@ -133,8 +133,46 @@ brazil_ed = brazil_ed %>%
                        "Saúde e bem-estar"= "Health & Medical"))
 
 
-brazil_ed = brazil_ed %>% 
-  group_by(year) %>% 
-  mutate("Grand total" = sum(total_conc))
+#Claude helped me add the totals
+brazil_ed = brazil_ed %>%
+  group_by(year) %>%
+  summarise(
+    area = "Total",
+    total_conc = sum(total_conc, na.rm = TRUE),
+    total_fem  = sum(total_fem,  na.rm = TRUE),
+    total_masc = sum(total_masc, na.rm = TRUE)
+  ) %>%
+  bind_rows(brazil_ed) %>%          # combine with original data
+  arrange(year, area)               # sort so "Total" appears with each year
+
+brazil_ed
 
 write_csv(brazil_ed, "brazil_ed_recoded.csv")
+
+brazil_ed %>%
+  mutate(check = total_fem + total_masc == total_conc) %>%
+  filter(check == FALSE)
+
+
+# let's make a dataset that has proportions of total_conc, total_fem, and total_masc for each area (divide by Total for each year) rather than totals
+
+brazil_edprop = brazil_ed %>%
+  group_by(year) %>%
+  mutate(
+    prop_conc = total_conc / total_conc[area == "Total"],
+    prop_fem = total_fem / total_fem[area == "Total"],
+    prop_masc = total_masc / total_masc[area == "Total"]
+  ) %>%
+  ungroup()
+
+head(brazil_edprop)
+
+#brazil_edprop = brazil_edprop %>% 
+  #pivot_longer(cols = c(prop_conc,prop_fem,prop_masc), names_to = "type",
+               #values_to = "prop")
+
+brazil_edprop %>% 
+  filter(area != "Total") %>% 
+  ggplot(aes(year,prop_conc,fill = area))+
+  geom_area()
+  

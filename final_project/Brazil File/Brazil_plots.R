@@ -26,7 +26,8 @@ recessions <- data.frame(
 )
 
 brazil_ed %>%
-  ggplot(aes(x = year, y = total_conc, color = area)) +
+  filter(area != "Total") %>% 
+  ggplot(aes(x = year, y = total_conc/1000, color = area)) +
   scale_color_brewer(palette = "Set2") +
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5,
@@ -44,7 +45,20 @@ brazil_ed %>%
   labs(
     title   = "Bachelor's Degrees Awarded by Major Category",
     x       = "Year",
-    y       = "Total Degrees",
+    y       = "Total Degrees (in thousands)",
+    color   = "Major Category"
+  ) +
+  theme_minimal()
+
+# Let's try stacked area
+brazil_ed %>%
+  filter(area != "Total") %>% 
+  ggplot(aes(x = year, y = total_conc/1000, fill = area)) +
+  geom_area()+
+  labs(
+    title   = "Bachelor's Degrees Awarded by Major Category",
+    x       = "Year",
+    y       = "Total Degrees (in thousands)",
     color   = "Major Category"
   ) +
   theme_minimal()
