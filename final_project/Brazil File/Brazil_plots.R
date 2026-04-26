@@ -4,110 +4,10 @@ library( WDI )
 library( readr )
 
 
-# Brazil unemployment
-desemprego = data.frame(WDI(country = "BR", 
-        indicator = "SL.UEM.TOTL.ZS",  # unemployment % of labor force
-        start = 1995, 
-        end = 2024))
-
-desemprego = desemprego %>% 
-  select(year,SL.UEM.TOTL.ZS) %>% 
-  rename("unemploy" = SL.UEM.TOTL.ZS)
-
-
-# Brazil GDP
-gdp_brazil = data.frame(WDI(country = "BR", 
-      indicator = "NY.GDP.MKTP.CD",  # GDP in current US dollars
-      start = 1995, 
-      end = 2024))
-
-gdp_brazil = gdp_brazil %>% 
-  select(year, NY.GDP.MKTP.CD) %>% 
-  rename( "gdp" = NY.GDP.MKTP.CD)
-
-
-#combined brazil education data
-
-br1995_99 = read_csv("1995_1999_clean.csv")
-br2000_08 = read_csv("2000_2008_clean.csv")
-br2009_13 = read_csv("censo_2009_13.csv")
-br2014_24 = read_csv("censo_2014_24.csv")
-
-br1995_99 = br1995_99 %>% 
-  rename( "area" = NO_CINE_AREA_GERAL,
-          "ano" = NU_ANO_CENSO,
-          "total_conc" = QT_CONC,
-          "total_fem" =  QT_CONC_FEM,
-          "total_masc" = QT_CONC_MASC)
-
-br2000_08 = br2000_08 %>% 
-  rename( "area" = NO_CINE_AREA_GERAL,
-          "ano" = NU_ANO_CENSO,
-          "total_conc" = QT_CONC,
-          "total_fem" =  QT_CONC_FEM,
-          "total_masc" = QT_CONC_MASC)
-
-brazil_ed = bind_rows(br1995_99,br2000_08,br2009_13,br2014_24)
-
-table(brazil_ed$area)
-
-# combine some columns that should be in the same category
-brazil_ed = brazil_ed %>% 
-  mutate(area = case_when(
-    area == "Artes e humanidades" ~ "Artes e humanidades",
-    area == "Humanidades e artes" ~ "Artes e humanidades",
-    TRUE ~ area
-  )) %>%
-  mutate(area = case_when(
-    area == "Agricultura e veterinária" ~ "Agricultura, silvicultura, pesca e veterinária",
-    area == "Agricultura, silvicultura, pesca e veterinária" ~ "Agricultura, silvicultura, pesca e veterinária",
-    TRUE ~ area
-  )) %>%
-  mutate(area = case_when(
-    area == "Saúde e bem estar social" ~ "Saúde e bem-estar",
-    area == "Saúde e bem-estar" ~ "Saúde e bem-estar",
-    TRUE ~ area 
-  )) 
-
-brazil_ed = brazil_ed %>% 
-  filter(area != "Programas ou Cursos Gerais")
-
-brazil_ed = brazil_ed %>% 
-  rename( "year" = ano)
-
-######
-#combine education and economic data (if we need?)
-brazil = full_join(brazil_ed, desemprego, by = "year")
-brazil = full_join(brazil, gdp_brazil, by = "year")
-
-brazil
-
-write_csv(brazil, "brazil_all.csv")
-
-#############
-#OK LET'S PLOT!
-
-#no scientific notation
-options(scipen = 999)
-
-brazil = read_csv("brazil_all.csv")
-
-brazil = brazil %>% 
-  mutate(gdp_trils = gdp/100000000000) 
-
-brazilL = brazil %>% 
-  select(-gdp) %>% 
-  pivot_longer(cols = c(gdp_trils,unemploy), 
-               names_to = "econ", values_to = "rate")
-
-head(brazilL)
-brazilL %>% 
-  ggplot(aes(year, rate, col = econ)) +
-  geom_line()
-
-##############
-
 #let's just plot the education data
+
+brazil_ed <- read_csv("brazil_ed_recoded.csv")
+
 # color blind friendly options
 okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
                "#0072B2", "#D55E00", "#CC79A7", "#000000", "#999999")
@@ -138,7 +38,7 @@ brazil_ed %>%
             aes(x = (start + end) / 2, y = Inf, label = label),
             inherit.aes = FALSE,
             vjust = 1.5, size = 2.5, color = "red") +
-  geom_line(linewidth = 2) +
+  geom_line(linewidth = 1) +
   
   labs(
     title   = "Bachelor's Degrees Awarded by Major Category",
@@ -277,6 +177,62 @@ brazil_ed %>%
   theme_minimal() +
   theme(legend.position = "bottom")
 
+
+
+
+########################################################
+# Brazil economic data
+#unemployment
+desemprego = data.frame(WDI(country = "BR", 
+        indicator = "SL.UEM.TOTL.ZS",  # unemployment % of labor force
+        start = 1995, 
+        end = 2024))
+
+desemprego = desemprego %>% 
+  select(year,SL.UEM.TOTL.ZS) %>% 
+  rename("unemploy" = SL.UEM.TOTL.ZS)
+
+
+# Brazil GDP
+gdp_brazil = data.frame(WDI(country = "BR", 
+      indicator = "NY.GDP.MKTP.CD",  # GDP in current US dollars
+      start = 1995, 
+      end = 2024))
+
+gdp_brazil = gdp_brazil %>% 
+  select(year, NY.GDP.MKTP.CD) %>% 
+  rename( "gdp" = NY.GDP.MKTP.CD)
+
+
+######
+#combine education and economic data (if we need?)
+brazil = full_join(brazil_ed, desemprego, by = "year")
+brazil = full_join(brazil, gdp_brazil, by = "year")
+
+brazil
+
+write_csv(brazil, "brazil_all.csv")
+
+#no scientific notation
+options(scipen = 999)
+
+brazil = read_csv("brazil_all.csv")
+
+brazil = brazil %>% 
+  mutate(gdp_trils = gdp/1000000000000) 
+
+brazilL = brazil %>% 
+  select(-gdp) %>% 
+  pivot_longer(cols = c(gdp_trils,unemploy), 
+               names_to = "econ", values_to = "rate")
+
+#this looks better when GDP is in 100s of billions
+brazilL %>% 
+  ggplot(aes(year, rate, col = econ)) +
+  geom_line()
+
+##############
+
 # Unemployment Rate vs. Total Degrees
 brazil %>%
   group_by(year, unemploy) %>%
@@ -302,7 +258,7 @@ brazil %>%
 
 #GDP vs. Degree Counts by Major
 brazil %>%
-  ggplot(aes(x = gdp, y = total_conc, color = area)) +
+  ggplot(aes(x = gdp_trils, y = total_conc, color = area)) +
   
   geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
@@ -316,7 +272,7 @@ brazil %>%
   labs(
     title    = "GDP vs. Bachelor's Degrees Awarded by Major",
     subtitle = "Each point represents one year",
-    x        = "GDP",
+    x        = "GDP (USD trillions)",
     y        = "Total Degrees Awarded",
     color    = "Major Category"
   ) +
@@ -325,8 +281,6 @@ brazil %>%
     legend.position = "none",
     strip.text      = element_text(face = "bold")
   )
-
-
 
 
 
