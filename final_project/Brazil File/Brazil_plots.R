@@ -4,9 +4,8 @@ library( WDI )
 library( readr )
 
 
-#let's just plot the education data
-
 brazil_ed <- read_csv("brazil_ed_recoded.csv")
+brazil_edprop <- read_csv("brazil_ed_proportions.csv")
 
 # color blind friendly options
 okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
@@ -25,6 +24,7 @@ recessions <- data.frame(
             "2020\nCOVID")
 )
 
+# total line chart
 brazil_ed %>%
   filter(area != "Total") %>% 
   ggplot(aes(x = year, y = total_conc/1000, color = area)) +
@@ -50,6 +50,33 @@ brazil_ed %>%
   ) +
   theme_minimal()
 
+# Proportion line chart
+
+brazil_edprop %>%
+  filter(area != "Total") %>% 
+  ggplot(aes(x = year, y = prop_conc, color = area)) +
+  scale_color_brewer(palette = "Set2") +
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.15) +
+  # Add recession labels
+  geom_text(data = recessions,
+            aes(x = (start + end) / 2, y = Inf, label = label),
+            inherit.aes = FALSE,
+            vjust = 1.5, size = 2.5, color = "red") +
+  geom_point()+
+  geom_line(linewidth = 1) +
+  
+  labs(
+    title   = "Proportion of Bachelor's Degrees Awarded by Major Category",
+    x       = "Year",
+    y       = "Proportion of Total Degrees",
+    color   = "Major Category"
+  ) +
+  theme_minimal()
+
 # Let's try stacked area
 brazil_ed %>%
   filter(area != "Total") %>% 
@@ -62,6 +89,14 @@ brazil_ed %>%
     color   = "Major Category"
   ) +
   theme_minimal()
+
+
+#Now with proportions
+
+brazil_edprop %>% 
+  filter(area != "Total") %>% 
+  ggplot(aes(year,prop_conc,fill = area))+
+  geom_area()
 
 # Faceted by Gender
 brazil_ed %>%
@@ -100,6 +135,42 @@ brazil_ed %>%
     legend.position  = "bottom"
   )
 
+# Faceted by Gender proportionally
+brazil_edprop %>%
+  pivot_longer(
+    cols      = c(prop_masc, prop_fem),
+    names_to  = "Gender",
+    values_to = "Proportion"
+  ) %>%
+  mutate(Gender = if_else(Gender == "prop_masc", "Men", "Women")) %>%
+  mutate(area = as_factor(area)) %>% 
+  ggplot(aes(x = year, y = Proportion, color = Gender)) +
+  
+  geom_rect(data = recessions,
+            aes(xmin = start, xmax = end + 0.5,
+                ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE,
+            fill = "red", alpha = 0.15) +
+  
+  geom_line(linewidth = 0.8) +
+  
+  scale_color_manual(values = c("Men" = "#2166ac", "Women" = "#d6604d")) +
+  scale_y_continuous(labels = scales::comma) +
+  
+  facet_wrap(~ area, scales = "free_y") +
+  
+  labs(
+    title    = "Proportion of Bachelor's Degrees by Major and Gender",
+    subtitle = "Red shaded areas indicate Brazil recessions",
+    x        = "Year",
+    y        = "Degrees Awarded",
+    color    = "Gender"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text       = element_text(face = "bold"),
+    legend.position  = "bottom"
+  )
 
 
 # % Women Over Time by Major

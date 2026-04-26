@@ -167,12 +167,6 @@ brazil_edprop = brazil_ed %>%
 
 head(brazil_edprop)
 
-#brazil_edprop = brazil_edprop %>% 
-  #pivot_longer(cols = c(prop_conc,prop_fem,prop_masc), names_to = "type",
-               #values_to = "prop")
+write_csv(brazil_edprop, "brazil_ed_proportions.csv")
 
-brazil_edprop %>% 
-  filter(area != "Total") %>% 
-  ggplot(aes(year,prop_conc,fill = area))+
-  geom_area()
   
