@@ -282,6 +282,11 @@ brazil %>%
     strip.text      = element_text(face = "bold")
   )
 
+#what is going on with those arts & humanities outliers
 
-
+brazil %>% 
+  filter(area == "Arts & humanities") %>% 
+  filter(year>1997) %>% 
+  ggplot(aes(year,total_conc,col = area))+
+  geom_point()
 
