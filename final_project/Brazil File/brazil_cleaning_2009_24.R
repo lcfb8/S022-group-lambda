@@ -274,7 +274,7 @@ censo_2014S
 #Let's put these 10 together before moving on to 2013
 
 censo_2014_24 = bind_rows(censo_2014S, censo_2015S, censo_2016S, censo_2017S, censo_2018S, 
-             censo_2019S, censo_2020S, censo_2021S, censo_2022S, censo_2024S)
+             censo_2019S, censo_2020S, censo_2021S, censo_2022S, censo_2023S, censo_2024S)
 
 censo_2014_24
 
