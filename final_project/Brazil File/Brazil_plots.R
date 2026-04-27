@@ -126,8 +126,8 @@ brazil_ed %>%
   facet_wrap(~ area, scale = "free_y") +
   
   labs(
-    title    = "Bachelor's Degrees by Major and Gender",
-    subtitle = "Red shaded areas indicate Brazil recessions",
+    title    = "Bachelor's Degrees by Major and Gender in Brazil",
+    subtitle = "Red shaded areas indicate economic recessions",
     x        = "Year",
     y        = "Degrees Awarded",
     color    = "Gender"
