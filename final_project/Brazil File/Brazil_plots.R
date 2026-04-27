@@ -106,7 +106,12 @@ brazil_ed %>%
     values_to = "Count"
   ) %>%
   mutate(Gender = if_else(Gender == "total_masc", "Men", "Women")) %>%
-  mutate(area = as_factor(area)) %>% 
+  mutate(area = factor(area, levels = c("Arts & Humanities",
+                                            "Business & Management","Education", 
+                                            "Engineering", "Health & Medical",
+                                            "Natural Sciences",
+                                            "Social & Behavioral Sciences",
+                                            "Other/Unknown","Total"))) %>% 
   ggplot(aes(x = year, y = Count, color = Gender)) +
   
   geom_rect(data = recessions,
@@ -116,11 +121,9 @@ brazil_ed %>%
             fill = "red", alpha = 0.15) +
   
   geom_line(linewidth = 0.8) +
-  
-  scale_color_manual(values = c("Men" = "#2166ac", "Women" = "#d6604d")) +
   scale_y_continuous(labels = scales::comma) +
-  
-  facet_wrap(~ area, scales = "free_y") +
+  scale_color_manual(values = c("Men" = "#2166ac", "Women" = "#d6604d")) +
+  facet_wrap(~ area, scale = "free_y") +
   
   labs(
     title    = "Bachelor's Degrees by Major and Gender",
@@ -133,7 +136,9 @@ brazil_ed %>%
   theme(
     strip.text       = element_text(face = "bold"),
     legend.position  = "bottom"
-  )
+  ) 
+
+
 
 # Faceted by Gender proportionally
 brazil_edprop %>%
