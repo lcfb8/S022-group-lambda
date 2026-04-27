@@ -133,15 +133,21 @@ majors_cleaned %>%
   scale_y_continuous(labels = scales::comma) +
   facet_wrap(~ BACHELORS, scales = "free_y") +
   labs(
-    title    = "Bachelor's Degrees by Major and Gender",
+    title    = "Bachelor's Degrees by Major and Gender in the U.S.",
     subtitle = "Red shaded areas indicate US recessions",
     x        = "Year",
     y        = "Degrees Awarded",
-    color    = "Gender"
+    color    = "Gender",
+    caption = "Note: The US recessions indicated are: 2001: The dot-com recession, 2007-09: The Great Recession, 2020: COVID"
   ) +
   theme_minimal() +
-  theme(strip.text      = element_text(face = "bold"),
-        legend.position = "bottom")
+  theme(strip.text       = element_text(face = "bold"),
+        legend.position  = "bottom",
+        plot.caption     = element_text(hjust = 0,
+                                        size  = 12,
+                                        color = "gray40",
+                                        face  = "italic")
+  )
 
 # ── Chart 3: % Women Over Time ─────────────────────────────────────────────────
 majors_cleaned %>%
@@ -166,7 +172,7 @@ majors_cleaned %>%
   geom_line(linewidth = 1.25) +
   scale_color_viridis_d() +
   scale_y_continuous(labels = scales::percent_format(scale = 1),
-                     limits = c(20, 90)) +
+                     limits = c(0, 90)) +
   labs(
     title    = "Percentage of Women Earning Bachelor's Degrees by Major",
     subtitle = "Dashed line = 50% | Red shaded areas indicate US recessions",
