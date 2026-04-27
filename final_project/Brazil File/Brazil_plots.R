@@ -1,5 +1,6 @@
 library( tidyverse )
 library( skimr )
+library( stringr )
 library( WDI )
 library( readr )
 
@@ -98,6 +99,8 @@ brazil_edprop %>%
   ggplot(aes(year,prop_conc,fill = area))+
   geom_area()
 
+
+
 # Faceted by Gender
 brazil_ed %>%
   pivot_longer(
@@ -130,13 +133,19 @@ brazil_ed %>%
     subtitle = "Red shaded areas indicate economic recessions",
     x        = "Year",
     y        = "Degrees Awarded",
-    color    = "Gender"
+    color    = "Gender",
+    caption   = "Note: The Brazil recessions indicated are: 1999: the 'Samba Effect', 2007-09: The Great Recession, 
+2014-16: The Brazilian Economic Crisis, 2020: COVID"
   ) +
   theme_minimal() +
   theme(
     strip.text       = element_text(face = "bold"),
-    legend.position  = "bottom"
-  ) 
+    legend.position  = "bottom",
+    plot.caption     = element_text(hjust = 0,        # left align
+                                    size  = 11,        # font size
+                                    color = "gray40", # gray color
+                                    face  = "italic"
+                                    ))
 
 
 
