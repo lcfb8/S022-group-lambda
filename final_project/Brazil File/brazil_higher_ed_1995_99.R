@@ -102,8 +102,8 @@ clean_graduates <- function(dat_clean, year, output_dir) {
 
 
 dat_1996 <- read.csv(
-  "/Users/lucianadiasdemacedo/Downloads/S022/Final_project/microdados_1995_2013/1996_GRADUACAO_PRESENCIAL.CSV",
-  header = TRUE,
+ # "/Users/lucianadiasdemacedo/Downloads/S022/Final_project/microdados_1995_2013/1996_GRADUACAO_PRESENCIAL.CSV",
+  "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/Final project/Microdados do Censo da Educa‡ֶo Superior 1996/DADOS/GRADUACAO_PRESENCIAL.CSV", header = TRUE,
   stringsAsFactors = FALSE,
   sep = "|"
 )
@@ -150,8 +150,48 @@ dat_1996_clean <- data.frame(
 clean_1996 <- clean_graduates(
   dat_clean  = dat_1996_clean,
   year       = 1996,
-  output_dir = "/Users/lucianadiasdemacedo/Downloads/S022/Final_project"
+  #output_dir = "/Users/lucianadiasdemacedo/Downloads/S022/Final_project"
+  output_dir = "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/Final project"
 )
+
+clean_1996
+
+#LB note: microdados for 1996 are missing a lot of data
+#Instead, I pulled these numbers from "Sinopse Estatística da Educação Superior 
+#1996", which does not have gender but seems to have more accurate totals
+
+test96 = data_frame(
+  NO_CINE_AREA_GERAL = c("TOTAL", "CIENCIAS EXATAS E DA TERRA", "CIENCIAS BIOLOGICAS",
+           "ENGENHARIA / TECNOLOGIA", "CIENCIAS DA SAUDE", "CIENCIAS AGRARIAS",
+           "CIENCIAS SOCIAIS APLICADAS", "CIENCIAS HUMANAS", "LINGUISTICA, LETRAS E ARTES"),
+  QT_CONC = c(254401,
+                 23798,
+                 3553,
+                 17279,
+                 34404,
+                 5603,
+                 97528,
+                 53325,
+                 18911),
+  QT_CONC_FEM = c(NA, NA, NA, NA, NA, NA, NA, NA, NA),
+  QT_CONC_MASC = c(NA, NA, NA, NA, NA, NA, NA, NA, NA),
+  NU_ANO_CENSO = 1996
+)
+
+
+test96$NO_CINE_AREA_GERAL <- area_map_1996[test96$NO_CINE_AREA_GERAL]
+
+test96 = test96 %>% 
+  group_by(NO_CINE_AREA_GERAL) %>%
+  mutate(QT_CONC = sum(QT_CONC)) %>% 
+  select(NU_ANO_CENSO,QT_CONC_FEM,QT_CONC_MASC,QT_CONC,NO_CINE_AREA_GERAL) %>% 
+  slice(1,3:8)
+  
+
+test96
+
+#comment this out if you want to use the other one
+write_csv(test96, "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/S022-group-lambda/final_project/Brazil File/brazil_1996_alt.csv")
 
 
 ######### one more separate function, because every year the variables are different!!!!
