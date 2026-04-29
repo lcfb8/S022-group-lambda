@@ -7,28 +7,18 @@ br2000_08 = read_csv("2000_2008_clean.csv")
 br2009_13 = read_csv("censo_2009_13.csv")
 br2014_24 = read_csv("censo_2014_24.csv")
 
-br1995_99 = br1995_99 %>% 
-  rename( "area" = NO_CINE_AREA_GERAL,
-          "ano" = NU_ANO_CENSO,
-          "total_conc" = QT_CONC,
-          "total_fem" =  QT_CONC_FEM,
-          "total_masc" = QT_CONC_MASC)
-
-br2000_08 = br2000_08 %>% 
-  rename( "area" = NO_CINE_AREA_GERAL,
-          "ano" = NU_ANO_CENSO,
-          "total_conc" = QT_CONC,
-          "total_fem" =  QT_CONC_FEM,
-          "total_masc" = QT_CONC_MASC)
 
 brazil_ed = bind_rows(br1995_99,br2000_08,br2009_13,br2014_24)
 
 
 brazil_ed = brazil_ed %>% 
+  rename( "area" = NO_CINE_AREA_GERAL,
+          "year" = NU_ANO_CENSO,
+          "total_conc" = QT_CONC,
+          "total_fem" =  QT_CONC_FEM,
+          "total_masc" = QT_CONC_MASC) %>% 
   filter(area != "Programas ou Cursos Gerais")
 
-brazil_ed = brazil_ed %>% 
-  rename( "year" = ano)
 
 table(brazil_ed$area)
 
