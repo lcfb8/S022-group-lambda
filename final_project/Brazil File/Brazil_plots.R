@@ -349,11 +349,11 @@ options(scipen = 999)
 brazil = read_csv("brazil_all.csv")
 
 brazil = brazil %>% 
-  mutate(gdp_trils = gdp/1000000000000) 
+  mutate(gdp_100bil = gdp/100000000000) 
 
 brazilL = brazil %>% 
   select(-gdp) %>% 
-  pivot_longer(cols = c(gdp_trils,unemploy), 
+  pivot_longer(cols = c(gdp_100bil,unemploy), 
                names_to = "econ", values_to = "rate")
 
 #this looks better when GDP is in 100s of billions
