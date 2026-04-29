@@ -41,6 +41,7 @@ read_censo = function(year) {
 # NAs in QT_CONC* are from distance-learning courses with no completion data
 clean_census = function(data) {
   data %>%
+    filter(TP_GRAU_ACADEMICO %in% c(1,2)) %>% 
     select(NU_ANO_CENSO, NO_CURSO, NO_CINE_AREA_GERAL,
            QT_CONC, QT_CONC_FEM, QT_CONC_MASC) %>%
     filter(NO_CINE_AREA_GERAL != "Programas básicos") %>%
@@ -72,11 +73,11 @@ out_dir = "../S022-group-lambda/final_project/Brazil File"
 
 censo_2014_24 = process_years(2014:2024)
 write_csv(censo_2014_24, file.path(out_dir, "censo_2014_24.csv"))
-
+    
 censo_2009_13 = process_years(2009:2013)
 write_csv(censo_2009_13, file.path(out_dir, "censo_2009_13.csv"))
 
-#######################################
+ #######################################
 #here's my original cleaning script for Brazil higher education census
 #variables we want: NU_ANO_CENSO, NO_CURSO, NO_CINE_AREA_GERAL, QT_CONC,
 # QT_CONC_FEM, QT_CONC_MASC
@@ -94,8 +95,15 @@ censo_2024 = censo_2024 %>%
   filter(NO_CINE_AREA_GERAL != "Programas básicos")
 
 #let's take a look
-head(censo_2024)
+head(censo_2024$CO_CURSO)
 
+table(censo_2024$NO_CINE_AREA_GERAL)
+
+names(censo_2024)
+
+table(censo_2024$TP_GRAU_ACADEMICO)
+
+unique(censo_2024$NO_CURSO)
 #how many NAs in censo_2024?
 table(is.na(censo_2024))
 #yay there are no NAs

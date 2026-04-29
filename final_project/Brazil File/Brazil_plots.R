@@ -28,7 +28,7 @@ alt_1996 = alt_1996 %>%
                 "Engenharia, produção e construção" = "Engineering",
                 "Negócios, administração e direito" = "Business & Management"))
 
-alt_1996$area
+alt_1996
 
 brazil_ed = brazil_ed %>% 
   filter(year != 1996) %>% 
