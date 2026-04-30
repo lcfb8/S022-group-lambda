@@ -6,8 +6,6 @@ major <- read.csv('~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/S02
 
 head(major)
 
-M_loess <- loess(Total ~ gdp_trils + unemploy, data = dat, span = 0.2)
-
 major %>% 
   filter(BACHELORS !="Grand total") %>% 
   ggplot(aes(unemploy, Total, group = BACHELORS, color = BACHELORS))+
@@ -19,6 +17,22 @@ major %>%
   ggplot(aes(gdp, Total, group = BACHELORS, color = BACHELORS))+
   geom_point()+
   geom_smooth(method = "loess", span = 0.5, se = FALSE)
+
+major_prop = major %>% 
+  #calculate the proportion of Total, Total_Men, and Total_Women for each YEAR and BACHELORS
+  group_by(YEAR) %>%
+   mutate(prop_total = Total / Total[BACHELORS == "Grand total"],
+          prop_men = Total_Men / Total_Men[BACHELORS == "Grand total"],
+          prop_women = Total_Women / Total_Women[BACHELORS == "Grand total"]) %>%
+  select(-c(X,GDP,UNRATE)) %>% 
+  ungroup()
+
+major_prop %>% 
+  filter(BACHELORS != "Grand total") %>% 
+  ggplot(aes(YEAR,prop_total,color = BACHELORS))+
+  geom_point()+
+  geom_line()
+
 
 #let's look at WDI economic indicators
 
@@ -78,9 +92,8 @@ econ = full_join(gdp_growth, unemploy, by = "year")
 econ = pivot_longer(econ, cols = c(growth,unemploy), 
                     names_to = "thing", values_to = "rate")
 
-econ
 econ %>% 
-  mutate(thing = factor(thing)) %>% 
+  mutate(thing = factor(thing)) %>%
   ggplot(aes(year,rate, group = thing, col = thing))+
   geom_point()+
   geom_line()
