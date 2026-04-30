@@ -159,4 +159,38 @@ head(brazil_edprop)
 
 write_csv(brazil_edprop, "brazil_ed_proportions.csv")
 
+#############################################
+########################################################
+# Brazil economic data
+#unemployment
+desemprego = data.frame(WDI(country = "BR", 
+                            indicator = "SL.UEM.TOTL.ZS",  # unemployment % of labor force
+                            start = 1995, 
+                            end = 2024))
+
+desemprego = desemprego %>% 
+  select(year,SL.UEM.TOTL.ZS) %>% 
+  rename("unemploy" = SL.UEM.TOTL.ZS)
+
+
+# Brazil GDP
+gdp_brazil = data.frame(WDI(country = "BR", 
+                            indicator = "NY.GDP.MKTP.CD",  # GDP in current US dollars
+                            start = 1995, 
+                            end = 2024))
+
+gdp_brazil = gdp_brazil %>% 
+  select(year, NY.GDP.MKTP.CD) %>% 
+  rename( "gdp" = NY.GDP.MKTP.CD)
+
+
+######
+#combine education and economic data (if we need?)
+brazil = full_join(brazil_ed, desemprego, by = "year")
+
+brazil = full_join(brazil, gdp_brazil, by = "year")
+
+brazil
+
+write_csv(brazil, "brazil_all.csv")
   
