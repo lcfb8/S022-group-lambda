@@ -7,7 +7,6 @@ brazil_edprop <- read_csv("brazil_ed_proportions.csv")
 brazil_all <-read_csv("brazil_all.csv")
 
 
-
 M_loess <- loess(total_conc ~ unemploy + gdp, data = brazil_all, span = 0.2)
 
 head(brazil_all)
@@ -15,6 +14,8 @@ head(brazil_all)
 
 brazil_all %>% 
   mutate(area = as.factor(area)) %>% 
-  ggplot(aes(unemploy,total_conc,group = area, color = area))+
+  filter(area == "Arts & Humanities") %>% 
+  ggplot(aes(unemploy,total_conc))+
   geom_point()+
   geom_smooth()
+

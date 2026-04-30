@@ -83,6 +83,7 @@ brazil_ed %>%
 
 brazil_edprop %>%
   filter(area != "Total") %>% 
+  filter(year >1999) %>% 
   ggplot(aes(x = year, y = prop_conc, color = area)) +
   scale_color_brewer(palette = "Set2") +
   geom_rect(data = recessions,
