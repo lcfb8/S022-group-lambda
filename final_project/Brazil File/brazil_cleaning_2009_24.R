@@ -1,12 +1,84 @@
-library( tidyverse )
-library( readxl )
-library( skimr )
-library( readr )
-library( doParallel )
-library( mice )
-library( glue )
 
-#cleaning script for Brazil higher education census
+#I put all of my code in Claude and asked it to tidy it up. Tidied code below;
+#original code is further down after that. My original code involved looking
+#at each year individually to explore the data, check for NAs, etc.
+
+library(tidyverse)
+library(glue)
+
+# ── Helper functions ──────────────────────────────────────────────────────────
+
+# Build file path per year — folder structure changed across releases
+get_censo_path = function(year) {
+  base = glue("microdados_censo_da_educacao_superior_{year}")
+  file = glue("MICRODADOS_CADASTRO_CURSOS_{year}.CSV")
+  
+  subfolder = if (year >= 2023) {
+    "dados"
+  } else if (year == 2022) {
+    "microdados_educacao_superior_2022/dados"
+  } else if (year == 2021) {
+    "Microdados do Censo da Educacao Superior 2021/dados"
+  } else {
+    # Folder names in 2020 and earlier use garbled encoding for "Educação"
+    glue("Microdados do Censo da Educa‡ֶo Superior {year}/dados")
+  }
+  
+  glue("{base}/{subfolder}/{file}")
+}
+
+# Read a single census year from disk
+read_censo = function(year) {
+  read_delim(
+    get_censo_path(year),
+    delim = ";",
+    locale = locale(encoding = "ISO-8859-1"),
+    show_col_types = FALSE
+  )
+}
+
+# Select relevant columns, drop prep programs, and remove NAs
+# NAs in QT_CONC* are from distance-learning courses with no completion data
+clean_census = function(data) {
+  data %>%
+    filter(TP_GRAU_ACADEMICO %in% c(1,2)) %>% 
+    select(NU_ANO_CENSO, NO_CURSO, NO_CINE_AREA_GERAL,
+           QT_CONC, QT_CONC_FEM, QT_CONC_MASC) %>%
+    filter(NO_CINE_AREA_GERAL != "Programas básicos") %>%
+    na.omit()
+}
+
+# Summarize degree completions by year x field of study
+summarize_census = function(data) {
+  data %>%
+    summarise(
+      .by        = c(NU_ANO_CENSO, NO_CINE_AREA_GERAL),
+      QT_CONC = sum(QT_CONC),
+      QT_CONC_FEM  = sum(QT_CONC_FEM),
+      QT_CONC_MASC = sum(QT_CONC_MASC)
+    )
+}
+
+# Full pipeline: read → clean → summarize
+process_years = function(years) {
+  map(years, read_censo) %>%
+    bind_rows() %>%
+    clean_census() %>%
+    summarize_census()
+}
+
+# ── Process and save ──────────────────────────────────────────────────────────
+
+out_dir = "../S022-group-lambda/final_project/Brazil File"
+
+censo_2014_24 = process_years(2014:2024)
+write_csv(censo_2014_24, file.path(out_dir, "censo_2014_24.csv"))
+    
+censo_2009_13 = process_years(2009:2013)
+write_csv(censo_2009_13, file.path(out_dir, "censo_2009_13.csv"))
+
+ #######################################
+#here's my original cleaning script for Brazil higher education census
 #variables we want: NU_ANO_CENSO, NO_CURSO, NO_CINE_AREA_GERAL, QT_CONC,
 # QT_CONC_FEM, QT_CONC_MASC
 
@@ -23,8 +95,15 @@ censo_2024 = censo_2024 %>%
   filter(NO_CINE_AREA_GERAL != "Programas básicos")
 
 #let's take a look
-head(censo_2024)
+head(censo_2024$CO_CURSO)
 
+table(censo_2024$NO_CINE_AREA_GERAL)
+
+names(censo_2024)
+
+table(censo_2024$TP_GRAU_ACADEMICO)
+
+unique(censo_2024$NO_CURSO)
 #how many NAs in censo_2024?
 table(is.na(censo_2024))
 #yay there are no NAs
@@ -322,31 +401,4 @@ censo_2009_13
 
 write_csv(censo_2009_13, "../S022-group-lambda/final_project/Brazil File/censo_2009_13.csv")
 
-#######################
-#ok let's try with earlier years
 
-years = c(2004:2008)
-
-censo_2009_13all = 
-  map(years, read_censo)
-
-censo_2009_13 = bind_rows(censo_2009_13all)
-
-#skim(censo_2009_13)
-
-censo_2009_13 = clean_census(censo_2009_13)
-
-censo_2009_13 = na.omit(censo_2009_13)
-
-censo_2009_13 = censo_2009_13 %>% 
-  summarise(.by = c(NU_ANO_CENSO, NO_CINE_AREA_GERAL), 
-            total_conc = sum(QT_CONC), 
-            total_fem = sum(QT_CONC_FEM), 
-            total_masc = sum(QT_CONC_MASC),
-            ano = unique(NU_ANO_CENSO)) %>% 
-  rename("area" = NO_CINE_AREA_GERAL) %>% 
-  select(-NU_ANO_CENSO)
-
-censo_2009_13
-
-write_csv(censo_2009_13, "../S022-group-lambda/final_project/Brazil File/censo_2009_13.csv")

@@ -6,7 +6,35 @@ library( readr )
 
 
 brazil_ed <- read_csv("brazil_ed_recoded.csv")
+alt_1996 <- read_csv("brazil_1996_alt.csv")
 brazil_edprop <- read_csv("brazil_ed_proportions.csv")
+
+#replace 1996 data with 1996 alt data (potentially more accurate totals but
+#no split by gender)
+
+alt_1996 = alt_1996 %>% 
+  rename("area" = "NO_CINE_AREA_GERAL",
+         "total_conc" = "QT_CONC",
+         "total_fem" = "QT_CONC_FEM",
+         "total_masc" = "QT_CONC_MASC",
+         "year"= "NU_ANO_CENSO") %>% 
+  mutate(area = recode(area,
+                "Agricultura, silvicultura, pesca e veterinária" = "Other/Unknown",
+                "Artes e humanidades" = "Arts & Humanities",
+                "Educação"= "Education",
+                "Ciências sociais, comunicação e informação"= "Social & Behavioral Sciences",
+                "Saúde e bem-estar"= "Health & Medical",
+                "Ciências naturais, matemática e estatística" = "Natural Sciences",
+                "Engenharia, produção e construção" = "Engineering",
+                "Negócios, administração e direito" = "Business & Management"))
+
+alt_1996
+
+brazil_ed = brazil_ed %>% 
+  filter(year != 1996) %>% 
+  bind_rows(alt_1996)
+
+
 
 # color blind friendly options
 okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
@@ -321,11 +349,11 @@ options(scipen = 999)
 brazil = read_csv("brazil_all.csv")
 
 brazil = brazil %>% 
-  mutate(gdp_trils = gdp/1000000000000) 
+  mutate(gdp_100bil = gdp/100000000000) 
 
 brazilL = brazil %>% 
   select(-gdp) %>% 
-  pivot_longer(cols = c(gdp_trils,unemploy), 
+  pivot_longer(cols = c(gdp_100bil,unemploy), 
                names_to = "econ", values_to = "rate")
 
 #this looks better when GDP is in 100s of billions
