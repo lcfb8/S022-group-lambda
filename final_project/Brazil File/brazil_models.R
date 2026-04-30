@@ -15,6 +15,8 @@ head(brazil_all)
 
 brazil_all %>% 
   mutate(area = as.factor(area)) %>% 
-  ggplot(aes(unemploy,total_conc,group = area, color = area))+
+  filter(area == "Arts & Humanities") %>% 
+  ggplot(aes(unemploy,total_conc))+
   geom_point()+
   geom_smooth()
+
