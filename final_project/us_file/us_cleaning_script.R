@@ -2318,6 +2318,6 @@ major_trill <- major_trill |>
     .groups = "drop"
   )
 
-# writing the CSV
+# writing the CSVs
 write_csv(major_ALL, "~/GitHub/S022-group-lambda/final_project/us_File/us_major_ALL.csv")
 write_csv(major_trill, "~/GitHub/S022-group-lambda/final_project/us_File/us_major_trill.csv")
