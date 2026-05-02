@@ -1,3 +1,5 @@
+rm(list = ls())
+
 # Loading packages
 library(tidyverse)
 library(dplyr)
@@ -6,6 +8,7 @@ library(ggplot2)
 library(RColorBrewer)
 
 major_df <- read.csv("C:/Users/dylan/Documents/GitHub/S022-group-lambda/final_project/us_file/us_major_all.csv")
+major_trill <- read.csv("C:/Users/dylan/Documents/GitHub/S022-group-lambda/final_project/us_file/us_major_trill.csv")
 
 # Color blind friendly palette
 okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",
@@ -19,10 +22,10 @@ recessions <- data.frame(
 )
 
 # ── Chart 1: Total Degrees by Major ───────────────────────────────────────────
-majors_cleaned %>%
-  filter(BACHELORS != "Grand total",
+major_trill %>%
+  filter(area != "Grand total",
          econ == "gdp_trils") %>%
-  ggplot(aes(x = YEAR, y = Total, color = BACHELORS)) +
+  ggplot(aes(x = year, y = Total, color = area)) +
   scale_color_brewer(palette = "Set2") +
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5, ymin = -Inf, ymax = Inf),
@@ -43,7 +46,7 @@ majors_cleaned %>%
   theme_minimal()
 
 # ── Chart 2: Degrees by Major and Gender ──────────────────────────────────────
-majors_cleaned %>%
+gender_plot <- major_trill %>%
   filter(econ == "gdp_trils") %>%
   pivot_longer(
     cols      = c(Total_Men, Total_Women),
@@ -51,7 +54,7 @@ majors_cleaned %>%
     values_to = "Count"
   ) %>%
   mutate(Gender    = if_else(Gender == "Total_Men", "Men", "Women"),
-         BACHELORS = factor(BACHELORS, 
+         area = factor(area, 
                             levels = c("Arts & Humanities",
                                        "Business & Management",
                                        "Education",
@@ -61,7 +64,7 @@ majors_cleaned %>%
                                        "Social & Behavioral Sciences",
                                        "Other/Unknown",
                                        "Grand total"))) %>%
-  ggplot(aes(x = YEAR, y = Count, color = Gender)) +
+  ggplot(aes(x = year, y = Count, color = Gender)) +
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5, ymin = -Inf, ymax = Inf),
             inherit.aes = FALSE,
@@ -69,7 +72,7 @@ majors_cleaned %>%
   geom_line(linewidth = 0.8) +
   scale_color_manual(values = c("Men" = "#2166ac", "Women" = "#d6604d")) +
   scale_y_continuous(labels = scales::comma) +
-  facet_wrap(~ BACHELORS, scales = "free_y") +
+  facet_wrap(~ area, scales = "free_y") +
   labs(
     title    = "Bachelor's Degrees by Major and Gender in the U.S.",
     subtitle = "Red shaded areas indicate US recessions",
@@ -84,15 +87,20 @@ majors_cleaned %>%
         plot.caption     = element_text(hjust = 0,
                                         size  = 12,
                                         color = "gray40",
-                                        face  = "italic")
+                                        face  = "italic"),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent"))
   )
+ggsave("gender_plot.png", gender_plot, bg = "transparent")
 
 # ── Chart 3: % Women Over Time ─────────────────────────────────────────────────
-majors_cleaned %>%
+major_trill %>%
   filter(econ == "gdp_trils",
-         BACHELORS != "Grand total") %>%
+         area != "Grand total") %>%
   mutate(pct_women = Total_Women / Total * 100,
-         BACHELORS = factor(BACHELORS, 
+         area = factor(area, 
                             levels = c("Arts & Humanities",
                                        "Business & Management",
                                        "Education",
@@ -101,7 +109,7 @@ majors_cleaned %>%
                                        "Natural Sciences",
                                        "Social & Behavioral Sciences",
                                        "Other/Unknown"))) %>%
-  ggplot(aes(x = YEAR, y = pct_women, color = BACHELORS)) +
+  ggplot(aes(x = year, y = pct_women, color = area)) +
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5, ymin = -Inf, ymax = Inf),
             inherit.aes = FALSE,
@@ -122,11 +130,11 @@ majors_cleaned %>%
   theme(legend.position = "bottom")
 
 # ── Chart 4: Gender Ratio Heatmap ─────────────────────────────────────────────
-majors_cleaned %>%
+major_trill %>%
   filter(econ == "gdp_trils",
-         BACHELORS != "Grand total") %>%
+         area != "Grand total") %>%
   mutate(pct_women = Total_Women / Total * 100) %>%
-  ggplot(aes(x = YEAR, y = BACHELORS, fill = pct_women)) +
+  ggplot(aes(x = year, y = area, fill = pct_women)) +
   geom_tile() +
   scale_fill_gradient2(
     low      = "#2166ac",
@@ -148,13 +156,13 @@ majors_cleaned %>%
         legend.key.width = unit(2, "cm"))
 
 # ── Chart 5: Indexed Growth ────────────────────────────────────────────────────
-majors_cleaned %>%
+major_trill %>%
   filter(econ == "gdp_trils",
-         BACHELORS != "Grand total") %>%
-  group_by(BACHELORS) %>%
-  mutate(index = Total / Total[YEAR == min(YEAR)] * 100) %>%
+         area != "Grand total") %>%
+  group_by(area) %>%
+  mutate(index = Total / Total[year == min(year)] * 100) %>%
   ungroup() %>%
-  ggplot(aes(x = YEAR, y = index, color = BACHELORS)) +
+  ggplot(aes(x = year, y = index, color = area)) +
   geom_rect(data = recessions,
             aes(xmin = start, xmax = end + 0.5, ymin = -Inf, ymax = Inf),
             inherit.aes = FALSE,
@@ -174,13 +182,13 @@ majors_cleaned %>%
   theme(legend.position = "bottom")
 
 # ── Chart 6: Unemployment Rate vs. Total Degrees ──────────────────────────────
-majors_cleaned %>%
+major_trill %>%
   filter(econ == "unemploy",
-         BACHELORS != "Grand total") %>%
-  group_by(YEAR, rate) %>%
+         area != "Grand total") %>%
+  group_by(year, rate) %>%
   summarise(Total = sum(Total), .groups = "drop") %>%
   ggplot(aes(x = rate, y = Total)) +
-  geom_point(aes(color = YEAR), size = 3) +
+  geom_point(aes(color = year), size = 3) +
   geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed") +
   scale_color_viridis_c() +
   scale_y_continuous(labels = scales::comma) +
@@ -195,16 +203,16 @@ majors_cleaned %>%
   theme(legend.position = "right")
 
 # ── Chart 7: GDP vs. Degree Counts by Major ───────────────────────────────────
-majors_cleaned %>%
+major_trill %>%
   filter(econ == "gdp_trils",
-         BACHELORS != "Grand total") %>%
-  ggplot(aes(x = rate, y = Total, color = BACHELORS)) +
+         area != "Grand total") %>%
+  ggplot(aes(x = rate, y = Total, color = area)) +
   geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
   scale_color_viridis_d() +
   scale_y_continuous(labels = scales::comma) +
   scale_x_continuous(labels = scales::comma) +
-  facet_wrap(~ BACHELORS, scales = "free_y") +
+  facet_wrap(~ area, scales = "free_y") +
   labs(
     title    = "GDP vs. Bachelor's Degrees Awarded by Major",
     subtitle = "Each point represents one year",
