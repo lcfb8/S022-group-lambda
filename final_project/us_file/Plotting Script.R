@@ -3,71 +3,9 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 library(ggplot2)
-library(WDI)
 library(RColorBrewer)
 
-major_df <- read.csv('~/Documents/GitHub/S022-group-lambda/final_project/U.S. File/major_final_df.csv')
-
-#### US Economic Data ####
-unemploy = data.frame(WDI(country = "US", 
-                          indicator = "SL.UEM.TOTL.ZS",
-                          start = 1995, 
-                          end = 2024))
-
-unemploy = unemploy %>% 
-  select(year, SL.UEM.TOTL.ZS) %>% 
-  rename("unemploy" = SL.UEM.TOTL.ZS,
-         "YEAR"     = "year")
-
-gdp_US = data.frame(WDI(country = "US", 
-                        indicator = "NY.GDP.MKTP.CD",
-                        start = 1995, 
-                        end = 2024))
-
-gdp_US = gdp_US %>% 
-  select(year, NY.GDP.MKTP.CD) %>% 
-  rename("gdp"  = NY.GDP.MKTP.CD,
-         "YEAR" = "year")
-
-major_GDP <- left_join(major_df,  gdp_US,  by = "YEAR")
-major_ALL <- left_join(major_GDP, unemploy, by = "YEAR")
-
-write_csv(major_ALL, '~/Documents/GitHub/S022-group-lambda/final_project/U.S. File/major_ALL.csv')
-
-options(scipen = 999)
-
-# Loading US data back in
-US <- read_csv('~/Documents/GitHub/S022-group-lambda/final_project/U.S. File/major_ALL.csv')
-
-US <- US %>% 
-  mutate(gdp_trils = gdp / 1000000000000)
-
-USL <- US %>% 
-  select(-gdp) %>% 
-  pivot_longer(
-    cols      = c(gdp_trils, unemploy), 
-    names_to  = "econ", 
-    values_to = "rate"
-  )
-
-# Replace Fine & Performing Arts and Humanities with "Arts & Humanities"
-ArtsHumanities_df <- USL %>%
-  mutate(BACHELORS = case_when(
-    BACHELORS == "Fine & Performing Arts" ~ "Arts & Humanities",
-    BACHELORS == "Humanities"             ~ "Arts & Humanities",
-    TRUE                                  ~ BACHELORS
-  ))
-
-majors_cleaned <- ArtsHumanities_df |>
-  group_by(YEAR, BACHELORS, econ, rate) |>
-  summarise(
-    Total_Men   = sum(Total_Men,   na.rm = TRUE),
-    Total_Women = sum(Total_Women, na.rm = TRUE),
-    Total       = Total_Men + Total_Women,
-    .groups = "drop"
-  )
-
-write.csv(majors_cleaned, '~/Documents/GitHub/S022-group-lambda/final_project/U.S. File/major_final_df.csv')
+major_df <- read.csv("C:/Users/dylan/Documents/GitHub/S022-group-lambda/final_project/us_file/us_major_all.csv")
 
 # Color blind friendly palette
 okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442",

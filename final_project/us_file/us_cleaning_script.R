@@ -2,6 +2,7 @@
 library(tidyverse)
 library(dplyr)
 library(readr)
+library(WDI)
 
 # Loading in data
 CIP1995 <- read_csv("~/Exploratory Analysis/CIP/1995/c9495_a.csv")
@@ -34,7 +35,6 @@ CIP2021 <- read_csv("~/Exploratory Analysis/CIP/2021/c2021_a.csv")
 CIP2022 <- read_csv("~/Exploratory Analysis/CIP/2022/c2022_a.csv")
 CIP2023 <- read_csv("~/Exploratory Analysis/CIP/2023/c2023_a.csv")
 CIP2024 <- read_csv("~/Exploratory Analysis/CIP/2024/c2024_a.csv")
-GDP_UNRATE <- read_csv("~/Exploratory Analysis/GDP & UNRATE/GDP_UNRATE.csv")
 
 # Add a year column
 CIP1995 <- CIP1995 %>% rename_with(toupper) %>% mutate(YEAR = 1995, AWLEVEL = as.numeric(AWLEVEL))
@@ -2237,10 +2237,8 @@ filtered_df_2 %>%
 
 CIP_ALL <- bind_rows(filtered_df, filtered_df_2)
 
-final_df <- CIP_ALL %>%
-  left_join(GDP_UNRATE, by = c("YEAR" = "Year")) 
-
-major_summary <- final_df |>
+# Grouping by year and degree 
+major_summary <- CIP_ALL |>
   group_by(YEAR, BACHELORS) |>
   summarise(
     Total_Men   = sum(Tmen,   na.rm = TRUE),
@@ -2249,21 +2247,77 @@ major_summary <- final_df |>
     .groups = "drop"
   )
 
-major_summary_long <- major_summary |>
+#### Adding in US Economic Data ####
+unemploy = data.frame(WDI(country = "US", 
+                          indicator = "SL.UEM.TOTL.ZS",
+                          start = 1995, 
+                          end = 2024))
+
+unemploy = unemploy %>% 
+  select(year, SL.UEM.TOTL.ZS) %>% 
+  rename("unemploy" = SL.UEM.TOTL.ZS,
+         "YEAR"     = "year")
+
+gdp_US = data.frame(WDI(country = "US", 
+                        indicator = "NY.GDP.MKTP.CD",
+                        start = 1995, 
+                        end = 2024))
+
+gdp_US = gdp_US %>% 
+  select(year, NY.GDP.MKTP.CD) %>% 
+  rename("gdp"  = NY.GDP.MKTP.CD,
+         "YEAR" = "year")
+
+gdp_growth = data.frame(WDI(country = "US", 
+                            indicator = "NY.GDP.MKTP.KD.ZG",
+                            start = 1995, 
+                            end = 2024))
+
+gdp_growth = gdp_growth %>% 
+  select(year, NY.GDP.MKTP.KD.ZG) %>% 
+  rename("growth"  = NY.GDP.MKTP.KD.ZG,
+         "YEAR" = "year")
+
+major_growth <- left_join(major_summary, gdp_growth, by ="YEAR")
+major_GDP <- left_join(major_growth,  gdp_US,  by = "YEAR")
+major_ALL <- left_join(major_GDP, unemploy, by = "YEAR")
+
+# Replace Fine & Performing Arts and Humanities with "Arts & Humanities"
+major_ALL <- major_ALL %>%
+  mutate(BACHELORS = case_when(
+    BACHELORS == "Fine & Performing Arts" ~ "Arts & Humanities",
+    BACHELORS == "Humanities"             ~ "Arts & Humanities",
+    TRUE                                  ~ BACHELORS
+  ))
+
+# Renaming Year and Bachelors to match Brazilian dataset
+major_ALL <- major_ALL %>%
+  rename("year" = "YEAR",
+         "area" = "BACHELORS")
+
+# turn off scientific notation 
+options(scipen = 999)
+
+major_trill <- major_ALL %>% 
+  mutate(gdp_trils = gdp / 1000000000000)
+
+major_trill <- major_trill %>% 
+  select(-gdp) %>% 
   pivot_longer(
-    cols      = c(Total_Men, Total_Women),
-    names_to  = "Gender",
-    values_to = "Count"
-  ) |>
-  mutate(Gender = if_else(Gender == "Total_Men", "Men", "Women"))
+    cols      = c(gdp_trils, unemploy, growth), 
+    names_to  = "econ", 
+    values_to = "rate"
+  )
 
-# Now easy to plot
-ggplot(major_summary_long, aes(x = YEAR, y = Count, color = Gender)) +
-  geom_line() +
-  facet_wrap(~ BACHELORS, scales = "free_y")
+major_trill <- major_trill |>
+  group_by(year, area, econ, rate) |>
+  summarise(
+    Total_Men   = sum(Total_Men,   na.rm = TRUE),
+    Total_Women = sum(Total_Women, na.rm = TRUE),
+    Total       = Total_Men + Total_Women,
+    .groups = "drop"
+  )
 
-# writing the CSVs
-write_csv(filtered_df, "~/Exploratory Analysis/CIP/filtered_df.csv")
-write_csv(filtered_df_2, "~/Exploratory Analysis/CIP/filtered_df_2.csv")
-write_csv(final_df, "~/Exploratory Analysis/CIP/final_df.csv")
-write_csv(major_summary, "~/Exploratory Analysis/CIP/major_df.csv")
+# writing the CSV
+write_csv(major_ALL, "~/GitHub/S022-group-lambda/final_project/us_File/us_major_ALL.csv")
+write_csv(major_trill, "~/GitHub/S022-group-lambda/final_project/us_File/us_major_trill.csv")
