@@ -22,7 +22,7 @@ recessions <- data.frame(
 )
 
 # ── Chart 1: Total Degrees by Major ───────────────────────────────────────────
-major_trill %>%
+bach_plot <- major_trill %>%
   filter(area != "Grand total",
          econ == "gdp_trils") %>%
   ggplot(aes(x = year, y = Total, color = area)) +
@@ -43,7 +43,14 @@ major_trill %>%
     y     = "Total Degrees",
     color = "Major Category"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+                plot.background = element_rect(fill = "transparent", colour = NA),
+                legend.background = element_rect(fill = "transparent"),
+                legend.box.background = element_rect(fill = "transparent")
+                )
+
+ggsave("bachelors_plot.png", bach_plot, bg = "transparent")
 
 # ── Chart 2: Degrees by Major and Gender ──────────────────────────────────────
 gender_plot <- major_trill %>%
@@ -85,14 +92,15 @@ gender_plot <- major_trill %>%
   theme(strip.text       = element_text(face = "bold"),
         legend.position  = "bottom",
         plot.caption     = element_text(hjust = 0,
-                                        size  = 12,
+                                        size  = 10,
                                         color = "gray40",
                                         face  = "italic"),
         panel.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA),
         legend.background = element_rect(fill = "transparent"),
-        legend.box.background = element_rect(fill = "transparent"))
-  )
+        legend.box.background = element_rect(fill = "transparent")
+        )
+
 ggsave("gender_plot.png", gender_plot, bg = "transparent")
 
 # ── Chart 3: % Women Over Time ─────────────────────────────────────────────────
