@@ -9,6 +9,10 @@ brazil_ed <- read_csv("brazil_ed_recoded.csv")
 alt_1996 <- read_csv("brazil_1996_alt.csv")
 brazil_edprop <- read_csv("brazil_ed_proportions.csv")
 
+brazil_ed %>% 
+  arrange(area, year) %>% 
+  print(n=200)
+
 #replace 1996 data with 1996 alt data (potentially more accurate totals but
 #no split by gender)
 

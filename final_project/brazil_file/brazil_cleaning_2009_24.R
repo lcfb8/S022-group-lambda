@@ -10,21 +10,8 @@ library(glue)
 
 # Build file path per year — folder structure changed across releases
 get_censo_path = function(year) {
-  base = glue("microdados_censo_da_educacao_superior_{year}")
   file = glue("MICRODADOS_CADASTRO_CURSOS_{year}.CSV")
-  
-  subfolder = if (year >= 2023) {
-    "dados"
-  } else if (year == 2022) {
-    "microdados_educacao_superior_2022/dados"
-  } else if (year == 2021) {
-    "Microdados do Censo da Educacao Superior 2021/dados"
-  } else {
-    # Folder names in 2020 and earlier use garbled encoding for "Educação"
-    glue("Microdados do Censo da Educa‡ֶo Superior {year}/dados")
-  }
-  
-  glue("{base}/{subfolder}/{file}")
+  glue("{file}")
 }
 
 # Read a single census year from disk
@@ -42,6 +29,7 @@ read_censo = function(year) {
 clean_census = function(data) {
   data %>%
     filter(TP_GRAU_ACADEMICO %in% c(1,2)) %>% 
+    filter(TP_MODALIDADE_ENSINO == 1) %>% 
     select(NU_ANO_CENSO, NO_CURSO, NO_CINE_AREA_GERAL,
            QT_CONC, QT_CONC_FEM, QT_CONC_MASC) %>%
     filter(NO_CINE_AREA_GERAL != "Programas básicos") %>%
@@ -69,7 +57,7 @@ process_years = function(years) {
 
 # ── Process and save ──────────────────────────────────────────────────────────
 
-out_dir = "../S022-group-lambda/final_project/Brazil File"
+out_dir = "~/Documents/HKS/Spring 2026/EDU S022 Stats & Data Science/S022-group-lambda/final_project/brazil_file/"
 
 censo_2014_24 = process_years(2014:2024)
 write_csv(censo_2014_24, file.path(out_dir, "censo_2014_24.csv"))
